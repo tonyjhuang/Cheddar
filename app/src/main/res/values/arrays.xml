@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="residence_halls">
+        <item>---------</item>
+        <item>Burnstein Hall</item>
+        <item>Davenport Commons</item>
+        <item>East Village</item>
+        <item>International Village</item>
+        <item>Kennedy Hall</item>
+        <item>Kerr Hall</item>
+        <item>Levine Hall</item>
+        <item>Light Hall</item>
+        <item>Loftman Hall</item>
+        <item>Melvin Hall</item>
+        <item>Rubenstein Hall</item>
+        <item>Smith Hall</item>
+        <item>Speare Hall</item>
+        <item>Stetson East</item>
+        <item>Stetson West</item>
+        <item>West Village</item>
+        <item>White Hall</item>
+        <item>Willis Hall</item>
+        <item>10 Coventry Street</item>
+        <item>142&#8211;148 Hemenway Street</item>
+        <item>319 Huntington Ave</item>
+        <item>337 Huntington Ave</item>
+        <item>407 Huntington Ave</item>
+        <item>768 Columbus Ave</item>
+        <item>780 Columbus Ave</item>
+        <item>Mission Hill</item>
+    </string-array>
+</resources>

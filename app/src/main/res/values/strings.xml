@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Cheddar</string>
+    <string name="app_name_uppercase_period">CHEDDAR.</string>
+    <string name="app_name_uppercase">CHEDDAR</string>
+    <string name="catchphrase">Make a friend. Find a date. Troll.</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="welcome_to">WELCOME TO</string>
+    <string name="get_started">Cheddar pairs you with up to 4 other Northeastern students in a completely anonymous chat room. It\'s up to you to decide what you do and what you talk about. Make a new friend or maybe an enemy, ready?</string>
+    <string name="lets_go">Let\'s go</string>
+    <string name="find_chat">Match</string>
+    <string name="single">Single</string>
+    <string name="group">Group</string>
+    <string name="single_description">Get paired with one other for a more intimate setting. Perfect for making new connections.</string>
+    <string name="select_dorm">(Optional) Select your dorm and we\'ll try to match you with someone nearby.</string>
+    <string name="group_description">Join the mayhem. Anything goes in this up to 5 person chat room. Warning: Not for the faint of heart.</string>
+    <string name="loading">Searching for open chat rooms&#8230;</string>
+    <string name="loaded">Joining chat room&#8230;</string>
+
+    <!-- countdown -->
+    <string name="coming_soon">COMING SOON.</string>
+    <string name="days">DAYS</string>
+    <string name="hours">HOURS</string>
+    <string name="minutes">MINUTES</string>
+    <string name="seconds">SECONDS</string>
+    <string name="default_countdown">00</string>
+    <string name="email_prompt">Enter your husky email address and get exclusive features when Cheddar launches.</string>
+    <string name="email_hint">Husky email address</string>
+    <string name="email_error">Invalid husky email address.</string>
+</resources>

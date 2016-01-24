@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.tonyjhuang.chatly.MainActivity"
+    tools:ignore="MissingPrefix">
+
+    <View
+        android:id="@+id/back_splash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary" />
+
+    <ImageView
+        android:id="@+id/cheese"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginRight="-48dp"
+        android:alpha="0.1"
+        android:scaleType="centerCrop"
+        android:src="@drawable/cheese" />
+
+    <View
+        android:id="@+id/notification_bar_shadow"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@drawable/background_gradient_down" />
+
+    <RelativeLayout
+        android:id="@+id/foreground_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@+id/foreground_anchor"
+        android:layout_marginTop="-8dp"
+        android:background="@android:color/transparent">
+
+        <View
+            android:id="@+id/back_splash_shadow"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:background="@drawable/background_gradient_up" />
+
+        <View
+            android:id="@+id/foreground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/back_splash_shadow"
+            android:background="@color/solid_grey" />
+
+        <View
+            android:id="@+id/foreground_edge"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignTop="@+id/foreground"
+            android:background="#3000" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/welcome_to"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/app_name"
+        android:layout_marginLeft="@dimen/welcome_left_margin"
+        android:gravity="bottom"
+        android:text="@string/welcome_to"
+        android:textColor="#C000"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/catchphrase"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="@dimen/welcome_left_margin"
+        android:gravity="bottom"
+        android:text="@string/app_name"
+        android:textColor="#D000"
+        android:textSize="38sp" />
+
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="16dp"
+        android:src="@drawable/northeastern" />
+
+    <TextView
+        android:id="@+id/catchphrase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/text_anchor"
+        android:layout_marginBottom="24dp"
+        android:layout_marginLeft="@dimen/welcome_left_margin"
+        android:gravity="bottom"
+        android:text="@string/catchphrase"
+        android:textColor="#D000"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/debug_seeker_position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/debug_seeker"
+        android:layout_toLeftOf="@+id/debug_seeker"
+        android:text="200"
+        android:textColor="@android:color/black"
+        android:visibility="gone" />
+
+    <SeekBar
+        android:id="@+id/debug_seeker"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/welcome_to"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="16dp"
+        android:max="20"
+        android:progress="4"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:alpha="0"
+        tools:alpha="1" />
+
+    <TextView
+        android:id="@+id/loading_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/loading"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:alpha="0"
+        android:text="@string/loading"
+        android:textColor="@android:color/secondary_text_light"
+        tools:alpha="1" />
+
+    <Space
+        android:id="@+id/center_anchor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true" />
+
+    <Space
+        android:id="@+id/text_anchor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@+id/center_anchor"
+        android:layout_marginBottom="@dimen/welcome_vertical_anchor" />
+
+    <View
+        android:id="@+id/foreground_anchor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignBottom="@+id/center_anchor"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="-64dp" />
+
+    <ImageView
+        android:layout_width="110dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-1dp"
+        android:layout_marginLeft="16dp"
+        android:src="@drawable/husky_talk" />
+
+    <com.tonyjhuang.chatly.ViewPagerCustomDuration
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <View
+        android:id="@+id/black_out"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="@color/colorPrimaryDark" />
+
+
+</RelativeLayout>

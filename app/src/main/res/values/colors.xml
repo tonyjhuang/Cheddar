@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#ffd666</color>
+    <color name="colorPrimaryDark">#2d2d2d</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="matchItemSelected">#1000</color>
+    <color name="matchItemUnselected">#0000</color>
+    <color name="solid_grey">#e5e5e5</color>
+</resources>
