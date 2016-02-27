@@ -29,4 +29,25 @@
         <item>780 Columbus Ave</item>
         <item>Mission Hill</item>
     </string-array>
+
+    <string-array name="school_year">
+        <item>Freshman</item>
+        <item>Sophomore</item>
+        <item>Middler</item>
+        <item>Junior</item>
+        <item>Senior</item>
+    </string-array>
+
+    <string-array name="college">
+        <item>Arts, Media and Design</item>
+        <item>Business</item>
+        <item>Computer and Information Science</item>
+        <item>Engineering</item>
+        <item>Health Sciences</item>
+        <item>Law</item>
+        <item>Professional Studies</item>
+        <item>Science</item>
+        <item>Social Sciences and Humanities</item>
+        <item>Undeclared</item>
+    </string-array>
 </resources>

@@ -15,8 +15,27 @@
     <string name="single_description">Get paired with one other for a more intimate setting. Perfect for making new connections.</string>
     <string name="select_dorm">(Optional) Select your dorm and we\'ll try to match you with someone nearby.</string>
     <string name="group_description">Join the mayhem. Anything goes in this up to 5 person chat room. Warning: Not for the faint of heart.</string>
-    <string name="loading">Searching for open chat rooms&#8230;</string>
-    <string name="loaded">Joining chat room&#8230;</string>
+    <string name="main_loading">Joining chat room&#8230;</string>
+
+    <!-- signup -->
+    <string name="signup_header">Signup</string>
+    <string name="signup_progress_1">1 of 2</string>
+    <string name="signup_progress_2">2 of 2</string>
+    <string name="signup_email_prompt">Email</string>
+    <string name="signup_email_hint">your.email@husky.neu.edu</string>
+    <string name="signup_year_spinner_prompt">Year</string>
+    <string name="signup_gender_prompt">Gender</string>
+    <string name="signup_gender_male">Male</string>
+    <string name="signup_gender_female">Female</string>
+    <string name="signup_school_spinner_prompt">College</string>
+    <string name="signup_notice">This information will not be shared with other users.</string>
+    <string name="signup_submit">Next</string>
+    <string name="signup_verify_email">Thanks! Please check your inbox at %1$s for your verification link to finish.</string>
+    <string name="signup_check_email_verification"></string>
+
+    <!-- chat -->
+    <string name="chat_message_input_hint">Send a message..</string>
+    <string name="chat_send_message">Send</string>
 
     <!-- countdown -->
     <string name="coming_soon">COMING SOON.</string>

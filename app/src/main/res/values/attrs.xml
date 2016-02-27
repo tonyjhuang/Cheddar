@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ParalloidImageView">
+        <attr name="parallaxAmount" format="dimension" />
+    </declare-styleable>
+    <declare-styleable name="ViewPagerCustomDuration">
+        <attr name="swipeable" format="boolean" />
+        <attr name="duration" format="float" />
+    </declare-styleable>
+</resources>

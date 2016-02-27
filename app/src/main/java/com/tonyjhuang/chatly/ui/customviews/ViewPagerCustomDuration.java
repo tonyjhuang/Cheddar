@@ -1,12 +1,15 @@
-package com.tonyjhuang.chatly;
+package com.tonyjhuang.chatly.ui.customviews;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
+
+import com.tonyjhuang.chatly.R;
 
 import java.lang.reflect.Field;
 
@@ -16,14 +19,24 @@ public class ViewPagerCustomDuration extends ViewPager {
     private boolean swipeable = true;
 
     public ViewPagerCustomDuration(Context context) {
-        super(context);
+        this(context, null);
         postInitViewPager();
     }
 
     public ViewPagerCustomDuration(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         postInitViewPager();
+
+        if (attrs != null) {
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ViewPagerCustomDuration);
+            swipeable = a.getBoolean(R.styleable.ViewPagerCustomDuration_swipeable, true);
+            setScrollDurationFactor(a.getFloat(R.styleable.ViewPagerCustomDuration_duration, 1f));
+            a.recycle();
+        }
     }
+
+
 
     public void setSwipeable(boolean swipeable) {
         this.swipeable = swipeable;

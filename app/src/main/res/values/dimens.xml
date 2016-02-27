@@ -7,6 +7,11 @@
     <dimen name="welcome_left_margin">48dp</dimen>
     <dimen name="welcome_card_horizontal_margin">32dp</dimen>
     <dimen name="welcome_vertical_anchor">96dp</dimen>
-    <dimen name="cheese_extra_horizontal_padding">48dp</dimen>
     <dimen name="foreground_final_vertical_padding">96dp</dimen>
+    <dimen name="cheese_parallax">72dp</dimen>
+
+    <dimen name="chat_bubble_padding">6dp</dimen>
+    <dimen name="chat_bubble_padding_minimized">2dp</dimen>
+    <dimen name="chat_bubble_min_height">32dp</dimen>
+    <dimen name="chat_bubble_corners">16dp</dimen> <!-- should be half of min height -->
 </resources>

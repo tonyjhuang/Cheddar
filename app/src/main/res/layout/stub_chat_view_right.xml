@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/message_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="12dp"
+    android:layout_marginRight="12dp"
+    android:paddingBottom="@dimen/chat_bubble_padding"
+    android:paddingTop="@dimen/chat_bubble_padding"
+    tools:ignore="RtlHardcoded">
+
+    <TextView
+        android:id="@+id/author_full_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/body"
+        android:layout_marginBottom="4dp"
+        android:layout_marginRight="12dp"
+        tools:text="Dynamic Seagull" />
+
+    <TextView
+        android:id="@+id/author_display"
+        android:layout_width="@dimen/chat_bubble_min_height"
+        android:layout_height="@dimen/chat_bubble_min_height"
+        android:layout_alignBottom="@+id/body"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/chat_bubble_background"
+        android:gravity="center"
+        android:textColor="@android:color/primary_text_dark"
+        android:textSize="16sp"
+        tools:text="DS" />
+
+    <TextView
+        android:id="@+id/body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/author_full_name"
+        android:layout_marginLeft="48dp"
+        android:layout_marginRight="12dp"
+        android:layout_toLeftOf="@+id/author_display"
+        android:background="@drawable/chat_bubble_background"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/chat_bubble_min_height"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:textColor="@android:color/primary_text_dark"
+        android:textSize="16sp"
+        tools:text="blahb lbhal balhb albh a" />
+
+</RelativeLayout>

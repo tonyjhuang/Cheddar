@@ -138,20 +138,11 @@
                 </RelativeLayout>
             </FrameLayout>
 
-            <View
-                android:id="@+id/divider"
-                android:layout_width="match_parent"
-                android:layout_height="2px"
-                android:layout_below="@+id/single_item"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:background="#1000" />
-
             <FrameLayout
                 android:id="@+id/group_item"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/divider">
+                android:layout_below="@+id/single_item">
 
                 <RelativeLayout
                     android:id="@+id/group_click_target"

@@ -1,4 +1,4 @@
-package com.tonyjhuang.chatly;
+package com.tonyjhuang.chatly.ui.utils;
 
 /**
  * Created by tonyjhuang on 1/23/16.

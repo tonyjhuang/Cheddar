@@ -1,0 +1,303 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    tools:context="com.tonyjhuang.chatly.MainActivity"
+    tools:ignore="MissingPrefix">
+
+    <TextView
+        android:id="@+id/welcome_to"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/app_name"
+        android:layout_marginLeft="@dimen/welcome_left_margin"
+        android:gravity="bottom"
+        android:text="@string/welcome_to"
+        android:textColor="@android:color/transparent"
+        android:textSize="38sp"
+        tools:textColor="#4000" />
+
+    <TextView
+        android:id="@+id/app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/catchphrase"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="@dimen/welcome_left_margin"
+        android:gravity="bottom"
+        android:text="@string/app_name"
+        android:textColor="@android:color/transparent"
+        android:textSize="38sp"
+        android:textStyle="bold"
+        tools:textColor="#4000" />
+
+    <TextView
+        android:id="@+id/catchphrase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/anchor"
+        android:layout_marginBottom="24dp"
+        android:layout_marginLeft="@dimen/welcome_left_margin"
+        android:gravity="bottom"
+        android:text="@string/catchphrase"
+        android:textColor="@android:color/transparent"
+        android:textSize="18sp"
+        tools:textColor="#4000" />
+
+    <Space
+        android:id="@+id/center_anchor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true" />
+
+    <Space
+        android:id="@+id/anchor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@+id/center_anchor"
+        android:layout_marginBottom="@dimen/welcome_vertical_anchor" />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/anchor"
+        android:layout_marginLeft="@dimen/welcome_card_horizontal_margin"
+        android:layout_marginRight="@dimen/welcome_card_horizontal_margin"
+        android:background="#1000">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp">
+
+
+            <LinearLayout
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/signup_header"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/signup_progress_1"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/header"
+                android:layout_marginBottom="12dp"
+                android:background="@color/colorAccent" />
+
+            <RelativeLayout
+                tools:alpha="0"
+                android:id="@+id/form_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/divider">
+
+                <LinearLayout
+                    android:id="@+id/email_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        android:text="@string/signup_email_prompt" />
+
+                    <EditText
+                        android:id="@+id/email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="-4dp"
+                        android:layout_marginRight="-4dp"
+                        android:hint="@string/signup_email_hint"
+                        android:inputType="textEmailAddress"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/year_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/email_container"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/year_spinner_desc"
+                        style="@style/SignupTextField"
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        android:text="@string/signup_year_spinner_prompt" />
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#1000">
+
+                        <Spinner
+                            android:id="@+id/year_spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="0dp"
+                            tools:listitem="@layout/simple_spinner_item" />
+                    </FrameLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/gender_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/year_container"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SignupTextField"
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/signup_gender_prompt" />
+
+                    <Button
+                        android:id="@+id/male"
+                        style="?android:attr/borderlessButtonStyle"
+                        fontPath="Roboto-Regular.ttf"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:paddingBottom="8dp"
+                        android:paddingTop="8dp"
+                        android:text="@string/signup_gender_male"
+                        android:textSize="14sp" />
+
+                    <Button
+                        android:id="@+id/female"
+                        style="?android:attr/borderlessButtonStyle"
+                        fontPath="Roboto-Regular.ttf"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="@string/signup_gender_female"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/school_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/gender_container"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/school_spinner_desc"
+                        style="@style/SignupTextField"
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        android:text="@string/signup_school_spinner_prompt" />
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#1000">
+
+                        <Spinner
+                            android:id="@+id/school_spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="0dp"
+                            tools:listitem="@layout/simple_spinner_item" />
+                    </FrameLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/school_container"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginTop="24dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_weight="1"
+                        android:text="@string/signup_notice"
+                        android:textColor="@android:color/tertiary_text_light"
+                        android:textSize="10sp" />
+
+                    <Button
+                        android:id="@+id/submit"
+                        fontPath="Roboto-Regular.ttf"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/signup_submit"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                tools:alpha="1"
+                android:alpha="0"
+                android:layout_below="@+id/divider"
+                android:id="@+id/verification_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignBottom="@+id/form_container">
+
+                <ImageView
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="16dp"
+                    android:src="@drawable/email"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp" />
+
+                <TextView
+                    android:gravity="center"
+                    android:text=""
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

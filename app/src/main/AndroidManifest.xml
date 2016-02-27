@@ -2,6 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.tonyjhuang.chatly">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission android:protectionLevel="signature"
+        android:name="com.tonyjhuang.chatly.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.tonyjhuang.chatly.permission.C2D_MESSAGE" />
+
     <application
         android:name=".CheddarApplication"
         android:allowBackup="true"
@@ -9,27 +19,46 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.parse.APPLICATION_ID"
+            android:value="@string/PARSE_APPKEY" />
+        <meta-data
+            android:name="com.parse.CLIENT_KEY"
+            android:value="@string/PARSE_CLIKEY" />
+
         <activity
-            android:name=".MainActivity_"
+            android:name=".ui.main.MainActivity_"
             android:noHistory="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            </intent-filter></activity>
         <activity
-            android:name=".CountdownActivity_"
+            android:name=".ui.chat.ChatActivity_"
             android:screenOrientation="portrait">
-            <!--
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            -->
         </activity>
+
+        <service android:name="com.parse.PushService" />
+        <receiver android:name="com.parse.ParsePushBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.parse.push.intent.RECEIVE" />
+                <action android:name="com.parse.push.intent.DELETE" />
+                <action android:name="com.parse.push.intent.OPEN" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.tonyjhuang.chatly" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

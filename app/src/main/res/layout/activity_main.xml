@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cheddar="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,14 +13,14 @@
         android:layout_height="match_parent"
         android:background="@color/colorPrimary" />
 
-    <ImageView
+    <com.tonyjhuang.chatly.ui.customviews.ParalloidImageView
         android:id="@+id/cheese"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginRight="-48dp"
         android:alpha="0.1"
         android:scaleType="centerCrop"
-        android:src="@drawable/cheese" />
+        android:src="@drawable/cheese"
+        cheddar:parallaxAmount="@dimen/cheese_parallax" />
 
     <View
         android:id="@+id/notification_bar_shadow"
@@ -46,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/back_splash_shadow"
-            android:background="@color/solid_grey" />
+            android:background="@color/solid_gray" />
 
         <View
             android:id="@+id/foreground_edge"
@@ -56,16 +57,23 @@
             android:background="#3000" />
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/welcome_to"
+    <com.tonyjhuang.chatly.ui.main.WelcomeToParalloidViewLayout_
+        android:id="@+id/welcome_to_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/app_name"
-        android:layout_marginLeft="@dimen/welcome_left_margin"
-        android:gravity="bottom"
-        android:text="@string/welcome_to"
-        android:textColor="#C000"
-        android:textSize="24sp" />
+        android:layout_marginLeft="@dimen/welcome_left_margin">
+
+        <TextView
+            android:id="@+id/welcome_to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/welcome_left_margin"
+            android:gravity="bottom"
+            android:text="@string/welcome_to"
+            android:textColor="#C000"
+            android:textSize="24sp" />
+    </com.tonyjhuang.chatly.ui.main.WelcomeToParalloidViewLayout_>
 
     <TextView
         android:id="@+id/app_name"
@@ -100,32 +108,13 @@
         android:textColor="#D000"
         android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/debug_seeker_position"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/debug_seeker"
-        android:layout_toLeftOf="@+id/debug_seeker"
-        android:text="200"
-        android:textColor="@android:color/black"
-        android:visibility="gone" />
-
-    <SeekBar
-        android:id="@+id/debug_seeker"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/welcome_to"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
-        android:max="20"
-        android:progress="4"
-        android:visibility="gone" />
-
-    <ProgressBar
+    <ImageView
         android:id="@+id/loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:scaleType="fitCenter"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_centerInParent="true"
+        android:src="@drawable/loading"
         android:alpha="0"
         tools:alpha="1" />
 
@@ -137,7 +126,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="32dp"
         android:alpha="0"
-        android:text="@string/loading"
+        android:text="@string/main_loading"
         android:textColor="@android:color/secondary_text_light"
         tools:alpha="1" />
 
@@ -170,10 +159,12 @@
         android:layout_marginLeft="16dp"
         android:src="@drawable/husky_talk" />
 
-    <com.tonyjhuang.chatly.ViewPagerCustomDuration
+    <com.tonyjhuang.chatly.ui.customviews.ParallaxorViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        cheddar:duration="4.5"
+        cheddar:swipeable="false" />
 
     <View
         android:id="@+id/black_out"
