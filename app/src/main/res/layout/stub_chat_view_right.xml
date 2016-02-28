@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/author_full_name"
         android:layout_marginLeft="48dp"
-        android:layout_marginRight="12dp"
+        android:layout_marginRight="6dp"
         android:layout_toLeftOf="@+id/author_display"
         android:background="@drawable/chat_bubble_background"
         android:gravity="center_vertical"

@@ -1,6 +1,8 @@
 package com.tonyjhuang.chatly.ui.chat;
 
+import android.text.Editable;
 import android.util.Log;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -10,12 +12,15 @@ import com.tonyjhuang.chatly.R;
 import com.tonyjhuang.chatly.api.CheddarApi;
 import com.tonyjhuang.chatly.api.models.Alias;
 import com.tonyjhuang.chatly.api.models.Message;
+import com.tonyjhuang.chatly.api.models.SendMessageImageOverlay;
 
 import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EditorAction;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 
@@ -30,6 +35,9 @@ public class ChatActivity extends CheddarActivity {
 
     @ViewById(R.id.message_input)
     EditText messageInput;
+
+    @ViewById(R.id.send_message_container)
+    SendMessageImageOverlay sendMessageView;
 
     @Extra
     String aliasId;
@@ -57,12 +65,30 @@ public class ChatActivity extends CheddarActivity {
 
     @Click(R.id.send_message)
     public void onSendMessageClick() {
-        if (adapter == null) {
-            Toast.makeText(this, "Missing adapter", Toast.LENGTH_SHORT).show();
+        sendMessage();
+    }
+
+    @AfterTextChange(R.id.message_input)
+    void onMessageInputTextChange(Editable text) {
+        sendMessageView.setDisabled(text.length() == 0);
+    }
+
+    @EditorAction(R.id.message_input)
+    boolean onMessageInputEditorAction(int actionId) {
+        if (actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_NULL) {
+            sendMessage();
+            return true;
+        }
+        return false;
+    }
+
+    private void sendMessage() {
+        String body = messageInput.getText().toString().trim();
+
+        if (body.isEmpty()) {
             return;
         }
 
-        String body = messageInput.getText().toString();
         Message placeholder = Message.createPlaceholderMessage(currentAlias, body);
         messageInput.setText("");
         adapter.addPlaceholderMessage(placeholder);

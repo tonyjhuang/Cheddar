@@ -18,25 +18,54 @@
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_above="@+id/message_input"
+        android:layout_above="@+id/input_container"
         android:background="@color/divider_gray" />
 
-    <EditText
-        android:id="@+id/message_input"
+    <LinearLayout
+        android:id="@+id/input_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/send_message"
-        android:layout_toStartOf="@+id/send_message"
-        android:hint="@string/chat_message_input_hint" />
+        android:background="#1000"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/send_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:text="@string/chat_send_message" />
+
+        <EditText
+            android:id="@+id/message_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:hint="@string/chat_message_input_hint"
+            android:imeOptions="actionSend"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp" />
+
+        <com.tonyjhuang.chatly.api.models.SendMessageImageOverlay
+            android:layout_width="48dp"
+            android:id="@+id/send_message_container"
+            android:layout_height="48dp">
+
+            <ImageButton
+                android:id="@+id/send_message"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="12dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/send" />
+
+            <ImageView
+                android:scaleType="centerCrop"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="12dp"
+                android:background="@drawable/send_disabled"
+                android:clickable="false" />
+
+        </com.tonyjhuang.chatly.api.models.SendMessageImageOverlay>
+
+    </LinearLayout>
 
 </RelativeLayout>
