@@ -61,7 +61,7 @@
             android:paddingRight="20dp"
             android:paddingTop="12dp" />
 
-        <com.tonyjhuang.chatly.api.models.SendMessageImageOverlay
+        <com.tonyjhuang.cheddar.api.models.SendMessageImageOverlay
             android:id="@+id/send_message_container"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -84,7 +84,7 @@
                 android:clickable="false"
                 android:scaleType="centerCrop" />
 
-        </com.tonyjhuang.chatly.api.models.SendMessageImageOverlay>
+        </com.tonyjhuang.cheddar.api.models.SendMessageImageOverlay>
 
     </LinearLayout>
 

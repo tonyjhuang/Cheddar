@@ -5,7 +5,7 @@
     android:background="@android:color/transparent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    tools:context="com.tonyjhuang.chatly.MainActivity"
+    tools:context="com.tonyjhuang.cheddar.MainActivity"
     tools:ignore="MissingPrefix">
 
     <TextView

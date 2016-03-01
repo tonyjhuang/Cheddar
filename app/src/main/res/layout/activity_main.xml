@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.tonyjhuang.chatly.MainActivity"
+    tools:context="com.tonyjhuang.cheddar.MainActivity"
     tools:ignore="MissingPrefix">
 
     <View
@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:background="@color/colorPrimary" />
 
-    <com.tonyjhuang.chatly.ui.customviews.ParalloidImageView
+    <com.tonyjhuang.cheddar.ui.customviews.ParalloidImageView
         android:id="@+id/cheese"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -57,7 +57,7 @@
             android:background="#3000" />
     </RelativeLayout>
 
-    <com.tonyjhuang.chatly.ui.main.WelcomeToParalloidViewLayout_
+    <com.tonyjhuang.cheddar.ui.main.WelcomeToParalloidViewLayout_
         android:id="@+id/welcome_to_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
             android:text="@string/welcome_to"
             android:textColor="#C000"
             android:textSize="24sp" />
-    </com.tonyjhuang.chatly.ui.main.WelcomeToParalloidViewLayout_>
+    </com.tonyjhuang.cheddar.ui.main.WelcomeToParalloidViewLayout_>
 
     <TextView
         android:id="@+id/app_name"
@@ -159,7 +159,7 @@
         android:layout_marginLeft="16dp"
         android:src="@drawable/husky_talk" />
 
-    <com.tonyjhuang.chatly.ui.customviews.ParallaxorViewPager
+    <com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

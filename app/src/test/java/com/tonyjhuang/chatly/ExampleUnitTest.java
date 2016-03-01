@@ -1,4 +1,4 @@
-package com.tonyjhuang.chatly;
+package com.tonyjhuang.cheddar;
 
 import org.junit.Test;
 
