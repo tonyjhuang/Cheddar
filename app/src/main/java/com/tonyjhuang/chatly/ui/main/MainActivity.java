@@ -1,5 +1,6 @@
 package com.tonyjhuang.chatly.ui.main;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -100,8 +101,14 @@ public class MainActivity extends CheddarActivity {
         }
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //vstartChatActivity("csRVomohCP");
+    }
+
     private void startChatActivity(String aliasId) {
-        animateHideLoading();
+        //animateHideLoading();
         animationHandler.postDelayed(() ->
                 ChatActivity_.intent(this).aliasId(aliasId).start(), 500);
     }

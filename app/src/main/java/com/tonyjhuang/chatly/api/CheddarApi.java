@@ -29,7 +29,6 @@ public class CheddarApi {
     private static final String SUBKEY = BuildConfig.PUBNUB_SUBKEY;
 
     private Pubnub pubnub = new Pubnub(PUBKEY, SUBKEY);
-    private Alias activeAlias;
 
     public CheddarApi () {}
 
@@ -45,12 +44,8 @@ public class CheddarApi {
         }
     }
 
-    public Observable<String> getCurrentUserId() {
-        return getCurrentUser().map(ParseUser::getObjectId);
-    }
-
-    public Observable<Alias> getCurrentAlias() {
-        return Observable.just(activeAlias);
+    public Observable<Alias> getAlias(String aliasId) {
+        return ParseObservable.get(Alias.class, aliasId);
     }
 
     public Observable<ParseUser> registerNewUser() {
@@ -64,8 +59,7 @@ public class CheddarApi {
     }
 
     public Observable<Alias> joinNextAvailableChatRoom(int maxOccupancy) {
-        return joinNextAvailableChatRoomCast(maxOccupancy)
-                .doOnNext(alias -> activeAlias = alias);
+        return joinNextAvailableChatRoomCast(maxOccupancy);
     }
 
     private Observable<Alias> joinNextAvailableChatRoomCast(int maxOccupancy) {
@@ -75,9 +69,9 @@ public class CheddarApi {
                 .flatMap(params -> ParseObservable.callFunction("joinNextAvailableChatRoom", params));
     }
 
-    public Observable<Alias> leaveChatRoom(Alias alias) {
+    public Observable<Alias> leaveChatRoom(String aliasId) {
         Map<String, Object> params = new HashMap<>();
-        params.put("aliasId", alias.getObjectId());
+        params.put("aliasId", aliasId);
         return ParseObservable.callFunction("leaveChatRoom", params);
     }
 

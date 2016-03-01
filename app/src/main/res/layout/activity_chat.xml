@@ -5,19 +5,35 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/chat_light_light_gray">
+
+    </android.support.v7.widget.Toolbar>
+
+    <View
+        android:id="@+id/toolbar_divider"
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:layout_below="@+id/toolbar"
+        android:background="@color/divider_gray" />
+
     <ListView
         android:id="@+id/message_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/divider"
+        android:layout_above="@+id/message_input_divider"
+        android:layout_below="@+id/toolbar_divider"
         android:divider="@null"
         android:transcriptMode="alwaysScroll"
         tools:listitem="@layout/stub_chat_view_left" />
 
     <View
-        android:id="@+id/divider"
+        android:id="@+id/message_input_divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="2px"
         android:layout_above="@+id/input_container"
         android:background="@color/divider_gray" />
 
@@ -26,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#1000"
+        android:background="@color/chat_light_light_gray"
         android:orientation="horizontal">
 
 
@@ -39,13 +55,17 @@
             android:background="@android:color/transparent"
             android:hint="@string/chat_message_input_hint"
             android:imeOptions="actionSend"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp" />
+            android:maxLines="4"
+            android:paddingBottom="12dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="12dp" />
 
         <com.tonyjhuang.chatly.api.models.SendMessageImageOverlay
-            android:layout_width="48dp"
             android:id="@+id/send_message_container"
-            android:layout_height="48dp">
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="bottom">
 
             <ImageButton
                 android:id="@+id/send_message"
@@ -57,12 +77,12 @@
                 android:src="@drawable/send" />
 
             <ImageView
-                android:scaleType="centerCrop"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="12dp"
                 android:background="@drawable/send_disabled"
-                android:clickable="false" />
+                android:clickable="false"
+                android:scaleType="centerCrop" />
 
         </com.tonyjhuang.chatly.api.models.SendMessageImageOverlay>
 

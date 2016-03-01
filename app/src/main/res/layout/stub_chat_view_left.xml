@@ -5,7 +5,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginLeft="12dp"
-    android:layout_marginRight="12dp"
+    android:layout_marginRight="64dp"
     android:paddingBottom="@dimen/chat_bubble_padding"
     android:paddingTop="@dimen/chat_bubble_padding"
     tools:ignore="RtlHardcoded">
@@ -15,12 +15,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/body"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="2dp"
         android:layout_marginLeft="12dp"
+        android:textColor="#5f000000"
         tools:text="Dynamic Seagull" />
 
     <TextView
         android:id="@+id/author_display"
+        fontPath="Effra-Medium.ttf"
         android:layout_width="@dimen/chat_bubble_min_height"
         android:layout_height="@dimen/chat_bubble_min_height"
         android:layout_alignBottom="@+id/body"
@@ -28,7 +30,8 @@
         android:background="@drawable/chat_bubble_background"
         android:gravity="center"
         android:textColor="@android:color/primary_text_dark"
-        android:textSize="16sp"
+        android:textSize="@dimen/chat_bubble_author_text_size"
+        tools:ignore="MissingPrefix"
         tools:text="DS" />
 
     <TextView
@@ -37,17 +40,17 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/author_full_name"
         android:layout_marginLeft="6dp"
-        android:layout_marginRight="48dp"
+        android:layout_marginRight="6dp"
         android:layout_toRightOf="@+id/author_display"
         android:background="@drawable/chat_bubble_background"
         android:gravity="center_vertical"
         android:minHeight="@dimen/chat_bubble_min_height"
-        android:paddingTop="6dp"
         android:paddingBottom="6dp"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
+        android:paddingTop="6dp"
         android:textColor="@android:color/primary_text_dark"
-        android:textSize="16sp"
+        android:textSize="@dimen/chat_bubble_text_size"
         tools:text="blahb lbhal balhb albh a" />
 
 </RelativeLayout>

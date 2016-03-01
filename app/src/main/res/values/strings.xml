@@ -36,6 +36,10 @@
     <!-- chat -->
     <string name="chat_message_input_hint">Send a message..</string>
     <string name="chat_send_message">Send</string>
+    <string name="chat_title_group">Group</string>
+    <string name="chat_action_feedback">Feedback</string>
+    <string name="chat_action_report">Report User</string>
+    <string name="chat_action_leave">Leave Chat</string>
 
     <!-- countdown -->
     <string name="coming_soon">COMING SOON.</string>

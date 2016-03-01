@@ -11,7 +11,9 @@
     <dimen name="cheese_parallax">72dp</dimen>
 
     <dimen name="chat_bubble_padding">6dp</dimen>
-    <dimen name="chat_bubble_padding_minimized">2dp</dimen>
-    <dimen name="chat_bubble_min_height">32dp</dimen>
-    <dimen name="chat_bubble_corners">16dp</dimen> <!-- should be half of min height -->
+    <dimen name="chat_bubble_padding_minimized">1dp</dimen>
+    <dimen name="chat_bubble_min_height">34dp</dimen>
+    <dimen name="chat_bubble_corners">17dp</dimen> <!-- should be half of min height -->
+    <dimen name="chat_bubble_text_size">18sp</dimen>
+    <dimen name="chat_bubble_author_text_size">16sp</dimen>
 </resources>

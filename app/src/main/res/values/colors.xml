@@ -6,14 +6,18 @@
     <color name="matchItemSelected">#1000</color>
     <color name="matchItemUnselected">#0000</color>
     <color name="solid_gray">#e5e5e5</color>
-    <color name="divider_gray">#1000</color>
+    <color name="divider_gray">#14000000</color>
 
     <color name="chat_author_background_incoming">@color/colorPrimary</color>
     <color name="chat_author_background_outgoing">@color/colorAccent</color>
     <color name="chat_author_text_outgoing">@android:color/primary_text_dark</color>
     <color name="chat_author_text_incoming">@android:color/primary_text_dark</color>
     <color name="chat_text_outgoing">@android:color/primary_text_dark</color>
-    <color name="chat_text_incoming">@android:color/primary_text_light</color>
+    <color name="chat_text_outgoing_sending">#D0FFFFFF</color>
+    <color name="chat_text_incoming">#D0000000</color>
     <color name="chat_text_background_outgoing">@color/colorAccent</color>
-    <color name="chat_text_background_incoming">#2000</color>
+    <color name="chat_text_background_outgoing_sending">#A0F26667</color>
+    <color name="chat_text_background_outgoing_failed">@color/chat_text_background_incoming</color>
+    <color name="chat_text_background_incoming">#1000</color>
+    <color name="chat_light_light_gray">#06000000</color>
 </resources>

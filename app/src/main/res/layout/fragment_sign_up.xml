@@ -101,7 +101,7 @@
             </LinearLayout>
 
             <View
-                android:id="@+id/divider"
+                android:id="@+id/message_input_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_below="@+id/header"
@@ -113,7 +113,7 @@
                 android:id="@+id/form_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/divider">
+                android:layout_below="@+id/message_input_divider">
 
                 <LinearLayout
                     android:id="@+id/email_container"
@@ -275,7 +275,7 @@
             <RelativeLayout
                 tools:alpha="1"
                 android:alpha="0"
-                android:layout_below="@+id/divider"
+                android:layout_below="@+id/message_input_divider"
                 android:id="@+id/verification_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

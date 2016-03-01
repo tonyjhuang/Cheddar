@@ -24,7 +24,11 @@ public class MessageView extends RelativeLayout {
     TextView bodyView;
 
     @ColorRes(R.color.chat_text_background_outgoing)
-    int outgoingTextBackgroundColor;
+    int outgoingSentTextBackgroundColor;
+    @ColorRes(R.color.chat_text_background_outgoing_sending)
+    int outgoingSendingTextBackgroundColor;
+    @ColorRes(R.color.chat_text_background_outgoing_failed)
+    int outgoingFailedTextBackgroundColor;
     @ColorRes(R.color.chat_text_outgoing)
     int outgoingTextColor;
     @ColorRes(R.color.chat_author_text_outgoing)
@@ -71,11 +75,27 @@ public class MessageView extends RelativeLayout {
         authorDisplayView.setText(getAliasDisplay(aliasName));
         bodyView.setText(info.message.getBody());
 
+        int textBackgroundColor;
+
         if (info.direction == Direction.OUTGOING) {
+            switch (info.status) {
+                case SENDING:
+                    textBackgroundColor = outgoingSendingTextBackgroundColor;
+                    break;
+                case SENT:
+                    textBackgroundColor = outgoingSentTextBackgroundColor;
+                    break;
+                case FAILED:
+                    textBackgroundColor = outgoingFailedTextBackgroundColor;
+                    break;
+                default:
+                    textBackgroundColor = outgoingSendingTextBackgroundColor;
+            }
+
             ((GradientDrawable) authorDisplayView.getBackground()).setColor(outgoingAuthorBackgroundColor);
             authorDisplayView.setTextColor(outgoingAuthorTextColor);
 
-            ((GradientDrawable) bodyView.getBackground()).setColor(outgoingTextBackgroundColor);
+            ((GradientDrawable) bodyView.getBackground()).setColor(textBackgroundColor);
             bodyView.setTextColor(outgoingTextColor);
         } else {
             ((GradientDrawable) authorDisplayView.getBackground()).setColor(incomingAuthorBackgroundColor);
@@ -101,31 +121,6 @@ public class MessageView extends RelativeLayout {
         prevInfo = prev;
         nextInfo = next;
         updateViews();
-    }
-
-
-    private void setPosition(Position position) {
-        switch (position) {
-            case TOP:
-                authorFullNameView.setVisibility(VISIBLE);
-                authorDisplayView.setVisibility(INVISIBLE);
-                setContainerTopAndBottomPadding(containerPadding, containerPaddingMinimized);
-                break;
-            case MIDDLE:
-                authorFullNameView.setVisibility(GONE);
-                authorDisplayView.setVisibility(INVISIBLE);
-                setContainerTopAndBottomPadding(containerPaddingMinimized, containerPaddingMinimized);
-                break;
-            case BOTTOM:
-                authorFullNameView.setVisibility(GONE);
-                authorDisplayView.setVisibility(VISIBLE);
-                setContainerTopAndBottomPadding(containerPaddingMinimized, containerPadding);
-                break;
-            case ONLY:
-                authorFullNameView.setVisibility(VISIBLE);
-                authorDisplayView.setVisibility(VISIBLE);
-                setContainerTopAndBottomPadding(containerPadding, containerPadding);
-        }
     }
 
     private void setContainerTopAndBottomPadding(int topPadding, int bottomPadding) {
@@ -180,6 +175,30 @@ public class MessageView extends RelativeLayout {
             }
         }
         return position;
+    }
+
+    private void setPosition(Position position) {
+        switch (position) {
+            case TOP:
+                authorFullNameView.setVisibility(VISIBLE);
+                authorDisplayView.setVisibility(INVISIBLE);
+                setContainerTopAndBottomPadding(containerPadding, containerPaddingMinimized);
+                break;
+            case MIDDLE:
+                authorFullNameView.setVisibility(GONE);
+                authorDisplayView.setVisibility(INVISIBLE);
+                setContainerTopAndBottomPadding(containerPaddingMinimized, containerPaddingMinimized);
+                break;
+            case BOTTOM:
+                authorFullNameView.setVisibility(GONE);
+                authorDisplayView.setVisibility(VISIBLE);
+                setContainerTopAndBottomPadding(containerPaddingMinimized, containerPadding);
+                break;
+            case ONLY:
+                authorFullNameView.setVisibility(VISIBLE);
+                authorDisplayView.setVisibility(VISIBLE);
+                setContainerTopAndBottomPadding(containerPadding, containerPadding);
+        }
     }
 
     // Where does this MessageView lay in relation to other Messages sent by the author?
