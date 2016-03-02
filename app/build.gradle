@@ -15,6 +15,8 @@ plugins {
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'com.google.gms.google-services'
+
 def AAVersion = '3.3.2'
 
 dependencies {
@@ -46,9 +48,12 @@ def PARSE_CLIKEY = '"' + cheddar_parse_clikey + '"' ?: '"Define Parse client key
 def PARSE_APPKEY_DEV = '"' + cheddar_parse_appkey_dev + '"' ?: '"Define dev Parse app key"';
 def PARSE_CLIKEY_DEV = '"' + cheddar_parse_clikey_dev + '"' ?: '"Define dev Parse client key"';
 
+def GCM_SENDER_ID = '"' + cheddar_gcm_sender_id + '"' ?: '"Define gcm sender id"';
+
 android.buildTypes.each { type ->
     type.buildConfigField 'String', 'PUBNUB_PUBKEY', PUBNUB_PUBKEY
     type.buildConfigField 'String', 'PUBNUB_SUBKEY', PUBNUB_SUBKEY
+    type.buildConfigField 'String', 'GCM_SENDER_ID', GCM_SENDER_ID
 }
 
 android {
@@ -61,6 +66,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -82,7 +88,9 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
-
+    }
+    dexOptions {
+        javaMaxHeapSize "4g"
     }
 }
 
@@ -95,12 +103,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:cardview-v7:23.1.1'
-    compile 'de.greenrobot:eventbus:2.4.0'
-    compile 'uk.co.chrisjenx:calligraphy:2.1.0'
 
-    compile 'com.nineoldandroids:library:2.4.0'
-    compile 'com.daimajia.easing:library:1.0.1@aar'
-    compile 'com.daimajia.androidanimations:library:1.1.3@aar'
+    compile 'de.greenrobot:eventbus:2.4.0'
+
+    compile 'uk.co.chrisjenx:calligraphy:2.1.0'
 
     compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.parse:parse-android:1.+'
@@ -114,4 +120,8 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.7.1'
 
     compile 'com.pubnub:pubnub-android:3.7.6'
+
+    compile "com.google.android.gms:play-services-gcm:8.3.0"
+
+    compile 'com.android.support:multidex:1.0.1'
 }

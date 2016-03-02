@@ -1,6 +1,6 @@
 package com.tonyjhuang.cheddar;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 import com.parse.Parse;
 import com.parse.ParseInstallation;
@@ -14,7 +14,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 /**
  * Created by tonyjhuang on 1/23/16.
  */
-public class CheddarApplication extends Application{
+public class CheddarApplication extends MultiDexApplication {
 
     public static final boolean DEBUG = false;
 

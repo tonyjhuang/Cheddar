@@ -29,7 +29,6 @@ import org.androidannotations.annotations.res.DimensionPixelOffsetRes;
 
 import java.util.concurrent.TimeUnit;
 
-import de.greenrobot.event.EventBus;
 import rx.Observable;
 
 @EActivity(R.layout.activity_main)
@@ -87,18 +86,6 @@ public class MainActivity extends CheddarActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    protected void onStop() {
-        EventBus.getDefault().unregister(this);
-        super.onStop();
-    }
-
-    @Override
     public void onBackPressed() {
         if (viewPager.getCurrentItem() == 0) {
             super.onBackPressed();
@@ -114,7 +101,7 @@ public class MainActivity extends CheddarActivity {
     }
 
     private void startChatActivity(String aliasId) {
-        //animateHideLoading();
+        animateHideLoading();
         animationHandler.postDelayed(() ->
                 ChatActivity_.intent(this).aliasId(aliasId).start(), 500);
     }

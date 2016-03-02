@@ -23,6 +23,8 @@ import rx.parse.ParseObservable;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class CheddarApi {
+
+    private static final String TAG = CheddarApi.class.getSimpleName();
     private static final String PASSWORD = "password";
 
     private static final String PUBKEY = BuildConfig.PUBNUB_PUBKEY;
@@ -30,16 +32,17 @@ public class CheddarApi {
 
     private Pubnub pubnub = new Pubnub(PUBKEY, SUBKEY);
 
-    public CheddarApi () {}
+    public CheddarApi() {
+    }
 
     public Observable<ParseUser> getCurrentUser() {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser == null) {
-            Log.d("Cheddar", "registering new user");
+            Log.d(TAG, "registering new user");
             return registerNewUser()
                     .flatMap((user) -> ParseObservable.logIn(user.getUsername(), PASSWORD));
         } else {
-            Log.d("Cheddar", "returning user: " + currentUser.getObjectId());
+            Log.d(TAG, "returning user: " + currentUser.getObjectId());
             return Observable.just(currentUser);
         }
     }
@@ -63,10 +66,6 @@ public class CheddarApi {
     }
 
     public Observable<Alias> joinNextAvailableChatRoom(int maxOccupancy) {
-        return joinNextAvailableChatRoomCast(maxOccupancy);
-    }
-
-    private Observable<Alias> joinNextAvailableChatRoomCast(int maxOccupancy) {
         return getCurrentUser()
                 .flatMap(this::getUserIdParams)
                 .doOnNext((params) -> params.put("maxOccupancy", maxOccupancy))
@@ -87,39 +86,81 @@ public class CheddarApi {
                     params.put("body", body);
                     params.put("pubkey", PUBKEY);
                     params.put("subkey", SUBKEY);
-                    Log.e("API", "Calling with " + params);
+                    Log.e(TAG, "Calling with " + params);
                 })
                 .flatMap(params -> ParseObservable.callFunction("sendMessage", params));
     }
 
+    public Observable<Object> registerForPushNotifications(String aliasId, String registrationToken) {
+        return getAlias(aliasId).flatMap((alias) ->
+                        Observable.create(subscriber ->
+                                        pubnub.enablePushNotificationsOnChannel(alias.getChatRoomId(), registrationToken, new Callback() {
+                                            @Override
+                                            public void successCallback(String channel, Object message) {
+                                                Log.d(TAG, "registered for push: " + message);
+                                                subscriber.onNext(message);
+                                                subscriber.onCompleted();
+                                            }
+
+                                            @Override
+                                            public void errorCallback(String channel, PubnubError error) {
+                                                Log.d(TAG, "failed to register for push: " + error.toString());
+                                                subscriber.onError(new Exception(error.toString()));
+                                            }
+                                        })
+                        )
+        );
+    }
+
+    public Observable<Object> unregisterForPushNotifications(String aliasId, String registrationToken) {
+        return getAlias(aliasId).flatMap((alias) ->
+                        Observable.create(subscriber ->
+                                        pubnub.disablePushNotificationsOnChannel(alias.getChatRoomId(), registrationToken, new Callback() {
+                                            @Override
+                                            public void successCallback(String channel, Object message) {
+                                                Log.d(TAG, "unregistered for push: " + message);
+                                                subscriber.onNext(message);
+                                                subscriber.onCompleted();
+                                            }
+
+                                            @Override
+                                            public void errorCallback(String channel, PubnubError error) {
+                                                Log.d(TAG, "failed to unregister for push: " + error.toString());
+                                                subscriber.onError(new Exception(error.toString()));
+                                            }
+                                        })
+                        )
+        );
+    }
+
     public Observable<Message> getMessageStream(String aliasId) {
         return ParseObservable.get(Alias.class, aliasId).flatMap((alias ->
-            Observable.create(subscriber -> {
-                try {
-                    pubnub.subscribe(alias.getChatRoomId(), new Callback() {
-                        @Override
-                        public void successCallback(String channel, Object obj) {
-                            Message message = Message.fromJson((JSONObject) obj);
-                            if(message != null) {
-                                Log.e("API", message.toString());
+                Observable.create(subscriber -> {
+                    try {
+                        pubnub.subscribe(alias.getChatRoomId(), new Callback() {
+                            @Override
+                            public void successCallback(String channel, Object obj) {
+                                Message message = Message.fromJson((JSONObject) obj);
+                                if (message != null) {
+                                    Log.e(TAG, message.toString());
+                                }
+                                subscriber.onNext(message);
                             }
-                            subscriber.onNext(message);
-                        }
 
-                        @Override
-                        public void errorCallback(String channel, PubnubError error) {
-                            subscriber.onError(new Exception(error.toString()));
-                        }
+                            @Override
+                            public void errorCallback(String channel, PubnubError error) {
+                                subscriber.onError(new Exception(error.toString()));
+                            }
 
-                        @Override
-                        public void disconnectCallback(String channel, Object message) {
-                            subscriber.onCompleted();
-                        }
-                    });
-                } catch (PubnubException e) {
-                    subscriber.onError(e);
-                }
-            })
+                            @Override
+                            public void disconnectCallback(String channel, Object message) {
+                                subscriber.onCompleted();
+                            }
+                        });
+                    } catch (PubnubException e) {
+                        subscriber.onError(e);
+                    }
+                })
         ));
     }
 }

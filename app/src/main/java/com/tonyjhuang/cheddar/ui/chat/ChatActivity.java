@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.CheddarActivity;
@@ -29,11 +28,15 @@ import org.androidannotations.annotations.EditorAction;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 
+import rx.Observable;
+
 /**
  * Created by tonyjhuang on 2/18/16.
  */
 @EActivity(R.layout.activity_chat)
 public class ChatActivity extends CheddarActivity {
+
+    private static final String TAG = ChatActivity.class.getSimpleName();
 
     @ViewById(R.id.toolbar)
     Toolbar toolbar;
@@ -64,7 +67,10 @@ public class ChatActivity extends CheddarActivity {
         getSupportActionBar().setTitle(R.string.chat_title_group);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        subscribe(api.getCurrentUser().map(ParseUser::getObjectId), id -> {
+        subscribe(api.getAlias(aliasId)
+                .doOnNext(alias -> currentAlias = alias)
+                .flatMap(alias -> api.getCurrentUser())
+                .map(ParseUser::getObjectId), id -> {
             adapter = new MessageListAdapter(id);
             messageListView.setAdapter(adapter);
         });
@@ -72,7 +78,18 @@ public class ChatActivity extends CheddarActivity {
 
     @AfterInject
     public void init() {
-        subscribe(api.getAlias(aliasId), (alias) -> currentAlias = alias);
+        // Register for
+        if (checkPlayServices()) {
+            subscribe(getGcmRegistrationToken()
+                            .flatMap((token) -> api.registerForPushNotifications(aliasId, token)),
+                    (response) -> Log.d(TAG, response.toString()),
+                    (error) -> {
+                        Log.e(TAG, error.toString());
+                        showToast(R.string.chat_gcm_registration_failed);
+                    });
+        } else {
+            showToast(R.string.chat_play_services_missing);
+        }
     }
 
 
@@ -110,8 +127,8 @@ public class ChatActivity extends CheddarActivity {
                 },
                 (throwable) -> {
                     adapter.notifyFailed(placeholder);
-                    Log.e("Chat", throwable.toString());
-                    Toast.makeText(this, "failed to deliver message", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, throwable.toString());
+                    showToast(R.string.chat_message_failed);
                 });
     }
 
@@ -138,22 +155,29 @@ public class ChatActivity extends CheddarActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                Log.d("CHAT", "home");
+                Log.d(TAG, "home");
                 return true;
             case R.id.action_feedback:
-                Log.d("CHAT", "feedback");
+                Log.d(TAG, "feedback");
                 return true;
             case R.id.action_report:
-                Log.d("CHAT", "report");
+                Log.d(TAG, "report");
                 return true;
             case R.id.action_leave:
-                subscribe(api.leaveChatRoom(currentAlias.getObjectId()), (alias -> {
+                subscribe(leaveChatRoom(), alias -> {
                     // todo: show loading here
                     MainActivity_.intent(this).start();
-                }));
+                });
                 return true;
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // Removes user from the current ChatRoom and unregisters the device for push notifications.
+    private Observable<Alias> leaveChatRoom() {
+        return getGcmRegistrationToken()
+                .flatMap(token -> api.unregisterForPushNotifications(currentAlias.getObjectId(), token))
+                .flatMap(success -> api.leaveChatRoom(currentAlias.getObjectId()));
     }
 }
