@@ -5,12 +5,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.tonyjhuang.cheddar.api.models.Message;
+import com.tonyjhuang.cheddar.ui.chat.MessageInfo.Direction;
+import com.tonyjhuang.cheddar.ui.chat.MessageInfo.Status;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.tonyjhuang.cheddar.ui.chat.MessageInfo.Direction;
-import com.tonyjhuang.cheddar.ui.chat.MessageInfo.Status;
 
 /**
  * Created by tonyjhuang on 2/18/16.
@@ -33,6 +32,7 @@ public class MessageListAdapter extends BaseAdapter {
         if (direction == Direction.OUTGOING) {
             updateOutgoing(message, Status.SENT);
         } else {
+            // todo: Set the proper location for the message based on date
             messages.add(new MessageInfo(message, direction, Status.SENT));
         }
         notifyDataSetChanged();
@@ -51,6 +51,7 @@ public class MessageListAdapter extends BaseAdapter {
             placeholderMessages.remove(placeholderIndexIndex);
             messages.get(placeholderIndex).status = newStatus;
         } else {
+            // todo: Set the proper location for the message based on date
             messages.add(new MessageInfo(message, Direction.OUTGOING, newStatus));
         }
     }

@@ -10,6 +10,7 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
@@ -76,6 +77,7 @@ public class MainActivity extends CheddarActivity {
 
     @AfterViews
     void updateViews() {
+        ParseUser.logOut();
         viewPager.setAdapter(new MainPagerAdapter(getSupportFragmentManager()));
         viewPager.addParalloid(cheese);
         viewPager.addParalloid((p) -> {
@@ -97,7 +99,6 @@ public class MainActivity extends CheddarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //vstartChatActivity("csRVomohCP");
     }
 
     private void startChatActivity(String aliasId) {

@@ -10,6 +10,7 @@ import com.pubnub.api.PubnubException;
 import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.Message;
+import com.tonyjhuang.cheddar.api.models.MessageEvent;
 
 import org.androidannotations.annotations.EBean;
 import org.json.JSONObject;
@@ -59,15 +60,17 @@ public class CheddarApi {
         return ParseObservable.callFunction("registerNewUser", new HashMap<>());
     }
 
-    public Observable<Map<String, Object>> getUserIdParams(ParseUser user) {
+    public Observable<Map<String, Object>> getDefaultParams(ParseUser user) {
         Map<String, Object> params = new HashMap<>();
         params.put("userId", user.getObjectId());
+        params.put("subkey", SUBKEY);
+        params.put("pubkey", PUBKEY);
         return Observable.just(params);
     }
 
     public Observable<Alias> joinNextAvailableChatRoom(int maxOccupancy) {
         return getCurrentUser()
-                .flatMap(this::getUserIdParams)
+                .flatMap(this::getDefaultParams)
                 .doOnNext((params) -> params.put("maxOccupancy", maxOccupancy))
                 .flatMap(params -> ParseObservable.callFunction("joinNextAvailableChatRoom", params));
     }
@@ -78,17 +81,16 @@ public class CheddarApi {
         return ParseObservable.callFunction("leaveChatRoom", params);
     }
 
-    public Observable<Message> sendMessage(String aliasId, String body) {
+    public Observable<Void> sendMessage(String aliasId, String body) {
         return getCurrentUser()
-                .flatMap(this::getUserIdParams)
+                .flatMap(this::getDefaultParams)
                 .doOnNext((params) -> {
                     params.put("aliasId", aliasId);
                     params.put("body", body);
-                    params.put("pubkey", PUBKEY);
-                    params.put("subkey", SUBKEY);
                     Log.e(TAG, "Calling with " + params);
                 })
-                .flatMap(params -> ParseObservable.callFunction("sendMessage", params));
+                .flatMap(params -> ParseObservable.callFunction("sendMessage", params))
+                .map((object) -> null);
     }
 
     public Observable<Object> registerForPushNotifications(String aliasId, String registrationToken) {
@@ -133,18 +135,15 @@ public class CheddarApi {
         );
     }
 
-    public Observable<Message> getMessageStream(String aliasId) {
+    public Observable<MessageEvent> getMessageStream(String aliasId) {
         return ParseObservable.get(Alias.class, aliasId).flatMap((alias ->
                 Observable.create(subscriber -> {
                     try {
                         pubnub.subscribe(alias.getChatRoomId(), new Callback() {
                             @Override
                             public void successCallback(String channel, Object obj) {
-                                Message message = Message.fromJson((JSONObject) obj);
-                                if (message != null) {
-                                    Log.e(TAG, message.toString());
-                                }
-                                subscriber.onNext(message);
+                                Log.d(TAG, "WHAT IS THIS: " + obj);
+                                subscriber.onNext(obj);
                             }
 
                             @Override
@@ -161,6 +160,6 @@ public class CheddarApi {
                         subscriber.onError(e);
                     }
                 })
-        ));
+        )).cast(JSONObject.class).flatMap(MessageEventParser::parse);
     }
 }

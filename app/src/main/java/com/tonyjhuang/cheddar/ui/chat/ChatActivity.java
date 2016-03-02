@@ -118,26 +118,50 @@ public class ChatActivity extends CheddarActivity {
         if (body.isEmpty()) {
             return;
         }
-
-        Message placeholder = Message.createPlaceholderMessage(currentAlias, body);
         messageInput.setText("");
-        adapter.addPlaceholderMessage(placeholder);
+
+        subscribe(getCurrentAlias(), alias -> {
+            Message placeholder = Message.createPlaceholderMessage(alias, body);
+            adapter.addPlaceholderMessage(placeholder);
+        });
+
         subscribe(api.sendMessage(aliasId, body),
-                message -> {
+                aVoid -> {
                 },
-                (throwable) -> {
+                (throwable) -> subscribe(getCurrentAlias(), alias -> {
+                    Message placeholder = Message.createPlaceholderMessage(alias, body);
                     adapter.notifyFailed(placeholder);
                     Log.e(TAG, throwable.toString());
                     showToast(R.string.chat_message_failed);
-                });
+                }));
+    }
+
+    private Observable<Alias> getCurrentAlias() {
+        if (currentAlias != null) {
+            return Observable.just(currentAlias);
+        } else {
+            return api.getAlias(aliasId).doOnNext(alias -> currentAlias = alias);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        subscribe(api.getMessageStream(aliasId), (message) -> {
-            if (adapter != null)
-                adapter.addOrUpdateMessage(message);
+        subscribe(api.getMessageStream(aliasId), (messageEvent) -> {
+            if (adapter != null) {
+                switch (messageEvent.getType()) {
+                    case MESSAGE:
+                        Log.d(TAG, "received message: " + messageEvent.toString());
+                        adapter.addOrUpdateMessage((Message) messageEvent);
+                        break;
+                    case PRESENCE:
+                        Log.e(TAG, "Received presence event.");
+                        break;
+                    default:
+                        Log.e(TAG, "Received unrecognized MessageEvent");
+                }
+
+            }
         });
     }
 
