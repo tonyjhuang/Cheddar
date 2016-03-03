@@ -33,14 +33,12 @@ public class MessageListAdapter extends BaseAdapter {
             updateOutgoing(message, Status.SENT);
         } else {
             // todo: Set the proper location for the message based on date
-            messages.add(new MessageInfo(message, direction, Status.SENT));
+            addNewMessageInfo(new MessageInfo(message, direction, Status.SENT));
         }
-        notifyDataSetChanged();
     }
 
     public void notifyFailed(Message message) {
         updateOutgoing(message, Status.FAILED);
-        notifyDataSetChanged();
     }
 
     private void updateOutgoing(Message message, Status newStatus) {
@@ -50,10 +48,23 @@ public class MessageListAdapter extends BaseAdapter {
             int placeholderIndex = placeholderMessages.get(placeholderIndexIndex);
             placeholderMessages.remove(placeholderIndexIndex);
             messages.get(placeholderIndex).status = newStatus;
+            notifyDataSetChanged();
         } else {
-            // todo: Set the proper location for the message based on date
-            messages.add(new MessageInfo(message, Direction.OUTGOING, newStatus));
+            addNewMessageInfo(new MessageInfo(message, Direction.OUTGOING, newStatus));
         }
+    }
+
+    // Adds a new MessageInfo to our list of MessageInfos based on createdAt time.
+    private void addNewMessageInfo(MessageInfo messageInfo) {
+        for(int i = messages.size()-1; i >= 0; i--) {
+            if(messageInfo.message.getCreatedAt().after(getItem(i).message.getCreatedAt())) {
+                messages.add(i, messageInfo);
+                notifyDataSetChanged();
+                return;
+            }
+        }
+        messages.add(0, messageInfo);
+        notifyDataSetChanged();
     }
 
     // Find the oldest MessageInfo that has |body| as its body.
