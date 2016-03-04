@@ -53,7 +53,7 @@ public class PushRegistrationIntentService extends AbstractIntentService {
         try {
             String token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
                     GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            Log.i(TAG, "token: " + token);
+            Log.v(TAG, "token: " + token);
 
             prefs.gcmRegistrationToken().put(token);
             postEvent(new RegistrationCompletedEvent(token));

@@ -7,4 +7,5 @@ public interface CheddarPrefs {
 
     String gcmRegistrationToken();
 
+
 }

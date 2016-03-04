@@ -9,17 +9,21 @@ import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.api.models.Alias;
-import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.api.models.MessageEvent;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import rx.Observable;
 import rx.parse.ParseObservable;
+
+import static com.tonyjhuang.cheddar.api.MessageApi.PUBKEY;
+import static com.tonyjhuang.cheddar.api.MessageApi.SUBKEY;
 
 
 @EBean(scope = EBean.Scope.Singleton)
@@ -28,10 +32,11 @@ public class CheddarApi {
     private static final String TAG = CheddarApi.class.getSimpleName();
     private static final String PASSWORD = "password";
 
-    private static final String PUBKEY = BuildConfig.PUBNUB_PUBKEY;
-    private static final String SUBKEY = BuildConfig.PUBNUB_SUBKEY;
+    @Bean
+    MessageApi messageApi;
 
-    private Pubnub pubnub = new Pubnub(PUBKEY, SUBKEY);
+    // Keeps track of where we are while paging through the message history.
+    private long replayPagerToken = -1;
 
     public CheddarApi() {
     }
@@ -78,6 +83,8 @@ public class CheddarApi {
     public Observable<Alias> leaveChatRoom(String aliasId) {
         Map<String, Object> params = new HashMap<>();
         params.put("aliasId", aliasId);
+        params.put("subkey", SUBKEY);
+        params.put("pubkey", PUBKEY);
         return ParseObservable.callFunction("leaveChatRoom", params);
     }
 
@@ -93,73 +100,62 @@ public class CheddarApi {
                 .map((object) -> null);
     }
 
-    public Observable<Object> registerForPushNotifications(String aliasId, String registrationToken) {
-        return getAlias(aliasId).flatMap((alias) ->
-                        Observable.create(subscriber ->
-                                        pubnub.enablePushNotificationsOnChannel(alias.getChatRoomId(), registrationToken, new Callback() {
-                                            @Override
-                                            public void successCallback(String channel, Object message) {
-                                                Log.d(TAG, "registered for push: " + message);
-                                                subscriber.onNext(message);
-                                                subscriber.onCompleted();
-                                            }
-
-                                            @Override
-                                            public void errorCallback(String channel, PubnubError error) {
-                                                Log.d(TAG, "failed to register for push: " + error.toString());
-                                                subscriber.onError(new Exception(error.toString()));
-                                            }
-                                        })
-                        )
-        );
-    }
-
-    public Observable<Object> unregisterForPushNotifications(String aliasId, String registrationToken) {
-        return getAlias(aliasId).flatMap((alias) ->
-                        Observable.create(subscriber ->
-                                        pubnub.disablePushNotificationsOnChannel(alias.getChatRoomId(), registrationToken, new Callback() {
-                                            @Override
-                                            public void successCallback(String channel, Object message) {
-                                                Log.d(TAG, "unregistered for push: " + message);
-                                                subscriber.onNext(message);
-                                                subscriber.onCompleted();
-                                            }
-
-                                            @Override
-                                            public void errorCallback(String channel, PubnubError error) {
-                                                Log.d(TAG, "failed to unregister for push: " + error.toString());
-                                                subscriber.onError(new Exception(error.toString()));
-                                            }
-                                        })
-                        )
-        );
-    }
 
     public Observable<MessageEvent> getMessageStream(String aliasId) {
-        return ParseObservable.get(Alias.class, aliasId).flatMap((alias ->
-                Observable.create(subscriber -> {
-                    try {
-                        pubnub.subscribe(alias.getChatRoomId(), new Callback() {
-                            @Override
-                            public void successCallback(String channel, Object obj) {
-                                Log.d(TAG, "WHAT IS THIS: " + obj);
-                                subscriber.onNext(obj);
-                            }
+        Log.e(TAG, "getMessageStream");
+        return getAlias(aliasId)
+                .map(Alias::getChatRoomId)
+                .flatMap(messageApi::subscribe)
+                .cast(JSONObject.class)
+                .flatMap(MessageEventParser::parse);
+    }
 
-                            @Override
-                            public void errorCallback(String channel, PubnubError error) {
-                                subscriber.onError(new Exception(error.toString()));
-                            }
+    public Observable<Void> endMessageStream(String aliasId) {
+        return getAlias(aliasId)
+                .map(Alias::getChatRoomId)
+                .flatMap(messageApi::unsubscribe);
+    }
 
-                            @Override
-                            public void disconnectCallback(String channel, Object message) {
-                                subscriber.onCompleted();
-                            }
-                        });
-                    } catch (PubnubException e) {
-                        subscriber.onError(e);
-                    }
-                })
-        )).cast(JSONObject.class).flatMap(MessageEventParser::parse);
+    // Resets our replayPagerToken. Should be called if you'd like to start replaying messages
+    // from the beginning.
+    public void resetReplayMessageEvents() {
+        replayPagerToken = -1;
+    }
+
+    public Observable<List<MessageEvent>> replayMessageEvents(String aliasId, int count) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("aliasId", aliasId);
+        params.put("count", count);
+        params.put("subkey", SUBKEY);
+
+        if (replayPagerToken != -1) {
+            params.put("startTimeToken", replayPagerToken);
+        }
+
+        // Returns:
+        // {"events":[{event}, {event}],
+        //   "startTimeToken": "00000",
+        //   "endTimeToken": "00000"}
+        return ParseObservable.callFunction("replayEvents", params)
+                .cast(HashMap.class)
+                .doOnNext(response -> replayPagerToken = Long.valueOf((String) response.get("endTimeToken")))
+                .doOnNext(response -> Log.e(TAG, response.toString()))
+                .map(map -> (List<Object>) map.get("events"))
+                .flatMap(Observable::from)
+                .cast(HashMap.class)
+                .map(JSONObject::new)
+                .flatMap(MessageEventParser::parse)
+                .toList(); // Turn into array
+    }
+
+    public Observable<Object> registerForPushNotifications(String aliasId, String registrationToken) {
+        return getAlias(aliasId).flatMap(alias ->
+                messageApi.registerForPushNotifications(alias.getChatRoomId(), registrationToken));
+    }
+
+
+    public Observable<Object> unregisterForPushNotifications(String aliasId, String registrationToken) {
+        return getAlias(aliasId).flatMap(alias ->
+                messageApi.unregisterForPushNotifications(alias.getChatRoomId(), registrationToken));
     }
 }

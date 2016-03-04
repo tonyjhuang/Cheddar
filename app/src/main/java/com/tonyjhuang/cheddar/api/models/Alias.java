@@ -1,11 +1,15 @@
 package com.tonyjhuang.cheddar.api.models;
 
+import android.util.Log;
+
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.tonyjhuang.cheddar.api.Time;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Date;
 
 @ParseClassName("Alias")
 public class Alias extends ParseObject {
@@ -19,6 +23,24 @@ public class Alias extends ParseObject {
         alias.put("createdAt", Time.getDate(object.getString("createdAt")));
         alias.put("updatedAt", Time.getDate(object.getString("updatedAt")));
         return alias;
+    }
+
+    /**
+     * We need to provide this override since we're creating Alias objects from
+     * JSONObjects using createWithoutData() and put("createdAt") does not
+     * update the ParseObject's internal createdAt Date.
+     */
+    @Override
+    public Date getCreatedAt() {
+        return super.getCreatedAt() == null ? (Date) get("createdAt") : super.getCreatedAt();
+    }
+
+    /**
+     * See getCreatedAt
+     */
+    @Override
+    public Date getUpdatedAt() {
+        return super.getUpdatedAt() == null ? (Date) get("updatedAt") : super.getUpdatedAt();
     }
 
     public String getName() {

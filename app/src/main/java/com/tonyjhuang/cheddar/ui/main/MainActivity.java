@@ -77,7 +77,6 @@ public class MainActivity extends CheddarActivity {
 
     @AfterViews
     void updateViews() {
-        ParseUser.logOut();
         viewPager.setAdapter(new MainPagerAdapter(getSupportFragmentManager()));
         viewPager.addParalloid(cheese);
         viewPager.addParalloid((p) -> {

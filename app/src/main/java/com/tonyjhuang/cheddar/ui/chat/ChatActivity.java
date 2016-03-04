@@ -15,6 +15,7 @@ import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.Message;
+import com.tonyjhuang.cheddar.api.models.MessageEvent;
 import com.tonyjhuang.cheddar.api.models.SendMessageImageOverlay;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 
@@ -38,6 +39,9 @@ public class ChatActivity extends CheddarActivity {
 
     private static final String TAG = ChatActivity.class.getSimpleName();
 
+    // Number of itemViewInfos to fetch per replay request.
+    private static final int REPLAY_COUNT = 20;
+
     @ViewById(R.id.toolbar)
     Toolbar toolbar;
 
@@ -56,9 +60,12 @@ public class ChatActivity extends CheddarActivity {
     @Bean
     CheddarApi api;
 
-    private MessageListAdapter adapter;
+    private MessageEventListAdapter adapter;
 
     private Alias currentAlias;
+
+    private boolean reachedEndOfMessages = false;
+    private boolean loadingMoreMessages = false;
 
     @AfterViews
     public void updateViews() {
@@ -71,14 +78,15 @@ public class ChatActivity extends CheddarActivity {
                 .doOnNext(alias -> currentAlias = alias)
                 .flatMap(alias -> api.getCurrentUser())
                 .map(ParseUser::getObjectId), id -> {
-            adapter = new MessageListAdapter(id);
+            adapter = new MessageEventListAdapter(id);
             messageListView.setAdapter(adapter);
+            loadMoreMessages();
         });
     }
 
     @AfterInject
     public void init() {
-        // Register for
+        // Register for push notifications
         if (checkPlayServices()) {
             subscribe(getGcmRegistrationToken()
                             .flatMap((token) -> api.registerForPushNotifications(aliasId, token)),
@@ -112,6 +120,27 @@ public class ChatActivity extends CheddarActivity {
         return false;
     }
 
+    private void loadMoreMessages() {
+        if (loadingMoreMessages || reachedEndOfMessages) return;
+        loadingMoreMessages = true;
+        subscribe(api.replayMessageEvents(currentAlias.getObjectId(), REPLAY_COUNT),
+                messageEvents -> {
+                    reachedEndOfMessages = messageEvents.size() < REPLAY_COUNT;
+                    loadingMoreMessages = false;
+                    for (MessageEvent messageEvent : messageEvents) {
+                        // We should have an addToEnd here.
+                        adapter.addOrUpdateMessageEvent(messageEvent);
+                    }
+                },
+                error -> {
+                    Log.e(TAG, error.toString());
+                    showToast("Failed to load more messages");
+                    reachedEndOfMessages = true;
+                    loadingMoreMessages = false;
+                },
+                () -> loadingMoreMessages = false);
+    }
+
     private void sendMessage() {
         String body = messageInput.getText().toString().trim();
 
@@ -120,7 +149,10 @@ public class ChatActivity extends CheddarActivity {
         }
         messageInput.setText("");
 
+        Log.e(TAG, "sending message: " + body);
+
         subscribe(getCurrentAlias(), alias -> {
+            Log.e(TAG, "got alias, creating placeholder");
             Message placeholder = Message.createPlaceholderMessage(alias, body);
             adapter.addPlaceholderMessage(placeholder);
         });
@@ -138,8 +170,10 @@ public class ChatActivity extends CheddarActivity {
 
     private Observable<Alias> getCurrentAlias() {
         if (currentAlias != null) {
+            Log.e(TAG, "cached alias");
             return Observable.just(currentAlias);
         } else {
+            Log.e(TAG, "get alias from api");
             return api.getAlias(aliasId).doOnNext(alias -> currentAlias = alias);
         }
     }
@@ -147,22 +181,23 @@ public class ChatActivity extends CheddarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        subscribe(api.getMessageStream(aliasId), (messageEvent) -> {
-            if (adapter != null) {
-                switch (messageEvent.getType()) {
-                    case MESSAGE:
-                        Log.d(TAG, "received message: " + messageEvent.toString());
-                        adapter.addOrUpdateMessage((Message) messageEvent);
-                        break;
-                    case PRESENCE:
-                        Log.e(TAG, "Received presence event.");
-                        break;
-                    default:
-                        Log.e(TAG, "Received unrecognized MessageEvent");
-                }
+        // Resubscribe to message stream since all subscriptions are canceled
+        // in onPause.
+        subscribeToMessageStream();
+    }
 
-            }
-        });
+    private void subscribeToMessageStream() {
+        subscribe(api.getMessageStream(aliasId).retry(), this::handleMessageEvent,
+                error -> {
+                    Log.e(TAG, "Message stream error! " + error.toString());
+                    subscribeToMessageStream();
+                });
+    }
+
+    private void handleMessageEvent(MessageEvent messageEvent) {
+        if (adapter != null) {
+            adapter.addOrUpdateMessageEvent(messageEvent);
+        }
     }
 
     @Override
@@ -189,7 +224,6 @@ public class ChatActivity extends CheddarActivity {
                 return true;
             case R.id.action_leave:
                 subscribe(leaveChatRoom(), alias -> {
-                    // todo: show loading here
                     MainActivity_.intent(this).start();
                 });
                 return true;
@@ -202,6 +236,7 @@ public class ChatActivity extends CheddarActivity {
     private Observable<Alias> leaveChatRoom() {
         return getGcmRegistrationToken()
                 .flatMap(token -> api.unregisterForPushNotifications(currentAlias.getObjectId(), token))
+                .flatMap(success -> api.endMessageStream(aliasId))
                 .flatMap(success -> api.leaveChatRoom(currentAlias.getObjectId()));
     }
 }

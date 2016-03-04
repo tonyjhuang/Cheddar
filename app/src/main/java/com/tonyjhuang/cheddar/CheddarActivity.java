@@ -1,7 +1,6 @@
 package com.tonyjhuang.cheddar;
 
 import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -9,38 +8,31 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.tonyjhuang.cheddar.service.PushRegistrationIntentService;
 import com.tonyjhuang.cheddar.service.PushRegistrationIntentService_;
+import com.trello.rxlifecycle.ActivityEvent;
+import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import de.greenrobot.event.EventBus;
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 @EActivity
-public class CheddarActivity extends AppCompatActivity {
+public class CheddarActivity extends RxAppCompatActivity {
 
     private static final String TAG = CheddarActivity.class.getSimpleName();
-
-    private CompositeSubscription subscriptions = new CompositeSubscription();
 
     private Subscriber<? super String> gcmRegistrationTokenSubscriber;
 
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
-    }
-
-    @Override
-    protected void onPause() {
-        subscriptions.unsubscribe();
-        super.onPause();
     }
 
     @Override
@@ -75,17 +67,19 @@ public class CheddarActivity extends AppCompatActivity {
         }
     }
 
-    protected <T> void subscribe(Observable<T> observable, Action1<T> onNext) {
-        subscribe(observable, onNext, (throwable) -> Log.e(getClass().getSimpleName(), throwable.toString()));
+    protected <T> Subscription subscribe(Observable<T> observable, Action1<T> onNext) {
+        return subscribe(observable, onNext,
+                throwable -> Log.e(getClass().getSimpleName(), throwable.toString()));
     }
 
-    protected <T> void subscribe(Observable<T> observable, Action1<T> onNext, Action1<Throwable> onError) {
-        subscribe(observable, onNext, onError, () -> {
-        });
+    protected <T> Subscription subscribe(Observable<T> observable, Action1<T> onNext, Action1<Throwable> onError) {
+        return subscribe(observable, onNext, onError, () -> {});
     }
 
-    protected <T> void subscribe(Observable<T> observable, Action1<T> onNext, Action1<Throwable> onError, Action0 onCompleted) {
-        subscriptions.add(observable.compose(applySchedulers()).subscribe(onNext, onError, onCompleted));
+    protected <T> Subscription subscribe(Observable<T> observable, Action1<T> onNext, Action1<Throwable> onError, Action0 onCompleted) {
+        return observable.compose(applySchedulers())
+                .compose(bindUntilEvent(ActivityEvent.STOP))
+                .subscribe(onNext, onError, onCompleted);
     }
 
     private <T> Observable.Transformer<T, T> applySchedulers() {

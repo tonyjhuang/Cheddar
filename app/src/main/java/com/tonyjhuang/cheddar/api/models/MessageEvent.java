@@ -1,22 +1,15 @@
 package com.tonyjhuang.cheddar.api.models;
 
-import com.parse.ParseObject;
-
 /**
  * Created by tonyjhuang on 3/2/16.
  */
-public abstract class MessageEvent extends ParseObject {
-    private Type type = Type.UNKNOWN;
+public interface MessageEvent {
 
-    public Type getType() {
-        return type;
-    }
+    Type getType();
 
-    protected void setType(Type type) {
-        this.type = type;
-    }
+    void setType(Type type);
 
-    public enum Type {
+    enum Type {
         MESSAGE, PRESENCE, UNKNOWN
     }
 }

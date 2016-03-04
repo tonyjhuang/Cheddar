@@ -20,4 +20,5 @@
     <color name="chat_text_background_outgoing_failed">@color/chat_text_background_incoming</color>
     <color name="chat_text_background_incoming">#1000</color>
     <color name="chat_light_light_gray">#06000000</color>
+    <color name="chat_text_light_gray">#5f000000</color>
 </resources>

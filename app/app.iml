@@ -86,6 +86,9 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.android.gms/play-services-measurement/8.3.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.infstory/rxbolts/1.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.infstory/rxparse/2.0.1/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.jakewharton.rxbinding/rxbinding/0.4.0/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.trello/rxlifecycle-components/0.5.0/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.trello/rxlifecycle/0.5.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/io.reactivex/rxandroid/1.1.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/uk.co.chrisjenx/calligraphy/2.1.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
@@ -112,6 +115,7 @@
     <orderEntry type="library" exported="" name="rxandroid-1.1.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-measurement-8.3.0" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.7.1" level="project" />
+    <orderEntry type="library" exported="" name="rxlifecycle-0.5.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.1.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-8.3.0" level="project" />
     <orderEntry type="library" exported="" name="jackson-core-2.7.1" level="project" />
@@ -119,12 +123,14 @@
     <orderEntry type="library" exported="" name="jackson-annotations-2.7.1" level="project" />
     <orderEntry type="library" exported="" name="calligraphy-2.1.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-23.1.1" level="project" />
+    <orderEntry type="library" exported="" name="rxlifecycle-components-0.5.0" level="project" />
     <orderEntry type="library" exported="" name="eventbus-2.4.0" level="project" />
     <orderEntry type="library" exported="" name="parse-android-1.13.0" level="project" />
     <orderEntry type="library" exported="" name="bolts-android-1.4.0" level="project" />
     <orderEntry type="library" exported="" name="bolts-tasks-1.4.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-23.1.1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-23.1.1" level="project" />
+    <orderEntry type="library" exported="" name="rxbinding-0.4.0" level="project" />
     <orderEntry type="library" exported="" name="androidannotations-api-3.3.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-gcm-8.3.0" level="project" />
     <orderEntry type="library" exported="" name="commons-lang3-3.4" level="project" />

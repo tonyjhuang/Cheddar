@@ -6,7 +6,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.ui.chat.MessageInfo.Direction;
+import com.tonyjhuang.cheddar.ui.chat.ChatItemViewInfo.Direction;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.res.ColorRes;
@@ -50,7 +50,7 @@ public class MessageView extends RelativeLayout {
     @DimensionPixelSizeRes(R.dimen.chat_bubble_padding_minimized)
     int containerPaddingMinimized;
 
-    private MessageInfo info, prevInfo, nextInfo;
+    private ChatItemViewInfo info, prevInfo, nextInfo;
 
     public MessageView(Context context) {
         super(context);
@@ -116,7 +116,7 @@ public class MessageView extends RelativeLayout {
         return display;
     }
 
-    public void setInfo(MessageInfo info, MessageInfo prev, MessageInfo next) {
+    public void setInfo(ChatItemViewInfo info, ChatItemViewInfo prev, ChatItemViewInfo next) {
         this.info = info;
         prevInfo = prev;
         nextInfo = next;
@@ -202,9 +202,9 @@ public class MessageView extends RelativeLayout {
     }
 
     // Where does this MessageView lay in relation to other Messages sent by the author?
-    // Example 1: if the user sends four messages, the positions will be:
+    // Example 1: if the user sends four itemViewInfos, the positions will be:
     // TOP, MIDDLE, MIDDLE, BOTTOM.
-    // Example 2: if the user sends two messages:
+    // Example 2: if the user sends two itemViewInfos:
     // TOP, BOTTOM.
     // Example 3: if the user sends one message:
     // ONLY

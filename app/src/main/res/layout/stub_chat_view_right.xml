@@ -17,7 +17,7 @@
         android:layout_alignRight="@+id/body"
         android:layout_marginBottom="2dp"
         android:layout_marginRight="12dp"
-        android:textColor="#5f000000"
+        android:textColor="@color/chat_text_light_gray"
         tools:text="Dynamic Seagull" />
 
     <TextView
