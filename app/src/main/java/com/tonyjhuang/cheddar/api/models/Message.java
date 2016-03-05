@@ -1,5 +1,7 @@
 package com.tonyjhuang.cheddar.api.models;
 
+import android.util.Log;
+
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.tonyjhuang.cheddar.api.Time;

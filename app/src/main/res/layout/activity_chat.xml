@@ -26,8 +26,9 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/message_input_divider"
         android:layout_below="@+id/toolbar_divider"
+        android:alpha="0"
         android:divider="@null"
-        android:transcriptMode="alwaysScroll"
+        android:listSelector="@android:color/transparent"
         tools:listitem="@layout/stub_chat_view_left" />
 
     <View
@@ -55,7 +56,9 @@
             android:background="@android:color/transparent"
             android:hint="@string/chat_message_input_hint"
             android:imeOptions="actionSend"
+            android:inputType="text"
             android:maxLines="4"
+            android:minHeight="56dp"
             android:paddingBottom="12dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
@@ -63,8 +66,8 @@
 
         <com.tonyjhuang.cheddar.api.models.SendMessageImageOverlay
             android:id="@+id/send_message_container"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_gravity="bottom">
 
             <ImageButton
@@ -72,14 +75,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="12dp"
+                android:padding="16dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/send" />
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="12dp"
+                android:layout_margin="16dp"
                 android:background="@drawable/send_disabled"
                 android:clickable="false"
                 android:scaleType="centerCrop" />

@@ -3,11 +3,6 @@ package com.tonyjhuang.cheddar.api;
 import android.util.Log;
 
 import com.parse.ParseUser;
-import com.pubnub.api.Callback;
-import com.pubnub.api.Pubnub;
-import com.pubnub.api.PubnubError;
-import com.pubnub.api.PubnubException;
-import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.MessageEvent;
 
@@ -15,6 +10,8 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,6 +119,9 @@ public class CheddarApi {
         replayPagerToken = -1;
     }
 
+    /**
+     * Retrieve past MessageEvents, sorted from newest to oldest.
+     */
     public Observable<List<MessageEvent>> replayMessageEvents(String aliasId, int count) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("aliasId", aliasId);
@@ -132,20 +132,37 @@ public class CheddarApi {
             params.put("startTimeToken", replayPagerToken);
         }
 
+        Log.e(TAG, "replayMessageEvents | " + params);
+
         // Returns:
         // {"events":[{event}, {event}],
         //   "startTimeToken": "00000",
         //   "endTimeToken": "00000"}
         return ParseObservable.callFunction("replayEvents", params)
                 .cast(HashMap.class)
-                .doOnNext(response -> replayPagerToken = Long.valueOf((String) response.get("endTimeToken")))
+                .doOnNext(response -> replayPagerToken = Long.valueOf((String) response.get("startTimeToken")))
                 .doOnNext(response -> Log.e(TAG, response.toString()))
                 .map(map -> (List<Object>) map.get("events"))
                 .flatMap(Observable::from)
                 .cast(HashMap.class)
-                .map(JSONObject::new)
-                .flatMap(MessageEventParser::parse)
-                .toList(); // Turn into array
+                .flatMap((HashMap map) -> MessageEventParser.parse(sanitize(map)))
+                .toList()
+                .doOnNext(Collections::reverse);
+    }
+
+    /**
+     * Turns all ParseObjects in |map| into json objects
+     */
+    public JSONObject sanitize(HashMap map) {
+        for (Object key : map.keySet()) {
+            Object o = map.get(key);
+            if (o instanceof HashMap) {
+                sanitize((HashMap) o);
+            } else if (o instanceof Alias) {
+                map.put(key, ((Alias) o).toJson());
+            }
+        }
+        return new JSONObject(map);
     }
 
     public Observable<Object> registerForPushNotifications(String aliasId, String registrationToken) {

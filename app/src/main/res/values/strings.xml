@@ -34,7 +34,7 @@
     <string name="signup_check_email_verification"></string>
 
     <!-- chat -->
-    <string name="chat_message_input_hint">Send a message..</string>
+    <string name="chat_message_input_hint">Say cheese!</string>
     <string name="chat_send_message">Send</string>
     <string name="chat_title_group">Group</string>
     <string name="chat_action_feedback">Feedback</string>

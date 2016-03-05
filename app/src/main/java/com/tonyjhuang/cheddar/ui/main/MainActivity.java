@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.CheddarActivity;
+import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.Alias;
@@ -27,6 +28,7 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.AnimationRes;
 import org.androidannotations.annotations.res.DimensionPixelOffsetRes;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +36,8 @@ import rx.Observable;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends CheddarActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @ViewById(R.id.view_pager)
     ParallaxorViewPager viewPager;
@@ -68,11 +72,14 @@ public class MainActivity extends CheddarActivity {
     @Bean
     CheddarApi cheddarApi;
 
+    @Pref
+    CheddarPrefs_ prefs;
+
     private Handler animationHandler = new Handler();
 
     @AfterInject
-    void logout() {
-        cheddarApi.logout().publish();
+    void afterInject() {
+        Log.d(TAG, "active after inject: " + prefs.activeAlias().get());
     }
 
     @AfterViews
@@ -125,7 +132,11 @@ public class MainActivity extends CheddarActivity {
                 .zipWith(cheddarApi.joinNextAvailableChatRoom(event.maxOccupancy),
                         (time, alias) -> alias);
         subscribe(getAliasAfterAnimation,
-                alias -> startChatActivity(alias.getObjectId()),
+                alias -> {
+                    prefs.activeAlias().put(alias.getObjectId());
+                    Log.d(TAG, prefs.activeAlias().get());
+                    startChatActivity(alias.getObjectId());
+                },
                 throwable -> Log.e("CHAT", throwable.toString()));
     }
 

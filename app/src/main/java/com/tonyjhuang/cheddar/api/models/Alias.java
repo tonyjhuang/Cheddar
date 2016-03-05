@@ -1,7 +1,5 @@
 package com.tonyjhuang.cheddar.api.models;
 
-import android.util.Log;
-
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.tonyjhuang.cheddar.api.Time;
@@ -10,9 +8,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.HashMap;
 
 @ParseClassName("Alias")
-public class Alias extends ParseObject {
+public class Alias extends JSONParseObject{
 
     public static Alias fromJson(JSONObject object) throws JSONException {
         Alias alias = ParseObject.createWithoutData(Alias.class, object.getString("objectId"));

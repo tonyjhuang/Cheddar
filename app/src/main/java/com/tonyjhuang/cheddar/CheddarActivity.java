@@ -55,7 +55,6 @@ public class CheddarActivity extends RxAppCompatActivity {
     }
 
     public void onEvent(PushRegistrationIntentService.RegistrationCompletedEvent event) {
-        Log.d(TAG, "register completed");
         if (gcmRegistrationTokenSubscriber != null) {
             if (event.token != null) {
                 gcmRegistrationTokenSubscriber.onNext(event.token);

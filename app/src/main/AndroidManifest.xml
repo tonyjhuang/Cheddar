@@ -28,18 +28,22 @@
             android:name="com.parse.CLIENT_KEY"
             android:value="@string/PARSE_CLIKEY" />
 
-        <activity
-            android:name="com.tonyjhuang.cheddar.ui.main.MainActivity_"
-            android:noHistory="true"
-            android:screenOrientation="portrait">
+        <activity android:name=".ui.Router_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.tonyjhuang.cheddar.ui.main.MainActivity_"
+            android:noHistory="true"
+            android:screenOrientation="portrait">
+        </activity>
         <activity
             android:name="com.tonyjhuang.cheddar.ui.chat.ChatActivity_"
+            android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait" />
 
         <!-- gcm -->

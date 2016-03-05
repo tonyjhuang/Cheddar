@@ -51,12 +51,21 @@ public class MessageEventListAdapter extends BaseAdapter {
      * TODO: and is extremely inefficient for adding replayed MessageEvents.
      */
     public void addOrUpdateMessageEvent(MessageEvent messageEvent) {
+        addOrUpdateMessageEvent(messageEvent, true);
+    }
+
+    /**
+     * Adds a MessageEvent to this adapter by order of date. If addToEnd is true
+     * then this method will attempt to add it to the end of the list (most recent) and
+     * search for the proper state backwards.
+     */
+    public void addOrUpdateMessageEvent(MessageEvent messageEvent, boolean addToEnd) {
         switch (messageEvent.getType()) {
             case MESSAGE:
-                addOrUpdateMessage((Message) messageEvent);
+                addOrUpdateMessage((Message) messageEvent, addToEnd);
                 break;
             case PRESENCE:
-                addPresence((Presence) messageEvent);
+                addPresence((Presence) messageEvent, addToEnd);
                 break;
             default:
                 Log.e(TAG, "Encountered unrecognized MessageEvent: " + messageEvent.toString());
@@ -66,21 +75,21 @@ public class MessageEventListAdapter extends BaseAdapter {
     /**
      * Adds |presence| to the adapter by creating a new ChatItemViewInfo.
      */
-    private void addPresence(Presence presence) {
-        addNewChatItemViewInfo(new ChatItemViewInfo(presence));
+    private void addPresence(Presence presence, boolean addToEnd) {
+        addNewChatItemViewInfo(new ChatItemViewInfo(presence), addToEnd);
     }
 
     /**
      * Adds a Message to this adapter by either creating a new ChatItemViewInfo
      * or by updating an existing placeholder message.
      */
-    private void addOrUpdateMessage(Message message) {
+    private void addOrUpdateMessage(Message message, boolean addToEnd) {
         Direction direction = message.getAlias().getUserId().equals(currentUserId) ?
                 ChatItemViewInfo.Direction.OUTGOING : Direction.INCOMING;
         if (direction == Direction.OUTGOING) {
-            updateOutgoingMessage(message, Status.SENT);
+            updateOutgoingMessage(message, Status.SENT, addToEnd);
         } else {
-            addNewChatItemViewInfo(new ChatItemViewInfo(message, direction, Status.SENT));
+            addNewChatItemViewInfo(new ChatItemViewInfo(message, direction, Status.SENT), addToEnd);
         }
     }
 
@@ -88,7 +97,7 @@ public class MessageEventListAdapter extends BaseAdapter {
      * Notifies this adapter that the passed in message should be marked as FAILED.
      */
     public void notifyFailed(Message message) {
-        updateOutgoingMessage(message, Status.FAILED);
+        updateOutgoingMessage(message, Status.FAILED, true);
     }
 
     /**
@@ -96,7 +105,7 @@ public class MessageEventListAdapter extends BaseAdapter {
      * |newStatus|. If there is no existing ChatItemViewInfo that matches |message|, then
      * a new one is added to the adapter with |newStatus|.
      */
-    private void updateOutgoingMessage(Message message, Status newStatus) {
+    private void updateOutgoingMessage(Message message, Status newStatus, boolean addToEnd) {
         // If we have a placeholder, update that, otherwise add as a new outgoing message.
         int placeholderIndexIndex = findPlaceholderMessageIndexIndex(message.getBody());
         if (placeholderIndexIndex != -1) {
@@ -105,7 +114,8 @@ public class MessageEventListAdapter extends BaseAdapter {
             itemViewInfos.get(placeholderIndex).status = newStatus;
             notifyDataSetChanged();
         } else {
-            addNewChatItemViewInfo(new ChatItemViewInfo(message, Direction.OUTGOING, newStatus));
+            addNewChatItemViewInfo(new ChatItemViewInfo(message, Direction.OUTGOING, newStatus),
+                    addToEnd);
         }
     }
 
@@ -113,17 +123,25 @@ public class MessageEventListAdapter extends BaseAdapter {
      * Adds a new ChatItemViewInfo based on createdAt time, updates
      * placeholder message indexes.
      */
-    private void addNewChatItemViewInfo(ChatItemViewInfo viewInfo) {
+    private void addNewChatItemViewInfo(ChatItemViewInfo viewInfo, boolean addToEnd) {
         int indexOfNewViewInfo = 0;
-        Log.e(TAG, "new view info: " + viewInfo);
-        Log.e(TAG, "createdAt: " + viewInfo.getDate());
-        for (int i = itemViewInfos.size() - 1; i >= 0; i--) {
-            Log.e(TAG, "stepping backwards... " + getItem(i).getDate());
-            if (viewInfo.getDate().after(getItem(i).getDate())) {
-                indexOfNewViewInfo = i + 1;
-                break;
+
+        if(addToEnd) {
+            for (int i = itemViewInfos.size() - 1; i >= 0; i--) {
+                if (viewInfo.getDate().after(getItem(i).getDate())) {
+                    indexOfNewViewInfo = i + 1;
+                    break;
+                }
+            }
+        } else {
+            for (int i =  0; i < itemViewInfos.size(); i++) {
+                if (viewInfo.getDate().before(getItem(i).getDate())) {
+                    indexOfNewViewInfo = i;
+                    break;
+                }
             }
         }
+
         itemViewInfos.add(indexOfNewViewInfo, viewInfo);
 
         // Update placeholder message indexes.

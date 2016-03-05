@@ -22,7 +22,7 @@ public class Time {
             return new Date();
         }
     }
-    public static Date getDate(long millis) {
-        return new Date(millis);
+    public static String toString(Date date) {
+        return sdf.format(date);
     }
 }

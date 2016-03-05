@@ -2,6 +2,7 @@ package com.tonyjhuang.cheddar.ui.chat;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -67,7 +68,6 @@ public class MessageView extends RelativeLayout {
         authorDisplayView = (TextView) findViewById(R.id.author_display);
         bodyView = (TextView) findViewById(R.id.body);
     }
-
 
     public void updateViews() {
         String aliasName = info.message.getAlias().getName();
