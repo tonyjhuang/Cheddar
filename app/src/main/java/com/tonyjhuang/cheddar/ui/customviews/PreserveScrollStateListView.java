@@ -2,7 +2,6 @@ package com.tonyjhuang.cheddar.ui.customviews;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -19,7 +18,6 @@ public class PreserveScrollStateListView extends ListView {
     private int savedFirstVisibleChildHeight;
     private int savedFirstVisibleChildTop;
     private int savedNumberOfItems;
-
     private boolean shouldDraw = true;
 
     public PreserveScrollStateListView(Context context) {
@@ -69,8 +67,7 @@ public class PreserveScrollStateListView extends ListView {
                 int childHeight = getMeasuredHeightOfChild(restoreToIndex);
                 restoreToTop += childHeight;
             }
-            setSelectionFromTop(Math.max(restoreToIndex + 1, 0),
-                    Math.max(restoreToTop, 0));
+            setSelectionFromTop(Math.max(restoreToIndex, 0), Math.max(restoreToTop, 0));
         }
 
         post(() -> shouldDraw = true);
@@ -84,6 +81,7 @@ public class PreserveScrollStateListView extends ListView {
 
     @Override
     public void setSelectionFromTop(int position, int y) {
+        post(() -> super.setSelectionFromTop(position, y));
         super.setSelectionFromTop(position, y);
     }
 }
