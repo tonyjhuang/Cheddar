@@ -11,7 +11,6 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.EditText;
-import android.widget.ListView;
 
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.CheddarActivity;
@@ -22,6 +21,7 @@ import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.api.models.MessageEvent;
 import com.tonyjhuang.cheddar.api.models.SendMessageImageOverlay;
+import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 
 import org.androidannotations.annotations.AfterInject;
@@ -52,7 +52,7 @@ public class ChatActivity extends CheddarActivity {
     Toolbar toolbar;
 
     @ViewById(R.id.message_list_view)
-    ListView messageListView;
+    PreserveScrollStateListView messageListView;
 
     @ViewById(R.id.message_input)
     EditText messageInput;
@@ -140,59 +140,6 @@ public class ChatActivity extends CheddarActivity {
         return false;
     }
 
-    /*
-      // We need to save the current scroll position. Since the view's height
-                    // might change after new items are added to the adapter, we need to listen
-                    // to layout changes on the view and update the top when it does.
-                    int savedListIndex = messageListView.getFirstVisiblePosition();
-                    int newIndex = savedListIndex + messageEvents.size();
-                    View child = messageListView.getChildAt(savedListIndex);
-                    int childHeight = child == null ? 0 : child.getHeight();
-                    int top = child == null ? 0 : child.getTop();
-  if (child != null) {
-                        // See http://stackoverflow.com/q/19320214/1476372
-                        messageListView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                            @Override
-                            public boolean onPreDraw() {
-                                if (messageListView.getFirstVisiblePosition() == newIndex) {
-                                    messageListView.getViewTreeObserver().removeOnPreDrawListener(this);
-                                    return true;
-                                }
-                                return false;
-                            }
-                        });
-                        child.post(() -> {
-                            int newTop;
-                            View newChild = adapter.getView(newIndex, null, messageListView);
-                            newChild.measure(0, 0);
-
-                            int newChildHeight = newChild.getMeasuredHeight();
-                            int childHeightDifference = newChildHeight - childHeight;
-
-                            if (childHeightDifference + top < 0) {
-                                // listview item has shrunk to the point where the previous item
-                                // is now visible..
-                                if (newIndex == 0) {
-                                    // ...but there are no items previous.
-                                    newTop = 0;
-                                } else {
-                                    // ...so we need to update the index.
-                                    View prevChild = adapter.getView(newIndex, null, messageListView);
-                                    prevChild.measure(0, 0);
-                                    int prevChildHeight = prevChild.getMeasuredHeight();
-                                    newTop = prevChildHeight + childHeightDifference + top;
-                                }
-                            } else {
-                                // listview item has grown or stayed the same height, update top.
-                                newTop = top;
-                            }
-                            Log.e(TAG, "newIndex: " + newIndex + ",newTop: " + newTop);
-                            messageListView.setSelectionFromTop(newIndex, newTop);
-                        });
-                    }
-
-     */
-
     /**
      * Retrieve older messages from the api and display in them in the list.
      */
@@ -204,10 +151,7 @@ public class ChatActivity extends CheddarActivity {
                 messageEvents -> {
                     reachedEndOfMessages = messageEvents.size() < REPLAY_COUNT;
 
-                    int currentIndex = messageListView.getFirstVisiblePosition();
-                    View view = messageListView.getChildAt(currentIndex);
-                    int currentIndexTop = view == null ? 0 : view.getTop();
-
+                    messageListView.saveScrollStateAndPauseDrawing();
                     for (MessageEvent messageEvent : messageEvents) {
                         adapter.addOrUpdateMessageEvent(messageEvent, false);
                     }
@@ -216,30 +160,18 @@ public class ChatActivity extends CheddarActivity {
                         // On first load we should scroll to the very bottom of the messages.
                         firstLoad = false;
                         messageListView.animate().alpha(1f).setDuration(250);
-                        messageListView.post(() -> loadingMoreMessages = false);
-                        messageListView.setSelection(adapter.getCount());
-                    } else {
-                        // Stop the ListView from drawing until its position is restored.
-                        messageListView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                            @Override
-                            public boolean onPreDraw() {
-                                int index = messageListView.getFirstVisiblePosition();
-                                int targetIndex = currentIndex + messageEvents.size();
-                                // We want to either restore the list index to the last known one
-                                // or one lower if the view at that index shrank and the previous item
-                                // is showing.
-                                if (index == targetIndex || index == targetIndex - 1) {
-                                    messageListView.getViewTreeObserver().removeOnPreDrawListener(this);
-                                    return true;
-                                }
-                                return false;
-                            }
+                        messageListView.post(() -> {
+                            messageListView.setSelection(adapter.getCount());
+                            messageListView.restoreScrollStateAndResumeDrawing();
+                            loadingMoreMessages = false;
                         });
+                    } else {
+                        Log.d(TAG, "adapter count: " + adapter.getCount());
                         // Give the adapter the chance to populate all of our items before
                         // loading more messages.
-                        messageListView.postDelayed(() -> loadingMoreMessages = false, 250);
                         messageListView.post(() -> {
-                            messageListView.setSelectionFromTop(currentIndex + messageEvents.size(), currentIndexTop);
+                            messageListView.restoreScrollStateAndResumeDrawing();
+                            loadingMoreMessages = false;
                         });
                     }
                 },

@@ -126,7 +126,7 @@ public class MessageEventListAdapter extends BaseAdapter {
     private void addNewChatItemViewInfo(ChatItemViewInfo viewInfo, boolean addToEnd) {
         int indexOfNewViewInfo = 0;
 
-        if(addToEnd) {
+        if (addToEnd) {
             for (int i = itemViewInfos.size() - 1; i >= 0; i--) {
                 if (viewInfo.getDate().after(getItem(i).getDate())) {
                     indexOfNewViewInfo = i + 1;
@@ -134,7 +134,7 @@ public class MessageEventListAdapter extends BaseAdapter {
                 }
             }
         } else {
-            for (int i =  0; i < itemViewInfos.size(); i++) {
+            for (int i = 0; i < itemViewInfos.size(); i++) {
                 if (viewInfo.getDate().before(getItem(i).getDate())) {
                     indexOfNewViewInfo = i;
                     break;
