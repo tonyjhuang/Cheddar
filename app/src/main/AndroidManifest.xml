@@ -28,7 +28,7 @@
             android:name="com.parse.CLIENT_KEY"
             android:value="@string/PARSE_CLIKEY" />
 
-        <activity android:name=".ui.Router_">
+        <activity android:name=".AppRouter_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,14 +39,19 @@
         <activity
             android:name="com.tonyjhuang.cheddar.ui.main.MainActivity_"
             android:noHistory="true"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.tonyjhuang.cheddar.ui.chat.ChatActivity_"
-            android:windowSoftInputMode="stateHidden"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden" />
 
         <!-- gcm -->
+        <receiver android:name=".background.GcmBroadcastReceiver_"
+            android:exported="false">
+            <intent-filter android:priority="0">
+                <action android:name="com.tonyjhuang.cheddar.MESSAGE_EVENT" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
@@ -60,7 +65,7 @@
         </receiver>
 
         <service
-            android:name="com.tonyjhuang.cheddar.service.CheddarGcmListenerService"
+            android:name="com.tonyjhuang.cheddar.background.CheddarGcmListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -68,14 +73,14 @@
             </intent-filter>
         </service>
         <service
-            android:name="com.tonyjhuang.cheddar.service.CheddarInstanceIDListenerService"
+            android:name="com.tonyjhuang.cheddar.background.CheddarInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
         <service
-            android:name="com.tonyjhuang.cheddar.service.PushRegistrationIntentService_"
+            android:name="com.tonyjhuang.cheddar.background.PushRegistrationIntentService_"
             android:exported="false" />
 
         <!-- parse -->

@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.service;
+package com.tonyjhuang.cheddar.background;
 
 import android.os.Handler;
 import android.os.Looper;

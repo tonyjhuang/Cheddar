@@ -10,8 +10,8 @@ public class Presence implements MessageEvent {
 
     private Type type;
 
-    public Action action;
-    public Alias alias;
+    private Action action;
+    private Alias alias;
 
     public static Presence fromJson(JSONObject object) throws JSONException {
         Presence presence = new Presence();
@@ -19,10 +19,6 @@ public class Presence implements MessageEvent {
         presence.action = Action.valueOf(object.getString("action").toUpperCase());
         presence.setType(MessageEvent.Type.PRESENCE);
         return presence;
-    }
-
-    public enum Action {
-        JOIN, LEAVE
     }
 
     @Override
@@ -33,6 +29,18 @@ public class Presence implements MessageEvent {
     @Override
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public Alias getAlias() {
+        return alias;
+    }
+
+    public enum Action {
+        JOIN, LEAVE
     }
 
     @Override

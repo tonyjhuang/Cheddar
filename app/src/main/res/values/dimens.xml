@@ -16,4 +16,8 @@
     <dimen name="chat_bubble_corners">17dp</dimen> <!-- should be half of min height -->
     <dimen name="chat_bubble_text_size">18sp</dimen>
     <dimen name="chat_bubble_author_text_size">16sp</dimen>
+
+    <dimen name="notif_large_icon_dimen">64dp</dimen>
+    <dimen name="notif_large_icon_corners">32dp</dimen> <!-- should be half of dimen -->
+    <dimen name="notif_author_text_size">30sp</dimen>
 </resources>

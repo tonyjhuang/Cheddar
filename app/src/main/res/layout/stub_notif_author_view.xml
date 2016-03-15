@@ -1,0 +1,12 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/author_display"
+    fontPath="Effra-Medium.ttf"
+    android:layout_width="@dimen/chat_bubble_min_height"
+    android:layout_height="@dimen/chat_bubble_min_height"
+    android:background="@drawable/notif_author_background"
+    android:gravity="center"
+    android:textColor="@android:color/primary_text_dark"
+    android:textSize="@dimen/notif_author_text_size"
+    tools:ignore="MissingPrefix"
+    tools:text="DS" />

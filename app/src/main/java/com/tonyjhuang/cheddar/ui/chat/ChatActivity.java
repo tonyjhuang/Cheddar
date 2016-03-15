@@ -1,13 +1,15 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.EditText;
@@ -17,10 +19,13 @@ import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
+import com.tonyjhuang.cheddar.api.CheddarParser;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.api.models.MessageEvent;
+import com.tonyjhuang.cheddar.api.models.Presence;
 import com.tonyjhuang.cheddar.api.models.SendMessageImageOverlay;
+import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 
@@ -34,6 +39,8 @@ import org.androidannotations.annotations.EditorAction;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import rx.Observable;
 
@@ -74,6 +81,41 @@ public class ChatActivity extends CheddarActivity {
     private boolean reachedEndOfMessages = false;
     private boolean loadingMoreMessages = false;
     private boolean firstLoad = true;
+    private BroadcastReceiver gcmBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e(TAG, "activity on receive!");
+            try {
+                MessageEvent messageEvent = CheddarParser.parseMessageEvent(
+                        new JSONObject(intent.getStringExtra("payload")));
+                switch (messageEvent.getType()) {
+                    case MESSAGE:
+                        handleMessage((Message) messageEvent);
+                        break;
+                    case PRESENCE:
+                        handlePresence((Presence) messageEvent);
+                        break;
+                }
+            } catch (JSONException | CheddarParser.UnrecognizedParseException e) {
+                Log.e(TAG, "couldn't parse gcm payload into MessageEvent: " + intent.getStringExtra("payload"));
+                abortBroadcast();
+            }
+        }
+
+        private void handlePresence(Presence presence) {
+            if (presence.getAlias().getChatRoomId().equals(currentAlias.getChatRoomId())) {
+                Log.d(TAG, "message event matches current chatroom id");
+                abortBroadcast();
+            }
+        }
+
+        private void handleMessage(Message message) {
+            if (message.getAlias().getChatRoomId().equals(currentAlias.getChatRoomId())) {
+                Log.d(TAG, "message event matches current chatroom id");
+                abortBroadcast();
+            }
+        }
+    };
 
     @AfterViews
     public void updateViews() {
@@ -228,12 +270,24 @@ public class ChatActivity extends CheddarActivity {
         // Resubscribe to message stream since all subscriptions are canceled
         // in onPause.
         subscribeToMessageStream();
+
+        IntentFilter intentFilter = new IntentFilter(CheddarGcmListenerService.MESSAGE_EVENT_ACTION);
+        intentFilter.setPriority(100);
+        registerReceiver(gcmBroadcastReceiver, intentFilter);
+
+        // If we haven't completed loading the initial messages by this point (possibly because the
+        // user moved our app to the background while they were loading) retry here.
+        if (firstLoad) {
+            loadMoreMessages();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         subscribe(api.endMessageStream(aliasId), aVoid -> Log.e(TAG, "unsubscribe"));
+        unregisterReceiver(gcmBroadcastReceiver);
+        loadingMoreMessages = false;
     }
 
     private void subscribeToMessageStream() {
@@ -298,17 +352,5 @@ public class ChatActivity extends CheddarActivity {
                 .flatMap(token -> api.unregisterForPushNotifications(currentAlias.getObjectId(), token))
                 .flatMap(success -> api.endMessageStream(aliasId))
                 .flatMap(success -> api.leaveChatRoom(currentAlias.getObjectId()));
-    }
-
-    private static class SimpleOnLayoutChangeListener implements View.OnLayoutChangeListener {
-        @Override
-        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-            Log.d(TAG, "onLayoutChange top: " + top + ", oldTop: " + oldTop + "," + bottom + "," + oldBottom);
-            onLayoutChange(v);
-        }
-
-        public void onLayoutChange(View v) {
-            // Custom logic here.
-        }
     }
 }

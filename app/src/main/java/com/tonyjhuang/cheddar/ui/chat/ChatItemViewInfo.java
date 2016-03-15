@@ -30,8 +30,8 @@ public class ChatItemViewInfo {
 
     public Date getDate() {
         return hasMessage() ? message.getCreatedAt() :
-                presence.action == Presence.Action.JOIN ? presence.alias.getCreatedAt()
-                        : presence.alias.getUpdatedAt();
+                presence.getAction() == Presence.Action.JOIN ? presence.getAlias().getCreatedAt()
+                        : presence.getAlias().getUpdatedAt();
     }
 
     public boolean hasSameAuthor(ChatItemViewInfo otherInfo) {

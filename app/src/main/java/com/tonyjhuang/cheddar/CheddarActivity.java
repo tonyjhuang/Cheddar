@@ -6,8 +6,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.tonyjhuang.cheddar.service.PushRegistrationIntentService;
-import com.tonyjhuang.cheddar.service.PushRegistrationIntentService_;
+import com.tonyjhuang.cheddar.background.PushRegistrationIntentService;
+import com.tonyjhuang.cheddar.background.PushRegistrationIntentService_;
 import com.trello.rxlifecycle.ActivityEvent;
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 

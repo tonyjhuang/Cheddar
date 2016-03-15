@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.service;
+package com.tonyjhuang.cheddar.background;
 
 import com.google.android.gms.iid.InstanceIDListenerService;
 

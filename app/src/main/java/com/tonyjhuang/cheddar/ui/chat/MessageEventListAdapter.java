@@ -241,9 +241,19 @@ public class MessageEventListAdapter extends BaseAdapter {
                 messageView.setInfo(info, prevInfo, nextInfo);
                 break;
             case PRESENCE:
-                String presenceText = info.presence.alias.getName();
-                presenceText += info.presence.action == Presence.Action.JOIN ?
-                        " has joined" : " has left";
+                String presenceText = info.presence.getAlias().getName();
+                switch (info.presence.getAction()) {
+                    case JOIN:
+                        presenceText += " has joined";
+                        convertView.setVisibility(View.VISIBLE);
+                        break;
+                    case LEAVE:
+                        presenceText += "has left";
+                        convertView.setVisibility(View.VISIBLE);
+                        break;
+                    default:
+                        convertView.setVisibility(View.GONE);
+                }
                 ((TextView) convertView).setText(presenceText.toUpperCase());
                 break;
         }

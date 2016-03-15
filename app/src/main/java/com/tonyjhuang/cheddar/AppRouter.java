@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui;
+package com.tonyjhuang.cheddar;
 
 import android.util.Log;
 
@@ -15,14 +15,14 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
  * Created by tonyjhuang on 3/4/16.
  */
 @EActivity
-public class Router extends CheddarActivity {
+public class AppRouter extends CheddarActivity {
     @Pref
     CheddarPrefs_ prefs;
 
     @AfterInject
     public void decideActivity() {
         String activeAlias = prefs.activeAlias().get();
-        Log.e("Router", "activeAlias: " + activeAlias);
+        Log.e("AppRouter", "activeAlias: " + activeAlias);
         if(activeAlias == null || activeAlias.isEmpty()) {
             MainActivity_.intent(this).start();
         } else {

@@ -2,7 +2,6 @@ package com.tonyjhuang.cheddar.ui.chat;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -72,7 +71,7 @@ public class MessageView extends RelativeLayout {
     public void updateViews() {
         String aliasName = info.message.getAlias().getName();
         authorFullNameView.setText(aliasName);
-        authorDisplayView.setText(getAliasDisplay(aliasName));
+        authorDisplayView.setText(getAliasDisplayName(aliasName));
         bodyView.setText(info.message.getBody());
 
         int textBackgroundColor;
@@ -108,7 +107,7 @@ public class MessageView extends RelativeLayout {
         setPosition(getPosition());
     }
 
-    private String getAliasDisplay(String name) {
+    private String getAliasDisplayName(String name) {
         String display = "";
         for (String namePart : name.split(" ")) {
             display += namePart.substring(0, 1).toUpperCase();

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners
+        android:bottomLeftRadius="@dimen/notif_large_icon_corners"
+        android:bottomRightRadius="@dimen/notif_large_icon_corners"
+        android:topLeftRadius="@dimen/notif_large_icon_corners"
+        android:topRightRadius="@dimen/notif_large_icon_corners" />
+    <solid
+        android:color="@color/colorAccent" />
+</shape>

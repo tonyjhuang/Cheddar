@@ -2,6 +2,7 @@ package com.tonyjhuang.cheddar.api;
 
 import android.util.Log;
 
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.MessageEvent;
@@ -10,7 +11,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -104,7 +104,7 @@ public class CheddarApi {
                 .map(Alias::getChatRoomId)
                 .flatMap(messageApi::subscribe)
                 .cast(JSONObject.class)
-                .flatMap(MessageEventParser::parse);
+                .flatMap(CheddarParser::parseMessageEventRx);
     }
 
     public Observable<Void> endMessageStream(String aliasId) {
@@ -145,7 +145,7 @@ public class CheddarApi {
                 .map(map -> (List<Object>) map.get("events"))
                 .flatMap(Observable::from)
                 .cast(HashMap.class)
-                .flatMap((HashMap map) -> MessageEventParser.parse(sanitize(map)))
+                .flatMap((HashMap map) -> CheddarParser.parseMessageEventRx(sanitize(map)))
                 .toList()
                 .doOnNext(Collections::reverse);
     }
@@ -174,5 +174,12 @@ public class CheddarApi {
     public Observable<Object> unregisterForPushNotifications(String aliasId, String registrationToken) {
         return getAlias(aliasId).flatMap(alias ->
                 messageApi.unregisterForPushNotifications(alias.getChatRoomId(), registrationToken));
+    }
+
+    public Observable<List<Alias>> getUsersInChatRoom(String chatRoomId) {
+        ParseQuery<Alias> query = ParseQuery.getQuery(Alias.class);
+        query.whereEqualTo("active", true);
+        query.whereEqualTo("chatRoomId", chatRoomId);
+        return ParseObservable.find(query).toList();
     }
 }
