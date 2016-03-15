@@ -8,4 +8,6 @@ public interface CheddarPrefs {
     String gcmRegistrationToken();
 
     String activeAlias();
+
+    String unreadMessages();
 }

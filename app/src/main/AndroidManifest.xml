@@ -50,6 +50,7 @@
             android:exported="false">
             <intent-filter android:priority="0">
                 <action android:name="com.tonyjhuang.cheddar.MESSAGE_EVENT" />
+                <action android:name="com.tonyjhuang.cheddar.MESSAGE_NOTIF_DELETED" />
             </intent-filter>
         </receiver>
         <receiver
@@ -106,6 +107,9 @@
             </intent-filter>
         </receiver>
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="47a9ef735d967a68bda8754853d46ad093106fb2" />
     </application>
 
 </manifest>

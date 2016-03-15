@@ -26,6 +26,7 @@ import com.tonyjhuang.cheddar.api.models.MessageEvent;
 import com.tonyjhuang.cheddar.api.models.Presence;
 import com.tonyjhuang.cheddar.api.models.SendMessageImageOverlay;
 import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
+import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 
@@ -73,6 +74,9 @@ public class ChatActivity extends CheddarActivity {
     @Bean
     CheddarApi api;
 
+    @Bean
+    UnreadMessagesCounter unreadMessagesCounter;
+
     @Pref
     CheddarPrefs_ prefs;
 
@@ -81,6 +85,11 @@ public class ChatActivity extends CheddarActivity {
     private boolean reachedEndOfMessages = false;
     private boolean loadingMoreMessages = false;
     private boolean firstLoad = true;
+
+    /**
+     * Catches com.tonyjhuang.cheddar.MESSAGE_EVENT broadcasts and aborts
+     * them if they match this activity's chatroom id.
+     */
     private BroadcastReceiver gcmBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -103,14 +112,16 @@ public class ChatActivity extends CheddarActivity {
         }
 
         private void handlePresence(Presence presence) {
-            if (presence.getAlias().getChatRoomId().equals(currentAlias.getChatRoomId())) {
+            if (currentAlias != null &&
+                    presence.getAlias().getChatRoomId().equals(currentAlias.getChatRoomId())) {
                 Log.d(TAG, "message event matches current chatroom id");
                 abortBroadcast();
             }
         }
 
         private void handleMessage(Message message) {
-            if (message.getAlias().getChatRoomId().equals(currentAlias.getChatRoomId())) {
+            if (currentAlias != null &&
+                    message.getAlias().getChatRoomId().equals(currentAlias.getChatRoomId())) {
                 Log.d(TAG, "message event matches current chatroom id");
                 abortBroadcast();
             }
@@ -280,6 +291,11 @@ public class ChatActivity extends CheddarActivity {
         if (firstLoad) {
             loadMoreMessages();
         }
+
+        // Clear unread messages for this chatroom.
+        getCurrentAlias().map(Alias::getChatRoomId)
+                .doOnNext(unreadMessagesCounter::clear)
+                .publish().connect();
     }
 
     @Override
