@@ -15,6 +15,7 @@ import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
+import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager;
@@ -128,11 +129,12 @@ public class MainActivity extends CheddarActivity {
     }
 
     public void onEvent(JoinChatFragment.MatchClickEvent event) {
-        Observable<Alias> getAliasAfterAnimation = animateJoinChat()
+        Observable<Alias> joinChatRoomWaitForAnimation = animateJoinChat()
                 .zipWith(cheddarApi.joinNextAvailableChatRoom(event.maxOccupancy),
                         (time, alias) -> alias);
-        subscribe(getAliasAfterAnimation,
+        subscribe(joinChatRoomWaitForAnimation,
                 alias -> {
+                    CheddarMetricTracker.trackJoinChatRoom(alias.getChatRoomId());
                     prefs.activeAlias().put(alias.getObjectId());
                     Log.d(TAG, prefs.activeAlias().get());
                     startChatActivity(alias.getObjectId());

@@ -20,6 +20,7 @@ import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
+import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
 import com.tonyjhuang.cheddar.api.CheddarParser;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.Message;
@@ -45,6 +46,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import rx.Observable;
+
+import static com.tonyjhuang.cheddar.api.CheddarMetricTracker.MessageLifecycle;
 
 /**
  * Created by tonyjhuang on 2/18/16.
@@ -253,12 +256,13 @@ public class ChatActivity extends CheddarActivity {
             Message placeholder = Message.createPlaceholderMessage(alias, body);
             adapter.addPlaceholderMessage(placeholder);
             messageListView.post(() -> messageListView.setSelection(adapter.getCount()));
+            CheddarMetricTracker.trackSendMessage(alias.getChatRoomId(), MessageLifecycle.SENT);
         });
 
         subscribe(api.sendMessage(aliasId, body),
-                aVoid -> {
-                },
+                aVoid -> CheddarMetricTracker.trackSendMessage(currentAlias.getChatRoomId(), MessageLifecycle.DELIVERED),
                 (throwable) -> subscribe(getCurrentAlias(), alias -> {
+                    CheddarMetricTracker.trackSendMessage(currentAlias.getChatRoomId(), MessageLifecycle.FAILED);
                     Message placeholder = Message.createPlaceholderMessage(alias, body);
                     adapter.notifyFailed(placeholder);
                     Log.e(TAG, throwable.toString());
@@ -336,8 +340,8 @@ public class ChatActivity extends CheddarActivity {
         switch (id) {
             case android.R.id.home:
                 /**
-                 * REMOVE THIS FOR FINAL RELEASE. IN BETA, THE BACK BUTTON WILL CAUSE
-                 * THE USER TO LEAVE THE CHATROOM.
+                 * TODO: REMOVE THIS FOR FINAL RELEASE. IN BETA, THE BACK BUTTON WILL CAUSE
+                 * TODO: THE USER TO LEAVE THE CHATROOM.
                  */
                 promptToLeaveChatRoom();
                 return true;
@@ -360,7 +364,8 @@ public class ChatActivity extends CheddarActivity {
                 .setTitle("Leave group chat")
                 .setMessage("Are you sure?")
                 .setPositiveButton(R.string.chat_leave_confirm, ((dialog, which) -> leaveChatRoom()))
-                .setNegativeButton(R.string.chat_leave_cancel, null).show();
+                .setNegativeButton(R.string.chat_leave_cancel, null)
+                .show();
     }
 
     /**
@@ -374,6 +379,7 @@ public class ChatActivity extends CheddarActivity {
                         .flatMap(success -> api.endMessageStream(aliasId))
                         .flatMap(success -> api.leaveChatRoom(currentAlias.getObjectId())),
                 alias -> {
+                    CheddarMetricTracker.trackLeaveChatRoom(alias.getChatRoomId());
                     leaveChatRoomDialog.dismiss();
                     prefs.activeAlias().put(null);
                     MainActivity_.intent(this).start();
