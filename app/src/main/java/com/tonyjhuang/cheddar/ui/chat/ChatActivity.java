@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.util.Log;
@@ -332,11 +333,13 @@ public class ChatActivity extends CheddarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        ProgressDialog leaveChatRoomDialog;
         switch (id) {
             case android.R.id.home:
-                leaveChatRoomDialog = ProgressDialog.show(this, "Leaving Chat..", "", false);
-                subscribe(leaveChatRoom(), alias -> returnToMain(leaveChatRoomDialog));
+                /**
+                 * REMOVE THIS FOR FINAL RELEASE. IN BETA, THE BACK BUTTON WILL CAUSE
+                 * THE USER TO LEAVE THE CHATROOM.
+                 */
+                promptToLeaveChatRoom();
                 return true;
             case R.id.action_feedback:
                 Log.d(TAG, "feedback");
@@ -345,28 +348,35 @@ public class ChatActivity extends CheddarActivity {
                 Log.d(TAG, "report");
                 return true;
             case R.id.action_leave:
-                leaveChatRoomDialog = ProgressDialog.show(this, "Leaving Chat..", "", false);
-                subscribe(leaveChatRoom(), alias -> returnToMain(leaveChatRoomDialog));
+                promptToLeaveChatRoom();
                 return true;
 
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void returnToMain(ProgressDialog dialog) {
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-        prefs.activeAlias().put(null);
-        MainActivity_.intent(this).start();
+    private void promptToLeaveChatRoom() {
+        new AlertDialog.Builder(this)
+                .setTitle("Leave group chat")
+                .setMessage("Are you sure?")
+                .setPositiveButton(R.string.chat_leave_confirm, ((dialog, which) -> leaveChatRoom()))
+                .setNegativeButton(R.string.chat_leave_cancel, null).show();
     }
 
-    // Removes user from the current ChatRoom and unregisters the device for push notifications.
-    private Observable<Alias> leaveChatRoom() {
+    /**
+     * Removes the user from this ChatRoom.
+     */
+    private void leaveChatRoom() {
+        ProgressDialog leaveChatRoomDialog = ProgressDialog.show(this, "Leaving Chat..", "", false);
         api.resetReplayMessageEvents();
-        return getGcmRegistrationToken()
-                .flatMap(token -> api.unregisterForPushNotifications(currentAlias.getObjectId(), token))
-                .flatMap(success -> api.endMessageStream(aliasId))
-                .flatMap(success -> api.leaveChatRoom(currentAlias.getObjectId()));
+        subscribe(getGcmRegistrationToken()
+                        .flatMap(token -> api.unregisterForPushNotifications(currentAlias.getObjectId(), token))
+                        .flatMap(success -> api.endMessageStream(aliasId))
+                        .flatMap(success -> api.leaveChatRoom(currentAlias.getObjectId())),
+                alias -> {
+                    leaveChatRoomDialog.dismiss();
+                    prefs.activeAlias().put(null);
+                    MainActivity_.intent(this).start();
+                });
     }
 }

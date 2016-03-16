@@ -40,6 +40,8 @@
     <string name="chat_action_feedback">Feedback</string>
     <string name="chat_action_report">Report User</string>
     <string name="chat_action_leave">Leave Chat</string>
+    <string name="chat_leave_confirm">Leave</string>
+    <string name="chat_leave_cancel">Cancel</string>
     <string name="chat_message_failed">Could not deliver message. Check your connection settings?</string>
     <string name="chat_play_services_missing">"Couldn\'t find Google Play Services. Push notifications will not work."</string>
     <string name="chat_gcm_registration_failed">Couldn\'t register for push notifications.</string>
