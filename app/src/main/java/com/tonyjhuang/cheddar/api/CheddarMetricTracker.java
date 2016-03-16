@@ -16,9 +16,10 @@ public class CheddarMetricTracker {
                 .putCustomAttribute("ChatRoom ID", chatRoomId));
     }
 
-    public static void trackLeaveChatRoom(String chatRoomId) {
+    public static void trackLeaveChatRoom(String chatRoomId, long lengthOfStay) {
         Answers.getInstance().logCustom(new CustomEvent("Left Chat")
-                .putCustomAttribute("ChatRoom ID", chatRoomId));
+                .putCustomAttribute("ChatRoom ID", chatRoomId)
+                .putCustomAttribute("Length Of Stay", lengthOfStay));
     }
 
     public static void trackSendMessage(String chatRoomId, MessageLifecycle lifecycle) {

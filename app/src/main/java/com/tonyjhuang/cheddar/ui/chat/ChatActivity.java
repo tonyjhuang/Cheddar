@@ -45,6 +45,8 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
+
 import rx.Observable;
 
 import static com.tonyjhuang.cheddar.api.CheddarMetricTracker.MessageLifecycle;
@@ -379,7 +381,8 @@ public class ChatActivity extends CheddarActivity {
                         .flatMap(success -> api.endMessageStream(aliasId))
                         .flatMap(success -> api.leaveChatRoom(currentAlias.getObjectId())),
                 alias -> {
-                    CheddarMetricTracker.trackLeaveChatRoom(alias.getChatRoomId());
+                    long lengthOfStay = new Date().getTime() - alias.getCreatedAt().getTime();
+                    CheddarMetricTracker.trackLeaveChatRoom(alias.getChatRoomId(), lengthOfStay);
                     leaveChatRoomDialog.dismiss();
                     prefs.activeAlias().put(null);
                     MainActivity_.intent(this).start();
