@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarParser;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.api.models.MessageEvent;
@@ -27,6 +28,8 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
     CheddarNotificationService notificationService;
     @Bean
     UnreadMessagesCounter unreadMessagesCounter;
+    @Bean
+    CheddarApi api;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -34,22 +37,28 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
         String payloadString = intent.getStringExtra("payload");
         try {
             MessageEvent messageEvent = CheddarParser.parseMessageEvent(new JSONObject(payloadString));
-            switch (messageEvent.getType()) {
-                case PRESENCE:
-                    notificationService.createOrUpdatePresenceNotification(context, (Presence) messageEvent);
-                    unreadMessagesCounter.increment(((Presence) messageEvent).getAlias().getChatRoomId());
-                    break;
-                case MESSAGE:
-                    notificationService.createOrUpdateMessageNotification(context, (Message) messageEvent);
-                    unreadMessagesCounter.increment(((Message) messageEvent).getAlias().getChatRoomId());
-                    break;
-                default:
-                    Log.e(TAG, "Unrecognized MessageEvent: " + payloadString);
-            }
+            api.getCurrentUser().subscribe(currentUser -> {
+                if(!currentUser.getObjectId().equals(messageEvent.getAlias().getUserId())) {
+                    handleMessageEvent(context, messageEvent);
+                }
+            }, error -> Log.e(TAG, "Couldnt fetch current user. "));
         } catch (JSONException e) {
             Log.e(TAG, "Failed to parse payload into json: " + payloadString);
         } catch (CheddarParser.UnrecognizedParseException e) {
             Log.e(TAG, "Failed to parse json into MessageEvent: " + payloadString);
+        }
+    }
+
+    private void handleMessageEvent(Context context, MessageEvent messageEvent) {
+        switch (messageEvent.getType()) {
+            case PRESENCE:
+                notificationService.createOrUpdatePresenceNotification(context, (Presence) messageEvent);
+                unreadMessagesCounter.increment(messageEvent.getAlias().getChatRoomId());
+                break;
+            case MESSAGE:
+                notificationService.createOrUpdateMessageNotification(context, (Message) messageEvent);
+                unreadMessagesCounter.increment(messageEvent.getAlias().getChatRoomId());
+                break;
         }
     }
 }

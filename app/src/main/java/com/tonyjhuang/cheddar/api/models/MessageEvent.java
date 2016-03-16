@@ -9,6 +9,8 @@ public interface MessageEvent {
 
     void setType(Type type);
 
+    Alias getAlias();
+
     enum Type {
         MESSAGE, PRESENCE, UNKNOWN
     }

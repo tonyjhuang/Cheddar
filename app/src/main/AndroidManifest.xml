@@ -43,7 +43,7 @@
         <activity
             android:name="com.tonyjhuang.cheddar.ui.chat.ChatActivity_"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <!-- gcm -->
         <receiver android:name=".background.GcmBroadcastReceiver_"
