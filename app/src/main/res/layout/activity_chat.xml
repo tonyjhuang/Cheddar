@@ -63,8 +63,6 @@
             android:background="@android:color/transparent"
             android:hint="@string/chat_message_input_hint"
             android:imeOptions="actionSend"
-            android:inputType="text"
-            android:singleLine="false"
             android:maxLines="4"
             android:minHeight="56dp"
             android:paddingBottom="12dp"

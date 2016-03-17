@@ -54,4 +54,7 @@
     <string name="feedback_empty">Please write some feedback first!</string>
     <string name="feedback_confirm">Send</string>
     <string name="feedback_cancel">Cancel</string>
+
+    <!-- report -->
+    <string name="report_coming_soon">Coming soon!</string>
 </resources>
