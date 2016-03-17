@@ -17,11 +17,15 @@ public class Message extends ParseObject implements MessageEvent {
     private Type type;
 
     public static Message createPlaceholderMessage(Alias alias, String body) {
+        // TODO: HORRIBLE HORRIBLE HACK, ALL TIMES PASSED FROM SERVER ARE IN GMT
+        // TODO: BUT WE
+        Date now = new Date(System.currentTimeMillis());
+        Log.d("MESSAGE", "CREATED NEW DATE AT " + now.toString());
         Message message = new Message();
         message.put("body", body);
         message.put("alias", alias);
-        message.put("createdAt", new Date());
-        message.put("updatedAt", new Date());
+        message.put("createdAt", now);
+        message.put("updatedAt", now);
         message.setType(Type.MESSAGE);
         return message;
     }
@@ -30,8 +34,8 @@ public class Message extends ParseObject implements MessageEvent {
         Message message = ParseObject.createWithoutData(Message.class, object.getString("objectId"));
         message.put("alias", Alias.fromJson(object.getJSONObject("alias")));
         message.put("body", object.getString("body"));
-        message.put("createdAt", Time.getDate(object.getString("createdAt")));
-        message.put("updatedAt", Time.getDate(object.getString("updatedAt")));
+        message.put("createdAt", Time.getDateAsUTC(object.getString("createdAt")));
+        message.put("updatedAt", Time.getDateAsUTC(object.getString("updatedAt")));
         message.setType(Type.MESSAGE);
         return message;
     }

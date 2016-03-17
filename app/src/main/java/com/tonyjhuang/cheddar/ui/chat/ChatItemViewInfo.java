@@ -10,39 +10,24 @@ import java.util.Date;
  * Contains the MessageEvent and some metadata around it.
  * Has either a Message OR a Presence.
  */
-public class ChatItemViewInfo {
+public abstract class ChatItemViewInfo {
 
-    public Message message;
     public Direction direction;
     public Status status;
 
-    public Presence presence;
-
-    public ChatItemViewInfo(Message message, Direction direction, Status status) {
-        this.message = message;
+    public ChatItemViewInfo(Direction direction, Status status) {
         this.direction = direction;
         this.status = status;
     }
 
-    public ChatItemViewInfo(Presence presence) {
-        this.presence = presence;
-    }
+    public abstract Date getDate();
 
-    public Date getDate() {
-        return hasMessage() ? message.getCreatedAt() :
-                presence.getAction() == Presence.Action.JOIN ? presence.getAlias().getCreatedAt()
-                        : presence.getAlias().getUpdatedAt();
-    }
+    public abstract boolean hasSameAuthor(ChatItemViewInfo otherInfo);
 
-    public boolean hasSameAuthor(ChatItemViewInfo otherInfo) {
-        return otherInfo.hasMessage() &&
-                message.getAlias().getUserId().equals(
-                        otherInfo.message.getAlias().getUserId());
-    }
+    public abstract Message getMessage();
 
-    public boolean hasMessage() {
-        return message != null;
-    }
+    public abstract Presence getPresence();
+
 
     public enum Status {
         SENDING, SENT, FAILED
@@ -50,11 +35,5 @@ public class ChatItemViewInfo {
 
     public enum Direction {
         INCOMING, OUTGOING
-    }
-
-    @Override
-    public String toString() {
-        return direction + "," + status + "," +
-                (hasMessage() ? message.toString() : presence.toString());
     }
 }

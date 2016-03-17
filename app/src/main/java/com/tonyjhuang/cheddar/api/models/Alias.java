@@ -19,8 +19,8 @@ public class Alias extends JSONParseObject{
         alias.put("active", object.getBoolean("active"));
         alias.put("chatRoomId", object.getString("chatRoomId"));
         alias.put("userId", object.getString("userId"));
-        alias.put("createdAt", Time.getDate(object.getString("createdAt")));
-        alias.put("updatedAt", Time.getDate(object.getString("updatedAt")));
+        alias.put("createdAt", Time.getDateAsUTC(object.getString("createdAt")));
+        alias.put("updatedAt", Time.getDateAsUTC(object.getString("updatedAt")));
         return alias;
     }
 

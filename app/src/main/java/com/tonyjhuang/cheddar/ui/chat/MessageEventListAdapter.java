@@ -32,7 +32,8 @@ public class MessageEventListAdapter extends BaseAdapter {
 
     List<ChatItemViewInfo> itemViewInfos = new ArrayList<>();
 
-    // Holds indices to all of the placeholder messagess in itemViewInfos.
+    // Holds indices to all of the placeholder messages in itemViewInfos.
+    // INVARIANT: These indices MUST point to MessageChatItemViewInfos.
     List<Integer> placeholderMessageIndexes = new ArrayList<>();
 
     // Used for determining the direction of new Messages.
@@ -76,7 +77,7 @@ public class MessageEventListAdapter extends BaseAdapter {
      * Adds |presence| to the adapter by creating a new ChatItemViewInfo.
      */
     private void addPresence(Presence presence, boolean addToEnd) {
-        addNewChatItemViewInfo(new ChatItemViewInfo(presence), addToEnd);
+        addNewChatItemViewInfo(new PresenceChatItemViewInfo(presence), addToEnd);
     }
 
     /**
@@ -89,7 +90,7 @@ public class MessageEventListAdapter extends BaseAdapter {
         if (direction == Direction.OUTGOING) {
             updateOutgoingMessage(message, Status.SENT, addToEnd);
         } else {
-            addNewChatItemViewInfo(new ChatItemViewInfo(message, direction, Status.SENT), addToEnd);
+            addNewChatItemViewInfo(new MessageChatItemViewInfo(message, direction, Status.SENT), addToEnd);
         }
     }
 
@@ -114,7 +115,7 @@ public class MessageEventListAdapter extends BaseAdapter {
             itemViewInfos.get(placeholderIndex).status = newStatus;
             notifyDataSetChanged();
         } else {
-            addNewChatItemViewInfo(new ChatItemViewInfo(message, Direction.OUTGOING, newStatus),
+            addNewChatItemViewInfo(new MessageChatItemViewInfo(message, Direction.OUTGOING, newStatus),
                     addToEnd);
         }
     }
@@ -164,8 +165,8 @@ public class MessageEventListAdapter extends BaseAdapter {
     private int findPlaceholderMessageIndexIndex(String body) {
         for (int i = 0; i < placeholderMessageIndexes.size(); i++) {
             int index = placeholderMessageIndexes.get(i);
-            ChatItemViewInfo info = getItem(index);
-            if (info.message.getBody().equals(body)) {
+            Message placeholder = getItem(index).getMessage();
+            if (placeholder.getBody().equals(body)) {
                 return i;
             }
         }
@@ -176,7 +177,7 @@ public class MessageEventListAdapter extends BaseAdapter {
      * Creates a placeholder ChatItemViewInfo and adds it to the adapter.
      */
     public void addPlaceholderMessage(Message placeholder) {
-        ChatItemViewInfo info = new ChatItemViewInfo(placeholder, Direction.OUTGOING, Status.SENDING);
+        MessageChatItemViewInfo info = new MessageChatItemViewInfo(placeholder, Direction.OUTGOING, Status.SENDING);
         itemViewInfos.add(info);
         placeholderMessageIndexes.add(itemViewInfos.size() - 1);
         notifyDataSetChanged();
@@ -200,7 +201,7 @@ public class MessageEventListAdapter extends BaseAdapter {
     @Override
     public int getItemViewType(int position) {
         ChatItemViewInfo info = getItem(position);
-        if (info.hasMessage()) {
+        if (info.getMessage() != null) {
             return info.direction == Direction.INCOMING ? MESSAGE_LEFT : MESSAGE_RIGHT;
         } else {
             return PRESENCE;
@@ -238,11 +239,12 @@ public class MessageEventListAdapter extends BaseAdapter {
             case MESSAGE_LEFT:
             case MESSAGE_RIGHT:
                 MessageView messageView = (MessageView) convertView;
-                messageView.setInfo(info, prevInfo, nextInfo);
+                messageView.setInfo((MessageChatItemViewInfo) info, prevInfo, nextInfo);
                 break;
             case PRESENCE:
-                String presenceText = info.presence.getAlias().getName();
-                switch (info.presence.getAction()) {
+                Presence presence = ((PresenceChatItemViewInfo) info).getPresence();
+                String presenceText = presence.getAlias().getName();
+                switch (presence.getAction()) {
                     case JOIN:
                         presenceText += " has joined";
                         convertView.setVisibility(View.VISIBLE);

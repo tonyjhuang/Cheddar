@@ -2,11 +2,13 @@ package com.tonyjhuang.cheddar.ui.chat;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.ui.chat.ChatItemViewInfo.Direction;
+import com.tonyjhuang.cheddar.ui.utils.TimeHelper;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.res.ColorRes;
@@ -17,6 +19,8 @@ import org.androidannotations.annotations.res.DimensionPixelSizeRes;
  */
 @EViewGroup
 public class MessageView extends RelativeLayout {
+
+    private static final String TAG = MessageView.class.getSimpleName();
 
     RelativeLayout container;
     TextView authorDisplayView;
@@ -49,6 +53,8 @@ public class MessageView extends RelativeLayout {
     int containerPadding;
     @DimensionPixelSizeRes(R.dimen.chat_bubble_padding_minimized)
     int containerPaddingMinimized;
+    @DimensionPixelSizeRes(R.dimen.chat_bubble_padding)
+    int containerPaddingExpanded;
 
     private ChatItemViewInfo info, prevInfo, nextInfo;
 
@@ -68,11 +74,18 @@ public class MessageView extends RelativeLayout {
         bodyView = (TextView) findViewById(R.id.body);
     }
 
+    public void setInfo(MessageChatItemViewInfo info, ChatItemViewInfo prev, ChatItemViewInfo next) {
+        this.info = info;
+        prevInfo = prev;
+        nextInfo = next;
+        updateViews();
+    }
+
     public void updateViews() {
-        String aliasName = info.message.getAlias().getName();
+        String aliasName = info.getMessage().getAlias().getName();
         authorFullNameView.setText(aliasName);
         authorDisplayView.setText(getAliasDisplayName(aliasName));
-        bodyView.setText(info.message.getBody());
+        bodyView.setText(info.getMessage().getBody());
 
         int textBackgroundColor;
 
@@ -115,11 +128,17 @@ public class MessageView extends RelativeLayout {
         return display;
     }
 
-    public void setInfo(ChatItemViewInfo info, ChatItemViewInfo prev, ChatItemViewInfo next) {
-        this.info = info;
-        prevInfo = prev;
-        nextInfo = next;
-        updateViews();
+    private int getTimeSensitiveTopPadding() {
+        Log.d(TAG, String.format("getTimeSensitive.. %s(%s), %s(%s)",
+                info.getDate().toString(), info.toString(), prevInfo.getDate().toString(), prevInfo.toString()));
+        Log.d(TAG, String.format("difference: %d", (info.getDate().getTime() - prevInfo.getDate().getTime()) * 1000));
+        if (TimeHelper.isOlderThanBy(info.getDate(), prevInfo.getDate(), 4 * TimeHelper.SECOND)) {
+            Log.e(TAG, "expanded");
+            return containerPaddingExpanded;
+        } else {
+            Log.e(TAG, "minimized");
+            return containerPaddingMinimized;
+        }
     }
 
     private void setContainerTopAndBottomPadding(int topPadding, int bottomPadding) {
@@ -186,12 +205,12 @@ public class MessageView extends RelativeLayout {
             case MIDDLE:
                 authorFullNameView.setVisibility(GONE);
                 authorDisplayView.setVisibility(INVISIBLE);
-                setContainerTopAndBottomPadding(containerPaddingMinimized, containerPaddingMinimized);
+                setContainerTopAndBottomPadding(getTimeSensitiveTopPadding(), containerPaddingMinimized);
                 break;
             case BOTTOM:
                 authorFullNameView.setVisibility(GONE);
                 authorDisplayView.setVisibility(VISIBLE);
-                setContainerTopAndBottomPadding(containerPaddingMinimized, containerPadding);
+                setContainerTopAndBottomPadding(getTimeSensitiveTopPadding(), containerPadding);
                 break;
             case ONLY:
                 authorFullNameView.setVisibility(VISIBLE);

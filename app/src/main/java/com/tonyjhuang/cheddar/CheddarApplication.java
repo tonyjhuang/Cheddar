@@ -10,6 +10,7 @@ import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.Message;
 
+
 import io.fabric.sdk.android.Fabric;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
@@ -18,16 +19,14 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
  */
 public class CheddarApplication extends MultiDexApplication {
 
-    public static final boolean DEBUG = false;
-
     @Override
     public void onCreate() {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-                        .setDefaultFontPath("Effra-Regular.ttf")
-                        .setFontAttrId(R.attr.fontPath)
-                        .build()
+                .setDefaultFontPath("Effra-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
         );
 
         ParseObject.registerSubclass(Message.class);

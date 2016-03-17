@@ -1,5 +1,7 @@
 package com.tonyjhuang.cheddar.ui.utils;
 
+import java.util.Date;
+
 /**
  * Created by tonyjhuang on 1/23/16.
  */
@@ -24,6 +26,10 @@ public class TimeHelper {
 
     public static int secondsLeft(long duration) {
         return (int) (duration % MINUTE) / SECOND;
+    }
+
+    public static boolean isOlderThanBy(Date d1, Date d2, int diff) {
+        return d1.getTime() - d2.getTime() > diff;
     }
 
 }
