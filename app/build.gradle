@@ -18,14 +18,14 @@ plugins {
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'com.google.gms.google-services'
 
 def AAVersion = '3.3.2'
 
 dependencies {
     apt "org.androidannotations:androidannotations:$AAVersion"
     compile "org.androidannotations:androidannotations-api:$AAVersion"
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar')
+    {
         transitive = true;
     }
 }
@@ -34,19 +34,14 @@ dependencies {
 apt {
     arguments {
         androidManifestFile variant.outputs[0]?.processResources?.manifestFile
-        // if you have multiple outputs (when using splits), you may want to have other index than 0
-
-        // you should set your package name here if you are using different application IDs
-        // resourcePackageName "your.package.name"
-
-        // You can set optional annotation processing options here, like these commented options:
-        // logLevel 'INFO'
-        // logFile '/var/log/aa.log'
     }
 }
 
 def PUBNUB_PUBKEY = '"' + cheddar_pubnub_pubkey + '"' ?: '"Define Pubnub publish key"';
 def PUBNUB_SUBKEY = '"' + cheddar_pubnub_subkey + '"' ?: '"Define Pubnub subscribe key"';
+
+def PUBNUB_PUBKEY_ALPHA = '"' + cheddar_pubnub_pubkey_alpha + '"' ?: '"Define alpha Pubnub publish key"';
+def PUBNUB_SUBKEY_ALPHA = '"' + cheddar_pubnub_subkey_alpha + '"' ?: '"Define alpha Pubnub subscribe key"';
 
 def PARSE_APPKEY = '"' + cheddar_parse_appkey + '"' ?: '"Define Parse app key"';
 def PARSE_CLIKEY = '"' + cheddar_parse_clikey + '"' ?: '"Define Parse client key"';
@@ -54,11 +49,12 @@ def PARSE_CLIKEY = '"' + cheddar_parse_clikey + '"' ?: '"Define Parse client key
 def PARSE_APPKEY_DEV = '"' + cheddar_parse_appkey_dev + '"' ?: '"Define dev Parse app key"';
 def PARSE_CLIKEY_DEV = '"' + cheddar_parse_clikey_dev + '"' ?: '"Define dev Parse client key"';
 
+def PARSE_APPKEY_ALPHA = '"' + cheddar_parse_appkey_alpha + '"' ?: '"Define alpha Parse app key"';
+def PARSE_CLIKEY_ALPHA = '"' + cheddar_parse_clikey_alpha + '"' ?: '"Define alpha Parse client key"';
+
 def GCM_SENDER_ID = '"' + cheddar_gcm_sender_id + '"' ?: '"Define gcm sender id"';
 
 android.buildTypes.each { type ->
-    type.buildConfigField 'String', 'PUBNUB_PUBKEY', PUBNUB_PUBKEY
-    type.buildConfigField 'String', 'PUBNUB_SUBKEY', PUBNUB_SUBKEY
     type.buildConfigField 'String', 'GCM_SENDER_ID', GCM_SENDER_ID
 }
 
@@ -74,17 +70,40 @@ android {
         versionName "1.0"
         multiDexEnabled true
     }
+
+    signingConfigs {
+        release {
+            storeFile file('/Users/tonyjhuang/.android/cheddar.jks')
+            storePassword 'cheddarapp'
+            keyAlias 'alpha'
+            keyPassword 'cheddaralpha'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue 'string', 'PARSE_APPKEY', PARSE_APPKEY
             resValue 'string', 'PARSE_CLIKEY', PARSE_CLIKEY
+            buildConfigField 'String', 'PUBNUB_PUBKEY', PUBNUB_PUBKEY
+            buildConfigField 'String', 'PUBNUB_SUBKEY', PUBNUB_SUBKEY
+            signingConfig signingConfigs.release
         }
         debug {
             debuggable true
             resValue 'string', 'PARSE_APPKEY', PARSE_APPKEY_DEV
             resValue 'string', 'PARSE_CLIKEY', PARSE_CLIKEY_DEV
+            buildConfigField 'String', 'PUBNUB_PUBKEY', PUBNUB_PUBKEY
+            buildConfigField 'String', 'PUBNUB_SUBKEY', PUBNUB_SUBKEY
+        }
+        alpha {
+            debuggable true
+            resValue 'string', 'PARSE_APPKEY', PARSE_APPKEY_ALPHA
+            resValue 'string', 'PARSE_CLIKEY', PARSE_CLIKEY_ALPHA
+            buildConfigField 'String', 'PUBNUB_PUBKEY', PUBNUB_PUBKEY_ALPHA
+            buildConfigField 'String', 'PUBNUB_SUBKEY', PUBNUB_SUBKEY_ALPHA
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -125,9 +144,10 @@ dependencies {
     compile 'com.trello:rxlifecycle-components:0.5.0'
     compile 'io.reactivex:rxjava-string:1.0.1'
 
-    compile 'com.fasterxml.jackson.core:jackson-core:2.7.1'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.1'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.7.1'
+    compile 'com.squareup.retrofit2:retrofit:2.0.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.0.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.0.1'
 
     compile 'com.pubnub:pubnub-android:3.7.6'
 
@@ -135,3 +155,6 @@ dependencies {
 
     compile 'com.android.support:multidex:1.0.1'
 }
+
+
+apply plugin: 'com.google.gms.google-services'

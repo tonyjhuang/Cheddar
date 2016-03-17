@@ -46,14 +46,12 @@
     <string name="chat_play_services_missing">"Couldn\'t find Google Play Services. Push notifications will not work."</string>
     <string name="chat_gcm_registration_failed">Couldn\'t register for push notifications.</string>
 
-    <!-- countdown -->
-    <string name="coming_soon">COMING SOON.</string>
-    <string name="days">DAYS</string>
-    <string name="hours">HOURS</string>
-    <string name="minutes">MINUTES</string>
-    <string name="seconds">SECONDS</string>
-    <string name="default_countdown">00</string>
-    <string name="email_prompt">Enter your husky email address and get exclusive features when Cheddar launches.</string>
-    <string name="email_hint">Husky email address</string>
-    <string name="email_error">Invalid husky email address.</string>
+    <!-- feedback -->
+    <string name="feedback_title">Send feedback</string>
+    <string name="feedback_message">Your feedback will be used to make Cheddar even better</string>
+    <string name="feedback_hint">What\'s up?</string>
+    <string name="feedback_thanks">Thanks for your feedback!</string>
+    <string name="feedback_empty">Please write some feedback first!</string>
+    <string name="feedback_confirm">Send</string>
+    <string name="feedback_cancel">Cancel</string>
 </resources>

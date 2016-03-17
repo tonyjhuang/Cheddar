@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.MessageEvent;
 
@@ -31,6 +32,9 @@ public class CheddarApi {
 
     @Bean
     MessageApi messageApi;
+
+    @Bean
+    FeedbackApi feedbackApi;
 
     // Keeps track of where we are while paging through the message history.
     private long replayPagerToken = -1;
@@ -181,5 +185,13 @@ public class CheddarApi {
         query.whereEqualTo("active", true);
         query.whereEqualTo("chatRoomId", chatRoomId);
         return ParseObservable.find(query).toList();
+    }
+
+    /**
+     * Sends user feedback to backend. chatRoomId is optional. Leave blank if user is
+     * providing feedback from the chat list.
+     */
+    public Observable<String> sendFeedback(String userId, String chatRoomId, String feedback) {
+        return feedbackApi.sendFeedback(userId, chatRoomId, feedback);
     }
 }

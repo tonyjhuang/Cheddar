@@ -1,7 +1,5 @@
 package com.tonyjhuang.cheddar.background;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.tonyjhuang.cheddar.CheddarPrefs_;
@@ -13,8 +11,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import rx.Observable;
 
 /**
  * Keeps track of the number of unread notifications for each chat room.
@@ -55,13 +51,15 @@ public class UnreadMessagesCounter {
     private Map<String, Integer> loadMap() {
         Map<String, Integer> outputMap = new HashMap<>();
         try {
-                String jsonString = prefs.unreadMessages().getOr("");
+            String jsonString = prefs.unreadMessages().get();
+            if (jsonString != null) {
                 JSONObject jsonObject = new JSONObject(jsonString);
                 Iterator<String> keysItr = jsonObject.keys();
                 while (keysItr.hasNext()) {
                     String key = keysItr.next();
                     int value = (Integer) jsonObject.get(key);
                     outputMap.put(key, value);
+                }
             }
         } catch (Exception e) {
             Log.e(TAG, e.toString());

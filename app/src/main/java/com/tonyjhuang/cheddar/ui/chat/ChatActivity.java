@@ -31,6 +31,7 @@ import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
+import com.tonyjhuang.cheddar.ui.utils.FeedbackDialogHelper;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterTextChange;
@@ -79,6 +80,9 @@ public class ChatActivity extends CheddarActivity {
 
     @Bean
     CheddarApi api;
+
+    @Bean
+    FeedbackDialogHelper feedbackHelper;
 
     @Bean
     UnreadMessagesCounter unreadMessagesCounter;
@@ -253,6 +257,10 @@ public class ChatActivity extends CheddarActivity {
 
         Log.e(TAG, "sending message: " + body);
 
+        /**
+         * TODO: Need synchronous network requests. Sometimes, user tries to send a message before
+         * TODO: we're subsribed to the message stream
+         */
         subscribe(getCurrentAlias(), alias -> {
             Log.e(TAG, "got alias, creating placeholder");
             Message placeholder = Message.createPlaceholderMessage(alias, body);
@@ -348,7 +356,11 @@ public class ChatActivity extends CheddarActivity {
                 promptToLeaveChatRoom();
                 return true;
             case R.id.action_feedback:
-                Log.d(TAG, "feedback");
+                if (currentAlias != null) {
+                    subscribe(feedbackHelper.show(this,
+                            currentAlias.getUserId(), currentAlias.getChatRoomId()),
+                    string -> Log.d(TAG, "success! " + string));
+                }
                 return true;
             case R.id.action_report:
                 Log.d(TAG, "report");
