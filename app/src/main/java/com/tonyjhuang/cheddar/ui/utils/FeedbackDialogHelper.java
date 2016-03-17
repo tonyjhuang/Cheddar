@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
+import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -48,6 +49,7 @@ public class FeedbackDialogHelper {
                         Toast.makeText(context, R.string.feedback_empty, Toast.LENGTH_SHORT).show();
                     } else {
                         if (subscriber != null) {
+                            CheddarMetricTracker.trackFeedback(CheddarMetricTracker.FeedbackLifecycle.SENT);
                             Toast.makeText(context, R.string.feedback_thanks, Toast.LENGTH_SHORT).show();
                             api.sendFeedback(userId, chatRoomId, feedback)
                                     .subscribeOn(Schedulers.io())
@@ -63,6 +65,7 @@ public class FeedbackDialogHelper {
                     this.subscriber = null;
                 });
         dialog = builder.show();
+        CheddarMetricTracker.trackFeedback(CheddarMetricTracker.FeedbackLifecycle.OPENED);
 
         return Observable.create(subscriber -> this.subscriber = subscriber);
     }

@@ -363,6 +363,8 @@ public class ChatActivity extends CheddarActivity {
                 }
                 return true;
             case R.id.action_report:
+                showToast(R.string.report_coming_soon);
+                CheddarMetricTracker.trackReportUser(CheddarMetricTracker.ReportUserLifecycle.CLICKED);
                 Log.d(TAG, "report");
                 return true;
             case R.id.action_leave:
