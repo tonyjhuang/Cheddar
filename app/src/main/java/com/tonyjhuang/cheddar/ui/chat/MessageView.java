@@ -129,14 +129,9 @@ public class MessageView extends RelativeLayout {
     }
 
     private int getTimeSensitiveTopPadding() {
-        Log.d(TAG, String.format("getTimeSensitive.. %s(%s), %s(%s)",
-                info.getDate().toString(), info.toString(), prevInfo.getDate().toString(), prevInfo.toString()));
-        Log.d(TAG, String.format("difference: %d", (info.getDate().getTime() - prevInfo.getDate().getTime()) * 1000));
-        if (TimeHelper.isOlderThanBy(info.getDate(), prevInfo.getDate(), 4 * TimeHelper.SECOND)) {
-            Log.e(TAG, "expanded");
+        if (TimeHelper.isOlderThanBy(info.getDate(), prevInfo.getDate(), 2 * TimeHelper.MINUTE)) {
             return containerPaddingExpanded;
         } else {
-            Log.e(TAG, "minimized");
             return containerPaddingMinimized;
         }
     }
