@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
-import com.tonyjhuang.cheddar.api.CheddarParser;
-import com.tonyjhuang.cheddar.api.models.MessageEvent;
 
 import org.json.JSONException;
 import org.json.JSONObject;

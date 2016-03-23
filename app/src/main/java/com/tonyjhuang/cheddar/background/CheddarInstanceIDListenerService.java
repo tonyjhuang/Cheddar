@@ -8,6 +8,6 @@ import com.google.android.gms.iid.InstanceIDListenerService;
 public class CheddarInstanceIDListenerService extends InstanceIDListenerService {
     @Override
     public void onTokenRefresh() {
-        PushRegistrationIntentService_.intent(this).registerForPush().start();
+        PushRegistrationIntentService_.intent(this).onTokenRefresh().start();
     }
 }

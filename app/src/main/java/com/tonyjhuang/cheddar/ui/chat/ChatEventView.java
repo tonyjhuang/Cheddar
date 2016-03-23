@@ -2,12 +2,11 @@ package com.tonyjhuang.cheddar.ui.chat;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.ui.chat.ChatItemViewInfo.Direction;
+import com.tonyjhuang.cheddar.ui.chat.ChatEventViewInfo.Direction;
 import com.tonyjhuang.cheddar.ui.utils.TimeHelper;
 
 import org.androidannotations.annotations.EViewGroup;
@@ -18,9 +17,9 @@ import org.androidannotations.annotations.res.DimensionPixelSizeRes;
  * This should always be constructed in code, not xml.
  */
 @EViewGroup
-public class MessageView extends RelativeLayout {
+public class ChatEventView extends RelativeLayout {
 
-    private static final String TAG = MessageView.class.getSimpleName();
+    private static final String TAG = ChatEventView.class.getSimpleName();
 
     RelativeLayout container;
     TextView authorDisplayView;
@@ -56,13 +55,13 @@ public class MessageView extends RelativeLayout {
     @DimensionPixelSizeRes(R.dimen.chat_bubble_padding)
     int containerPaddingExpanded;
 
-    private ChatItemViewInfo info, prevInfo, nextInfo;
+    private ChatEventViewInfo info, prevInfo, nextInfo;
 
-    public MessageView(Context context) {
+    public ChatEventView(Context context) {
         super(context);
     }
 
-    public MessageView(Context context, Direction direction) {
+    public ChatEventView(Context context, Direction direction) {
         super(context);
         int layout = direction == Direction.OUTGOING ?
                 R.layout.stub_chat_view_right : R.layout.stub_chat_view_left;
@@ -74,7 +73,7 @@ public class MessageView extends RelativeLayout {
         bodyView = (TextView) findViewById(R.id.body);
     }
 
-    public void setInfo(MessageChatItemViewInfo info, ChatItemViewInfo prev, ChatItemViewInfo next) {
+    public void setMessageInfo(MessageChatEventViewInfo info, ChatEventViewInfo prev, ChatEventViewInfo next) {
         this.info = info;
         prevInfo = prev;
         nextInfo = next;

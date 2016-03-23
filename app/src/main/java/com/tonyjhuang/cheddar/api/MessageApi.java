@@ -33,6 +33,7 @@ public class MessageApi {
 
                     @Override
                     public void successCallback(String channel, Object obj) {
+                        Log.d(TAG, "got object: " + obj.toString());
                         subscriber.onNext(obj);
                     }
 

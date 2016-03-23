@@ -10,4 +10,6 @@ public interface CheddarPrefs {
     String activeAlias();
 
     String unreadMessages();
+
+    String pushChannels();
 }

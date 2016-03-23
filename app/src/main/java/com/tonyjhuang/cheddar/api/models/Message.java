@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import java.util.Date;
 
 @ParseClassName("Message")
-public class Message extends ParseObject implements MessageEvent {
+public class Message extends ParseObject implements ChatEvent {
 
     private Type type;
 

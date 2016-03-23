@@ -33,8 +33,12 @@ public class PreserveScrollStateListView extends ListView {
         getViewTreeObserver().addOnPreDrawListener(() -> shouldDraw);
     }
 
-    public void saveScrollStateAndPauseDrawing() {
+    public void pauseDrawing() {
         shouldDraw = false;
+    }
+
+    public void saveScrollStateAndPauseDrawing() {
+        pauseDrawing();
 
         savedFirstVisiblePosition = getFirstVisiblePosition();
         savedNumberOfItems = getAdapter().getCount();
@@ -45,10 +49,14 @@ public class PreserveScrollStateListView extends ListView {
         }
     }
 
+    public void resumeDrawing() {
+        shouldDraw = true;
+    }
+
     public void restoreScrollStateAndResumeDrawing() {
         ListAdapter adapter = getAdapter();
         if (savedNumberOfItems == 0 || adapter == null) {
-            shouldDraw = true;
+            resumeDrawing();
             return;
         }
 
@@ -62,15 +70,14 @@ public class PreserveScrollStateListView extends ListView {
         if (restoreToTop > 0) {
             setSelectionFromTop(restoreToIndex, restoreToTop);
         } else {
-            while (restoreToIndex >= 0 && restoreToTop < 0) {
-                restoreToIndex -= 1;
+            while (--restoreToIndex >= 0 && restoreToTop < 0) {
                 int childHeight = getMeasuredHeightOfChild(restoreToIndex);
                 restoreToTop += childHeight;
             }
             setSelectionFromTop(Math.max(restoreToIndex, 0), Math.max(restoreToTop, 0));
         }
 
-        post(() -> shouldDraw = true);
+        post(this::resumeDrawing);
     }
 
     private int getMeasuredHeightOfChild(int position) {

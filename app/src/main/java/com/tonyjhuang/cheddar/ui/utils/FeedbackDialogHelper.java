@@ -24,19 +24,7 @@ import rx.schedulers.Schedulers;
 @EBean
 public class FeedbackDialogHelper {
 
-    @Bean
-    CheddarApi api;
-
-    private AlertDialog dialog;
-
-    private Subscriber<? super String> subscriber;
-
-    /**
-     * Displays the dialog and allows users to send in feedback.
-     * Returns an Observable that contains the result of sending feedback.
-     * To dismiss the dialog call FeedbackDialogHelper#dismiss
-     */
-    public Observable<String> show(Context context, String userId, String chatRoomId) {
+    public static void getFeedback(Context context, Callback callback) {
         View view = View.inflate(context, R.layout.stub_feedback_input, null);
         EditText input = (EditText) view.findViewById(R.id.feedback_input);
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
@@ -48,35 +36,15 @@ public class FeedbackDialogHelper {
                     if (feedback.isEmpty()) {
                         Toast.makeText(context, R.string.feedback_empty, Toast.LENGTH_SHORT).show();
                     } else {
-                        if (subscriber != null) {
-                            CheddarMetricTracker.trackFeedback(CheddarMetricTracker.FeedbackLifecycle.SENT);
-                            Toast.makeText(context, R.string.feedback_thanks, Toast.LENGTH_SHORT).show();
-                            api.sendFeedback(userId, chatRoomId, feedback)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(subscriber);
-                        }
+                        callback.onFeedback(feedback);
                     }
                 })
-                .setNegativeButton(R.string.feedback_cancel, (dialog, which) -> {
-                    if (this.subscriber != null) {
-                        this.subscriber.onCompleted();
-                    }
-                    this.subscriber = null;
-                });
-        dialog = builder.show();
+                .setNegativeButton(R.string.feedback_cancel, null);
+        builder.show();
         CheddarMetricTracker.trackFeedback(CheddarMetricTracker.FeedbackLifecycle.OPENED);
-
-        return Observable.create(subscriber -> this.subscriber = subscriber);
     }
 
-    public void dismiss() {
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-        if (subscriber != null) {
-            subscriber.onCompleted();
-            subscriber = null;
-        }
+    public interface Callback {
+        void onFeedback(String string);
     }
 }

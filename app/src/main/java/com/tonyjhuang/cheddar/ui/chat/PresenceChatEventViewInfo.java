@@ -9,11 +9,11 @@ import java.util.Date;
  * Created by tonyjhuang on 3/17/16.
  */
 
-public class PresenceChatItemViewInfo extends ChatItemViewInfo {
+public class PresenceChatEventViewInfo extends ChatEventViewInfo {
 
     public Presence presence;
 
-    public PresenceChatItemViewInfo(Presence presence) {
+    public PresenceChatEventViewInfo(Presence presence) {
         super(null, null);
         this.presence = presence;
     }
@@ -24,8 +24,15 @@ public class PresenceChatItemViewInfo extends ChatItemViewInfo {
                 : presence.getAlias().getUpdatedAt();
     }
 
-    public boolean hasSameAuthor(ChatItemViewInfo otherInfo) {
+    public boolean hasSameAuthor(ChatEventViewInfo otherInfo) {
         return false;
+    }
+
+    @Override
+    public boolean isSameObject(ChatEventViewInfo otherInfo) {
+        Presence otherPresence = otherInfo.getPresence();
+        return otherPresence != null && presence.getAction().equals(otherPresence.getAction())
+                && presence.getAlias().getObjectId().equals(presence.getAlias().getObjectId());
     }
 
     @Override

@@ -9,11 +9,11 @@ import java.util.Date;
  * Created by tonyjhuang on 3/17/16.
  */
 
-public class MessageChatItemViewInfo extends ChatItemViewInfo {
+public class MessageChatEventViewInfo extends ChatEventViewInfo {
 
     public Message message;
 
-    public MessageChatItemViewInfo(Message message, Direction direction, Status status) {
+    public MessageChatEventViewInfo(Message message, Direction direction, Status status) {
         super(direction, status);
         this.message = message;
     }
@@ -22,10 +22,17 @@ public class MessageChatItemViewInfo extends ChatItemViewInfo {
         return message.getCreatedAt();
     }
 
-    public boolean hasSameAuthor(ChatItemViewInfo otherInfo) {
+    public boolean hasSameAuthor(ChatEventViewInfo otherInfo) {
         Message otherMessage = otherInfo.getMessage();
         return otherMessage != null &&
                 message.getAlias().getUserId().equals(otherMessage.getAlias().getUserId());
+    }
+
+    @Override
+    public boolean isSameObject(ChatEventViewInfo otherInfo) {
+        Message otherMessage = otherInfo.getMessage();
+        return otherMessage != null &&
+                message.getObjectId().equals(otherMessage.getObjectId());
     }
 
     @Override

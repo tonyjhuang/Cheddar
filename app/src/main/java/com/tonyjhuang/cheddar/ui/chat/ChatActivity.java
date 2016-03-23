@@ -2,8 +2,6 @@ package com.tonyjhuang.cheddar.ui.chat;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -21,14 +19,10 @@ import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
-import com.tonyjhuang.cheddar.api.CheddarParser;
 import com.tonyjhuang.cheddar.api.models.Alias;
+import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
-import com.tonyjhuang.cheddar.api.models.MessageEvent;
-import com.tonyjhuang.cheddar.api.models.Presence;
-import com.tonyjhuang.cheddar.api.models.SendMessageImageOverlay;
 import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
-import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 import com.tonyjhuang.cheddar.ui.utils.FeedbackDialogHelper;
@@ -43,31 +37,22 @@ import org.androidannotations.annotations.EditorAction;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.Date;
-
-import rx.Observable;
-
-import static com.tonyjhuang.cheddar.api.CheddarMetricTracker.MessageLifecycle;
+import java.util.List;
 
 /**
  * Created by tonyjhuang on 2/18/16.
  */
 @EActivity(R.layout.activity_chat)
-public class ChatActivity extends CheddarActivity {
+public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     private static final String TAG = ChatActivity.class.getSimpleName();
-
-    // Number of itemViewInfos to fetch per replay request.
-    private static final int REPLAY_COUNT = 20;
 
     @ViewById(R.id.toolbar)
     Toolbar toolbar;
 
     @ViewById(R.id.message_list_view)
-    PreserveScrollStateListView messageListView;
+    PreserveScrollStateListView chatEventListView;
 
     @ViewById(R.id.message_input)
     EditText messageInput;
@@ -75,68 +60,36 @@ public class ChatActivity extends CheddarActivity {
     @ViewById(R.id.send_message_container)
     SendMessageImageOverlay sendMessageView;
 
+    @Bean(ChatRoomPresenterImpl.class)
+    ChatRoomPresenter presenter;
+
     @Extra
     String aliasId;
 
     @Bean
     CheddarApi api;
 
-    @Bean
-    FeedbackDialogHelper feedbackHelper;
-
-    @Bean
-    UnreadMessagesCounter unreadMessagesCounter;
-
     @Pref
     CheddarPrefs_ prefs;
 
-    private MessageEventListAdapter adapter;
-    private Alias currentAlias;
-    private boolean reachedEndOfMessages = false;
-    private boolean loadingMoreMessages = false;
+    /**
+     * Data adapter for our ChatEvents.
+     */
+    private ChatEventListAdapter adapter;
+
     private boolean firstLoad = true;
 
     /**
-     * Catches com.tonyjhuang.cheddar.MESSAGE_EVENT broadcasts and aborts
-     * them if they match this activity's chatroom id.
+     * Loading dialog for when the user is leaving the chatroom.
      */
-    private BroadcastReceiver gcmBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.e(TAG, "activity on receive!");
-            try {
-                MessageEvent messageEvent = CheddarParser.parseMessageEvent(
-                        new JSONObject(intent.getStringExtra("payload")));
-                switch (messageEvent.getType()) {
-                    case MESSAGE:
-                        handleMessage((Message) messageEvent);
-                        break;
-                    case PRESENCE:
-                        handlePresence((Presence) messageEvent);
-                        break;
-                }
-            } catch (JSONException | CheddarParser.UnrecognizedParseException e) {
-                Log.e(TAG, "couldn't parse gcm payload into MessageEvent: " + intent.getStringExtra("payload"));
-                abortBroadcast();
-            }
-        }
+    private ProgressDialog leaveChatRoomDialog;
 
-        private void handlePresence(Presence presence) {
-            if (currentAlias != null &&
-                    presence.getAlias().getChatRoomId().equals(currentAlias.getChatRoomId())) {
-                Log.d(TAG, "message event matches current chatroom id");
-                abortBroadcast();
-            }
-        }
-
-        private void handleMessage(Message message) {
-            if (currentAlias != null &&
-                    message.getAlias().getChatRoomId().equals(currentAlias.getChatRoomId())) {
-                Log.d(TAG, "message event matches current chatroom id");
-                abortBroadcast();
-            }
-        }
-    };
+    @AfterInject
+    public void afterInject() {
+        presenter.setView(this);
+        presenter.setAliasId(aliasId);
+        presenter.loadMoreMessages();
+    }
 
     @AfterViews
     public void updateViews() {
@@ -144,44 +97,6 @@ public class ChatActivity extends CheddarActivity {
         assert getSupportActionBar() != null;
         getSupportActionBar().setTitle(R.string.chat_title_group);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        subscribe(api.getAlias(aliasId)
-                .doOnNext(alias -> currentAlias = alias)
-                .flatMap(alias -> api.getCurrentUser())
-                .map(ParseUser::getObjectId), id -> {
-            adapter = new MessageEventListAdapter(id);
-            messageListView.setAdapter(adapter);
-            loadMoreMessages();
-        });
-
-        messageListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem == 0) {
-                    loadMoreMessages();
-                }
-            }
-        });
-    }
-
-    @AfterInject
-    public void init() {
-        // Register for push notifications
-        if (checkPlayServices()) {
-            subscribe(getGcmRegistrationToken()
-                            .flatMap((token) -> api.registerForPushNotifications(aliasId, token)),
-                    (response) -> Log.d(TAG, response.toString()),
-                    (error) -> {
-                        Log.e(TAG, error.toString());
-                        showToast(R.string.chat_gcm_registration_failed);
-                    });
-        } else {
-            showToast(R.string.chat_play_services_missing);
-        }
     }
 
     @Click(R.id.send_message)
@@ -204,135 +119,103 @@ public class ChatActivity extends CheddarActivity {
     }
 
     /**
-     * Retrieve older messages from the api and display in them in the list.
+     * Do basic message validation before handing off to presenter.
      */
-    private void loadMoreMessages() {
-        if (loadingMoreMessages || reachedEndOfMessages || currentAlias == null) return;
-        loadingMoreMessages = true;
-
-        subscribe(api.replayMessageEvents(currentAlias.getObjectId(), REPLAY_COUNT),
-                messageEvents -> {
-                    reachedEndOfMessages = messageEvents.size() < REPLAY_COUNT;
-
-                    messageListView.saveScrollStateAndPauseDrawing();
-                    for (MessageEvent messageEvent : messageEvents) {
-                        adapter.addOrUpdateMessageEvent(messageEvent, false);
-                    }
-
-                    if (firstLoad) {
-                        // On first load we should scroll to the very bottom of the messages.
-                        firstLoad = false;
-                        messageListView.animate().alpha(1f).setDuration(250);
-                        messageListView.post(() -> {
-                            messageListView.setSelection(adapter.getCount());
-                            messageListView.restoreScrollStateAndResumeDrawing();
-                            loadingMoreMessages = false;
-                        });
-                    } else {
-                        Log.d(TAG, "adapter count: " + adapter.getCount());
-                        // Give the adapter the chance to populate all of our items before
-                        // loading more messages.
-                        messageListView.post(() -> {
-                            messageListView.restoreScrollStateAndResumeDrawing();
-                            loadingMoreMessages = false;
-                        });
-                    }
-                },
-                error -> {
-                    Log.e(TAG, error.toString());
-                    showToast("Failed to load more messages");
-                    reachedEndOfMessages = true;
-                    loadingMoreMessages = false;
-                    messageListView.setAlpha(1f);
-                });
-    }
-
     private void sendMessage() {
         String body = messageInput.getText().toString().trim();
+        if (body.isEmpty()) return;
 
-        if (body.isEmpty()) {
-            return;
-        }
         messageInput.setText("");
-
+        presenter.sendMessage(body);
         Log.e(TAG, "sending message: " + body);
-
-        /**
-         * TODO: Need synchronous network requests. Sometimes, user tries to send a message before
-         * TODO: we're subsribed to the message stream
-         */
-        subscribe(getCurrentAlias(), alias -> {
-            Log.e(TAG, "got alias, creating placeholder");
-            Message placeholder = Message.createPlaceholderMessage(alias, body);
-            adapter.addPlaceholderMessage(placeholder);
-            messageListView.post(() -> messageListView.setSelection(adapter.getCount()));
-            CheddarMetricTracker.trackSendMessage(alias.getChatRoomId(), MessageLifecycle.SENT);
-        });
-
-        subscribe(api.sendMessage(aliasId, body),
-                aVoid -> CheddarMetricTracker.trackSendMessage(currentAlias.getChatRoomId(), MessageLifecycle.DELIVERED),
-                (throwable) -> subscribe(getCurrentAlias(), alias -> {
-                    CheddarMetricTracker.trackSendMessage(currentAlias.getChatRoomId(), MessageLifecycle.FAILED);
-                    Message placeholder = Message.createPlaceholderMessage(alias, body);
-                    adapter.notifyFailed(placeholder);
-                    Log.e(TAG, throwable.toString());
-                    showToast(R.string.chat_message_failed);
-                }));
     }
 
-    private Observable<Alias> getCurrentAlias() {
-        if (currentAlias != null) {
-            Log.e(TAG, "cached alias");
-            return Observable.just(currentAlias);
-        } else {
-            Log.e(TAG, "get alias from api");
-            return api.getAlias(aliasId).doOnNext(alias -> currentAlias = alias);
+    @Override
+    public void displayNewChatEvents(String currentUserId, List<ChatEvent> chatEvents) {
+        setUpChatEventListView(currentUserId);
+        chatEventListView.pauseDrawing();
+        for (ChatEvent chatEvent : chatEvents) {
+            adapter.addOrUpdateMessageEvent(chatEvent, false);
         }
+
+        chatEventListView.animate().alpha(1f).setDuration(250);
+        chatEventListView.post(() -> {
+            chatEventListView.setSelection(adapter.getCount());
+            chatEventListView.resumeDrawing();
+        });
+    }
+
+    @Override
+    public void displayOldChatEvents(String currentUserId, List<ChatEvent> chatEvents) {
+        setUpChatEventListView(currentUserId);
+        chatEventListView.saveScrollStateAndPauseDrawing();
+        for (ChatEvent chatEvent : chatEvents) {
+            adapter.addOrUpdateMessageEvent(chatEvent, false);
+        }
+        chatEventListView.post(() -> {
+            if (firstLoad) {
+                // Scroll to the bottom of the list on first load to show
+                // the newest messages first.
+                firstLoad = false;
+                chatEventListView.setSelection(adapter.getCount() - 1);
+                chatEventListView.resumeDrawing();
+            } else {
+                chatEventListView.restoreScrollStateAndResumeDrawing();
+            }
+            chatEventListView.animate().alpha(1f).setDuration(250);
+        });
+    }
+
+    /**
+     * Basic set up for our ChatEvent views.
+     */
+    private void setUpChatEventListView(String currentUserId) {
+        if (adapter != null) return;
+        adapter = new ChatEventListAdapter(currentUserId);
+        chatEventListView.setAdapter(adapter);
+        chatEventListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem == 0) presenter.loadMoreMessages();
+            }
+        });
+    }
+
+    @Override
+    public void displayLoadHistoryChatEventsError() {
+        showToast("Failed to load more messages");
+        chatEventListView.setAlpha(1f);
+    }
+
+    @Override
+    public void displayPlaceholderMessage(Message message) {
+        adapter.addPlaceholderMessage(message);
+        chatEventListView.post(() -> chatEventListView.setSelection(adapter.getCount()));
+    }
+
+    @Override
+    public void notifyPlaceholderMessageFailed(Message placeholder) {
+        adapter.notifyFailed(placeholder);
+        showToast(R.string.chat_message_failed);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Resubscribe to message stream since all subscriptions are canceled
-        // in onPause.
-        subscribeToMessageStream();
+        presenter.onResume(this);
 
-        IntentFilter intentFilter = new IntentFilter(CheddarGcmListenerService.MESSAGE_EVENT_ACTION);
-        intentFilter.setPriority(100);
-        registerReceiver(gcmBroadcastReceiver, intentFilter);
 
-        // If we haven't completed loading the initial messages by this point (possibly because the
-        // user moved our app to the background while they were loading) retry here.
-        if (firstLoad) {
-            loadMoreMessages();
-        }
-
-        // Clear unread messages for this chatroom.
-        getCurrentAlias().map(Alias::getChatRoomId)
-                .doOnNext(unreadMessagesCounter::clear)
-                .publish().connect();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        subscribe(api.endMessageStream(aliasId), aVoid -> Log.e(TAG, "unsubscribe"));
-        unregisterReceiver(gcmBroadcastReceiver);
-        loadingMoreMessages = false;
-    }
-
-    private void subscribeToMessageStream() {
-        subscribe(api.getMessageStream(aliasId).retry(), this::handleMessageEvent,
-                error -> {
-                    Log.e(TAG, "Message stream error! " + error.toString());
-                    subscribeToMessageStream();
-                });
-    }
-
-    private void handleMessageEvent(MessageEvent messageEvent) {
-        if (adapter != null) {
-            adapter.addOrUpdateMessageEvent(messageEvent);
-        }
+        presenter.onPause(this);
     }
 
     @Override
@@ -356,11 +239,12 @@ public class ChatActivity extends CheddarActivity {
                 promptToLeaveChatRoom();
                 return true;
             case R.id.action_feedback:
-                if (currentAlias != null) {
-                    subscribe(feedbackHelper.show(this,
-                            currentAlias.getUserId(), currentAlias.getChatRoomId()),
-                    string -> Log.d(TAG, "success! " + string));
-                }
+                FeedbackDialogHelper.getFeedback(this, feedback -> {
+                    if (feedback != null && !feedback.isEmpty()) {
+                        showToast(R.string.feedback_thanks);
+                        presenter.sendFeedback(feedback);
+                    }
+                });
                 return true;
             case R.id.action_report:
                 showToast(R.string.report_coming_soon);
@@ -388,18 +272,21 @@ public class ChatActivity extends CheddarActivity {
      * Removes the user from this ChatRoom.
      */
     private void leaveChatRoom() {
-        ProgressDialog leaveChatRoomDialog = ProgressDialog.show(this, "Leaving Chat..", "", false);
-        api.resetReplayMessageEvents();
-        subscribe(getGcmRegistrationToken()
-                        .flatMap(token -> api.unregisterForPushNotifications(currentAlias.getObjectId(), token))
-                        .flatMap(success -> api.endMessageStream(aliasId))
-                        .flatMap(success -> api.leaveChatRoom(currentAlias.getObjectId())),
-                alias -> {
-                    long lengthOfStay = new Date().getTime() - alias.getCreatedAt().getTime();
-                    CheddarMetricTracker.trackLeaveChatRoom(alias.getChatRoomId(), lengthOfStay);
-                    leaveChatRoomDialog.dismiss();
-                    prefs.activeAlias().put(null);
-                    MainActivity_.intent(this).start();
-                });
+        presenter.leaveChatRoom(this);
+        leaveChatRoomDialog = ProgressDialog.show(this, "Leaving Chat..", "", false);
+    }
+
+    @Override
+    public void navigateToListView() {
+        if (leaveChatRoomDialog != null) {
+            leaveChatRoomDialog.dismiss();
+        }
+        MainActivity_.intent(this).start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        presenter.onDestroy();
+        super.onDestroy();
     }
 }

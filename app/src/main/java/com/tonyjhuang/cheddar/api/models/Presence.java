@@ -6,7 +6,7 @@ import org.json.JSONObject;
 /**
  * Created by tonyjhuang on 3/3/16.
  */
-public class Presence implements MessageEvent {
+public class Presence implements ChatEvent {
 
     private Type type;
 
@@ -17,7 +17,7 @@ public class Presence implements MessageEvent {
         Presence presence = new Presence();
         presence.alias = Alias.fromJson(object.getJSONObject("alias"));
         presence.action = Action.valueOf(object.getString("action").toUpperCase());
-        presence.setType(MessageEvent.Type.PRESENCE);
+        presence.setType(ChatEvent.Type.PRESENCE);
         return presence;
     }
 

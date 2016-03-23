@@ -1,7 +1,7 @@
 package com.tonyjhuang.cheddar.api;
 
 import com.tonyjhuang.cheddar.api.models.Message;
-import com.tonyjhuang.cheddar.api.models.MessageEvent;
+import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Presence;
 
 import org.json.JSONException;
@@ -19,7 +19,7 @@ public class CheddarParser {
     private static final String DATA_OBJECT = "object";
     private static final String DATA_OBJECT_TYPE = "objectType";
 
-    public static MessageEvent parseMessageEvent(JSONObject object) throws UnrecognizedParseException {
+    public static ChatEvent parseMessageEvent(JSONObject object) throws UnrecognizedParseException {
         try {
             JSONObject data = object.getJSONObject(DATA_OBJECT);
             switch (MessageEventObjectType.valueOf(object.getString(DATA_OBJECT_TYPE))) {
@@ -35,7 +35,7 @@ public class CheddarParser {
         }
     }
 
-    public static Observable<MessageEvent> parseMessageEventRx(JSONObject object) {
+    public static Observable<ChatEvent> parseMessageEventRx(JSONObject object) {
         return Observable.create((subscriber -> {
             try {
                 subscriber.onNext(parseMessageEvent(object));

@@ -70,7 +70,7 @@
             android:paddingRight="20dp"
             android:paddingTop="12dp" />
 
-        <com.tonyjhuang.cheddar.api.models.SendMessageImageOverlay
+        <com.tonyjhuang.cheddar.ui.chat.SendMessageImageOverlay
             android:id="@+id/send_message_container"
             android:layout_width="56dp"
             android:layout_height="56dp"
@@ -93,7 +93,7 @@
                 android:clickable="false"
                 android:scaleType="centerCrop" />
 
-        </com.tonyjhuang.cheddar.api.models.SendMessageImageOverlay>
+        </com.tonyjhuang.cheddar.ui.chat.SendMessageImageOverlay>
 
     </LinearLayout>
 

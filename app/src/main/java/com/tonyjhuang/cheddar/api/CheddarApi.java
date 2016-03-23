@@ -6,7 +6,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
 import com.tonyjhuang.cheddar.api.models.Alias;
-import com.tonyjhuang.cheddar.api.models.MessageEvent;
+import com.tonyjhuang.cheddar.api.models.ChatEvent;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -102,7 +102,7 @@ public class CheddarApi {
     }
 
 
-    public Observable<MessageEvent> getMessageStream(String aliasId) {
+    public Observable<ChatEvent> getMessageStream(String aliasId) {
         Log.e(TAG, "getMessageStream");
         return getAlias(aliasId)
                 .map(Alias::getChatRoomId)
@@ -126,7 +126,7 @@ public class CheddarApi {
     /**
      * Retrieve past MessageEvents, sorted from newest to oldest.
      */
-    public Observable<List<MessageEvent>> replayMessageEvents(String aliasId, int count) {
+    public Observable<List<ChatEvent>> replayMessageEvents(String aliasId, int count) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("aliasId", aliasId);
         params.put("count", count);
@@ -188,7 +188,8 @@ public class CheddarApi {
     }
 
     /**
-     * Sends user feedback to backend. chatRoomId is optional. Leave blank if user is
+     * Sends user feedback to backend.
+     * chatRoomId is optional, use null if user is
      * providing feedback from the chat list.
      */
     public Observable<String> sendFeedback(String userId, String chatRoomId, String feedback) {

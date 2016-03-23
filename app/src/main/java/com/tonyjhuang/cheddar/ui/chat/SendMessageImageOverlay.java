@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.api.models;
+package com.tonyjhuang.cheddar.ui.chat;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -3,7 +3,7 @@ package com.tonyjhuang.cheddar.api.models;
 /**
  * Created by tonyjhuang on 3/2/16.
  */
-public interface MessageEvent {
+public interface ChatEvent {
 
     Type getType();
 

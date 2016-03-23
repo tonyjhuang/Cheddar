@@ -1,15 +1,12 @@
 package com.tonyjhuang.cheddar.background;
 
-import android.util.Log;
-
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.sharedpreferences.Pref;
-import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -20,6 +17,7 @@ import java.util.Map;
 public class UnreadMessagesCounter {
 
     private static final String TAG = UnreadMessagesCounter.class.getSimpleName();
+    private static final Gson gson = new Gson();
 
     @Pref
     CheddarPrefs_ prefs;
@@ -43,27 +41,11 @@ public class UnreadMessagesCounter {
     }
 
     private void saveMap(Map<String, Integer> inputMap) {
-        JSONObject jsonObject = new JSONObject(inputMap);
-        String jsonString = jsonObject.toString();
-        prefs.unreadMessages().put(jsonString);
+        prefs.unreadMessages().put(gson.toJson(inputMap));
     }
 
     private Map<String, Integer> loadMap() {
-        Map<String, Integer> outputMap = new HashMap<>();
-        try {
-            String jsonString = prefs.unreadMessages().get();
-            if (jsonString != null) {
-                JSONObject jsonObject = new JSONObject(jsonString);
-                Iterator<String> keysItr = jsonObject.keys();
-                while (keysItr.hasNext()) {
-                    String key = keysItr.next();
-                    int value = (Integer) jsonObject.get(key);
-                    outputMap.put(key, value);
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
-        return outputMap;
+        return gson.fromJson(prefs.unreadMessages().get(),
+                new TypeToken<Map<String, Integer>>() {}.getType());
     }
 }
