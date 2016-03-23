@@ -2,8 +2,6 @@ package com.tonyjhuang.cheddar;
 
 import android.util.Log;
 
-import com.tonyjhuang.cheddar.CheddarActivity;
-import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 
@@ -12,7 +10,7 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 /**
- * Created by tonyjhuang on 3/4/16.
+ * Decides what default activity to start when Cheddar is opened.
  */
 @EActivity
 public class AppRouter extends CheddarActivity {
@@ -20,13 +18,13 @@ public class AppRouter extends CheddarActivity {
     CheddarPrefs_ prefs;
 
     @AfterInject
-    public void decideActivity() {
-        String activeAlias = prefs.activeAlias().get();
-        Log.e("AppRouter", "activeAlias: " + activeAlias);
-        if(activeAlias == null || activeAlias.isEmpty()) {
+    public void start() {
+        String lastOpenedAlias = prefs.lastOpenedAlias().get();
+        Log.e("AppRouter", "lastOpened: " + lastOpenedAlias);
+        if (lastOpenedAlias == null || lastOpenedAlias.isEmpty()) {
             MainActivity_.intent(this).start();
         } else {
-            ChatActivity_.intent(this).aliasId(activeAlias).start();
+            ChatActivity_.intent(this).aliasId(lastOpenedAlias).start();
         }
     }
 }

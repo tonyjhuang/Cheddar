@@ -5,6 +5,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.util.Log;
 
+import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
 import com.tonyjhuang.cheddar.api.models.Alias;
@@ -17,6 +18,7 @@ import com.tonyjhuang.cheddar.presenter.Scheduler;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -43,6 +45,9 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Bean
     UnreadMessagesCounter unreadMessagesCounter;
+
+    @Pref
+    CheddarPrefs_ prefs;
 
     /**
      * Caches the current Alias for this room.
@@ -101,6 +106,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     @Override
     public void onResume(Context context) {
         aliasSubject.compose(Scheduler.backgroundSchedulers())
+                .doOnNext(alias -> prefs.lastOpenedAlias().put(alias.getObjectId()))
                 .map(Alias::getChatRoomId)
                 .subscribe(chatRoomId -> {
                     unreadMessagesCounter.clear(chatRoomId);
@@ -252,6 +258,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .flatMap(api::leaveChatRoom)
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
+                    prefs.lastOpenedAlias().put(null);
                     PushRegistrationIntentService_.intent(context).unregisterForPush(alias.getChatRoomId());
                     api.endMessageStream(alias.getObjectId()).publish().connect();
                     long lengthOfStay = new Date().getTime() - alias.getCreatedAt().getTime();

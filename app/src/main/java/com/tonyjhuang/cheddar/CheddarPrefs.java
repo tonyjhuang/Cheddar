@@ -9,6 +9,8 @@ public interface CheddarPrefs {
 
     String activeAlias();
 
+    String lastOpenedAlias();
+
     String unreadMessages();
 
     String pushChannels();

@@ -254,7 +254,7 @@ public class ChatEventListAdapter extends BaseAdapter {
                         convertView.setVisibility(View.VISIBLE);
                         break;
                     case LEAVE:
-                        presenceText += "has left";
+                        presenceText += " has left";
                         convertView.setVisibility(View.VISIBLE);
                         break;
                     default:
