@@ -10,10 +10,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 public class MainPagerAdapter extends FragmentPagerAdapter {
 
     private Fragment[] fragments = {
-            new MainActivity2_.OnboardCheddarFragment_(),
-            new MainActivity2_.OnboardMatchFragment_(),
-            new MainActivity2_.OnboardGroupFragment_(),
-            new MainActivity2_.AlphaWarningFragment_()
+            new MainActivity_.OnboardCheddarFragment_(),
+            new MainActivity_.OnboardMatchFragment_(),
+            new MainActivity_.OnboardGroupFragment_(),
+            new MainActivity_.AlphaWarningFragment_()
     };
 
     public MainPagerAdapter(FragmentManager fm) {

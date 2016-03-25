@@ -218,7 +218,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     @Override
     public void sendMessage(String message) {
         /**
-         * TODO: Need synchronous network requests. Sometimes, user tries to send a message before
+         * TODO: Need synchronous network requests. Sometimes, user tries to chat_send a message before
          * TODO: we're subscribed to the message stream
          */
         aliasSubject.compose(Scheduler.defaultSchedulers())

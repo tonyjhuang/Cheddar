@@ -1,41 +1,34 @@
 package com.tonyjhuang.cheddar.ui.main;
 
-import android.os.Bundle;
-import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.parse.ParseUser;
+import com.flyco.pageindicator.anim.select.ZoomInEnter;
+import com.flyco.pageindicator.indicator.FlycoPageIndicaor;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
-import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager;
 import com.tonyjhuang.cheddar.ui.customviews.ParalloidImageView;
-import com.tonyjhuang.cheddar.ui.utils.DisplayHelper;
 
-import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.res.AnimationRes;
-import org.androidannotations.annotations.res.DimensionPixelOffsetRes;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
-import java.util.concurrent.TimeUnit;
-
 import de.greenrobot.event.EventBus;
-import rx.Observable;
 
+/**
+ * Created by tonyjhuang on 3/23/16.
+ */
 @EActivity(R.layout.activity_main)
 public class MainActivity extends CheddarActivity {
 
@@ -44,32 +37,20 @@ public class MainActivity extends CheddarActivity {
     @ViewById(R.id.view_pager)
     ParallaxorViewPager viewPager;
 
-    @ViewById(R.id.foreground_container)
-    ViewGroup foregroundContainer;
-
-    @ViewById(R.id.back_splash)
-    View backSplash;
-
     @ViewById
-    ParalloidImageView cheese;
+    ParalloidImageView background;
 
-    @ViewById(R.id.welcome_to_container)
-    WelcomeToParalloidViewLayout welcomeToContainer;
+    @ViewById(R.id.pager_indicator)
+    FlycoPageIndicaor indicator;
 
-    @ViewById
-    ImageView loading;
+    @ViewById(R.id.pager_left)
+    View pagerLeft;
 
-    @ViewById(R.id.loading_text)
-    TextView loadingText;
+    @ViewById(R.id.pager_right)
+    View pagerRight;
 
-    @ViewById(R.id.black_out)
-    View blackOut;
-
-    @DimensionPixelOffsetRes(R.dimen.foreground_final_vertical_padding)
-    int foregroundVerticalPadding;
-
-    @AnimationRes(R.anim.spin)
-    Animation loadingAnimation;
+    @ViewById(R.id.husky)
+    View husky;
 
     @Bean
     CheddarApi cheddarApi;
@@ -77,49 +58,68 @@ public class MainActivity extends CheddarActivity {
     @Pref
     CheddarPrefs_ prefs;
 
-    private Handler animationHandler = new Handler();
-
-    @AfterInject
-    void afterInject() {
-        Log.d(TAG, "active after inject: " + prefs.activeAlias().get());
-    }
+    // ViewPager adapter.
+    private MainPagerAdapter onboardAdapter;
 
     @AfterViews
     void updateViews() {
-        viewPager.setAdapter(new MainPagerAdapter(getSupportFragmentManager()));
-        viewPager.addParalloid(cheese);
-        viewPager.addParalloid((p) -> {
-            // We only want welcomeToContainer to parallax on the first item.
-            float parallaxFactor = Math.min(p * viewPager.getAdapter().getCount(), 1);
-            welcomeToContainer.parallaxBy(parallaxFactor);
+        onboardAdapter = new MainPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(onboardAdapter);
+        viewPager.setOffscreenPageLimit(1);
+        indicator.setSelectAnimClass(ZoomInEnter.class).setViewPager(viewPager);
+        viewPager.addParalloid(background);
+
+        pagerLeft.setAlpha(0);
+        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+
+            // last page selected.
+            int prevPosition = 0;
+
+            @Override
+            public void onPageSelected(int position) {
+                int numItems = onboardAdapter.getCount();
+                if (position == 0 || position == numItems) {
+                    pagerLeft.animate().alpha(0);
+                } else {
+                    pagerLeft.animate().alpha(1);
+                }
+
+                if (position == numItems) {
+                    indicator.animate().alpha(0);
+                    pagerRight.animate().alpha(0);
+                    husky.animate().setDuration(100).yBy(husky.getHeight());
+                } else {
+                    indicator.animate().alpha(1);
+                    pagerRight.animate().alpha(1);
+                }
+
+                if (position == numItems - 1 && prevPosition == numItems) {
+                    husky.animate().setDuration(100).yBy(-husky.getHeight());
+                }
+
+                prevPosition = position;
+            }
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        if (viewPager.getCurrentItem() == 0) {
-            super.onBackPressed();
-        } else {
-            viewPager.setCurrentItem(viewPager.getCurrentItem() - 1);
-        }
+    @Click(R.id.pager_left)
+    public void onPagerLeftClick() {
+        viewPager.setCurrentItem(Math.max(0, viewPager.getCurrentItem() - 1));
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    @Click(R.id.pager_right)
+    public void onPagerRightClick() {
+        viewPager.setCurrentItem(Math.min(onboardAdapter.getCount() - 1,
+                viewPager.getCurrentItem() + 1));
     }
 
-    private void startChatActivity(String aliasId) {
-        animateHideLoading();
-        animationHandler.postDelayed(() ->
-                ChatActivity_.intent(this).aliasId(aliasId).start(), 500);
+    public void onEvent(AlphaWarningFragment.JoinChatEvent event) {
+        Log.d(TAG, "onEvent!");
+        subscribe(cheddarApi.joinNextAvailableChatRoom(5), alias -> {
+            CheddarMetricTracker.trackJoinChatRoom(alias.getChatRoomId());
+            ChatActivity_.intent(this).aliasId(alias.getObjectId()).start();
+        });
     }
-
-    /*
-     *
-     *     EVENT LISTENER
-     *
-     */
 
     @Override
     protected void onResume() {
@@ -133,58 +133,26 @@ public class MainActivity extends CheddarActivity {
         EventBus.getDefault().unregister(this);
     }
 
-    public void onEvent(GetStartedFragment.NextClickEvent event) {
-        viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+    @EFragment(R.layout.fragment_alpha_warning)
+    public static class AlphaWarningFragment extends Fragment {
+        @Click(R.id.confirm)
+        public void onConfirmClick() {
+            EventBus.getDefault().post(new JoinChatEvent());
+        }
+
+        public static class JoinChatEvent {
+        }
     }
 
-    public void onEvent(SignUpFragment.SubmitClickEvent event) {
-        viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+    @EFragment(R.layout.fragment_onboard_cheddar)
+    public static class OnboardCheddarFragment extends Fragment {
     }
 
-    public void onEvent(JoinChatFragment.MatchClickEvent event) {
-        Observable<Alias> joinChatRoomWaitForAnimation = animateJoinChat()
-                .zipWith(cheddarApi.joinNextAvailableChatRoom(event.maxOccupancy),
-                        (time, alias) -> alias);
-        subscribe(joinChatRoomWaitForAnimation,
-                alias -> {
-                    CheddarMetricTracker.trackJoinChatRoom(alias.getChatRoomId());
-                    prefs.activeAlias().put(alias.getObjectId());
-                    Log.d(TAG, prefs.activeAlias().get());
-                    startChatActivity(alias.getObjectId());
-                },
-                throwable -> Log.e("CHAT", throwable.toString()));
+    @EFragment(R.layout.fragment_onboard_match)
+    public static class OnboardMatchFragment extends Fragment {
     }
 
-    /*
-     *
-     *    ANIMATIONS
-     *
-     */
-
-    private Observable<Long> animateJoinChat() {
-        animationHandler.postDelayed(this::animateForeground, 200);
-        animationHandler.postDelayed(this::animateLoading, 750);
-        animationHandler.postDelayed(this::animateJoinChatText, 750);
-        return Observable.timer(1250, TimeUnit.MILLISECONDS);
-    }
-
-    private void animateForeground() {
-        foregroundContainer.animate()
-                .y(DisplayHelper.getScreenHeight(this) - foregroundVerticalPadding)
-                .setInterpolator(new AccelerateDecelerateInterpolator())
-                .setDuration(500);
-    }
-
-    private void animateLoading() {
-        loading.animate().alpha(1).setDuration(500);
-        loading.startAnimation(loadingAnimation);
-    }
-
-    private void animateJoinChatText() {
-        loadingText.animate().alpha(1).setDuration(500);
-    }
-
-    private void animateHideLoading() {
-        loadingText.animate().alpha(0).setDuration(500);
+    @EFragment(R.layout.fragment_onboard_group)
+    public static class OnboardGroupFragment extends Fragment {
     }
 }

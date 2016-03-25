@@ -177,7 +177,7 @@ public class CheddarNotificationService {
 
     private NotificationCompat.Builder getBuilder(Context context) {
         return new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.notification_icon)
+                .setSmallIcon(R.drawable.notif_icon)
                 .setColor(smallIconColor)
                 .setContentIntent(getContentPendingIntent(context))
                 .setVibrate(vibratePattern)

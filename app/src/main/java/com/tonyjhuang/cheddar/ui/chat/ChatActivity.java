@@ -1,8 +1,6 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.IntentFilter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -13,18 +11,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.EditText;
 
-import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
-import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
-import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
-import com.tonyjhuang.cheddar.ui.main.MainActivity2_;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 import com.tonyjhuang.cheddar.ui.utils.FeedbackDialogHelper;
 
@@ -282,7 +276,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         if (leaveChatRoomDialog != null) {
             leaveChatRoomDialog.dismiss();
         }
-        MainActivity2_.intent(this).start();
+        MainActivity_.intent(this).start();
     }
 
     @Override

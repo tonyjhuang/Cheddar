@@ -37,14 +37,10 @@
         </activity>
 
         <activity
-            android:name="com.tonyjhuang.cheddar.ui.main.MainActivity2_"
-            android:noHistory="true"
-            android:screenOrientation="portrait" />
-
-        <activity
             android:name="com.tonyjhuang.cheddar.ui.main.MainActivity_"
             android:noHistory="true"
             android:screenOrientation="portrait" />
+
         <activity
             android:name="com.tonyjhuang.cheddar.ui.chat.ChatActivity_"
             android:screenOrientation="portrait"
