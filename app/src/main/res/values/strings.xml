@@ -1,11 +1,28 @@
 <resources>
     <string name="app_name">Cheddar</string>
+    <string name="app_name_lowercase">cheddar</string>
     <string name="app_name_uppercase_period">CHEDDAR.</string>
     <string name="app_name_uppercase">CHEDDAR</string>
-    <string name="catchphrase">Make a friend. Find a date. Troll.</string>
+    <string name="app_tagline">Make a friend. Find a date. Troll.</string>
+    <string name="app_value_prop">Anonymous group messaging for Northeastern</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
-    <string name="title_activity_main2">Main2Activity</string>
+
+    <!-- onboard -->
+    <string name="onboard_cheddar_value_prop_1">Anonymous group</string>
+    <string name="onboard_cheddar_value_prop_2">messaging for Northeastern</string>
+    <string name="onboard_match_value_prop_1">Get randomly matched</string>
+    <string name="onboard_match_value_prop_2">with 4 other Huskies</string>
+    <string name="onboard_group_value_prop_1">Get placed in up to</string>
+    <string name="onboard_group_value_prop_2">5 group chats at once</string>
+
+    <!-- alpha -->
+    <string name="alpha_header">alpha</string>
+    <string name="alpha_warning_header">Warning!</string>
+    <string name="alpha_warning">Thanks for testing cheddar! Things might break but you knew that already ;)</string>
+    <string name="alpha_confirm">Ok, let me in!</string>
+
+    <!-- main -->
     <string name="welcome_to">WELCOME TO</string>
     <string name="get_started">Cheddar pairs you with up to 4 other Northeastern students in a completely anonymous chat room. It\'s up to you to decide what you do and what you talk about. Make a new friend or maybe an enemy, ready?</string>
     <string name="lets_go">Let\'s go</string>
@@ -31,7 +48,6 @@
     <string name="signup_notice">This information will not be shared with other users.</string>
     <string name="signup_submit">Next</string>
     <string name="signup_verify_email">Thanks! Please check your inbox at %1$s for your verification link to finish.</string>
-    <string name="signup_check_email_verification"></string>
 
     <!-- chat -->
     <string name="chat_message_input_hint">Say cheese!</string>

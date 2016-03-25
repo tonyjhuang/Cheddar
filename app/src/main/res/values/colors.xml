@@ -8,6 +8,8 @@
     <color name="solid_gray">#e5e5e5</color>
     <color name="divider_gray">#14000000</color>
 
+    <color name="onboard_text_color">#494949</color>
+
     <color name="chat_author_background_incoming">@color/colorPrimary</color>
     <color name="chat_author_background_outgoing">@color/colorAccent</color>
     <color name="chat_author_text_outgoing">@android:color/primary_text_dark</color>

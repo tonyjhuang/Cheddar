@@ -3,6 +3,7 @@ package com.tonyjhuang.cheddar.ui.customviews;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 

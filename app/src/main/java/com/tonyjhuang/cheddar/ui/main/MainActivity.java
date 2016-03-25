@@ -33,6 +33,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.concurrent.TimeUnit;
 
+import de.greenrobot.event.EventBus;
 import rx.Observable;
 
 @EActivity(R.layout.activity_main)
@@ -119,6 +120,18 @@ public class MainActivity extends CheddarActivity {
      *     EVENT LISTENER
      *
      */
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
+    }
 
     public void onEvent(GetStartedFragment.NextClickEvent event) {
         viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);

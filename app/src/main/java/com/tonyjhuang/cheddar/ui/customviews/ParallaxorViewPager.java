@@ -1,7 +1,9 @@
 package com.tonyjhuang.cheddar.ui.customviews;
 
 import android.content.Context;
+import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +11,7 @@ import java.util.List;
 /**
  * Created by tonyjhuang on 2/5/16.
  */
-public class ParallaxorViewPager extends ViewPagerCustomDuration {
+public class ParallaxorViewPager extends ViewPager {
 
     private List<Paralloid> paralloids = new ArrayList<>();
 
@@ -24,9 +26,9 @@ public class ParallaxorViewPager extends ViewPagerCustomDuration {
     }
 
     private void init() {
-        if(isInEditMode()) return;
+        if (isInEditMode()) return;
 
-        super.addOnPageChangeListener(new OnPageChangeListener() {
+        addOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 int totalItems = getAdapter().getCount();

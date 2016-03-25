@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="184dp"
+        android:scaleType="centerInside"
+        android:layout_height="341dp"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="-92dp"
+        android:layout_above="@+id/center_anchor"
+        android:src="@drawable/onboard_match" />
+
+    <android.support.v4.widget.Space
+        android:id="@+id/center_anchor"
+        android:layout_centerInParent="true"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <TextView
+        android:id="@+id/value_prop_1"
+        fontPath="Effra-Medium.ttf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/center_anchor"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="148dp"
+        android:gravity="center"
+        android:text="@string/onboard_match_value_prop_1"
+        android:textColor="@color/onboard_text_color"
+        android:textSize="24sp"
+        tools:ignore="MissingPrefix" />
+
+    <TextView
+        android:id="@+id/value_prop_2"
+        fontPath="Effra-Medium.ttf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/value_prop_1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="@string/onboard_match_value_prop_2"
+        android:textColor="@color/onboard_text_color"
+        android:textSize="24sp"
+        tools:ignore="MissingPrefix" />
+
+
+</RelativeLayout>

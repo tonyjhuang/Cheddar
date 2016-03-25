@@ -24,6 +24,7 @@ import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
+import com.tonyjhuang.cheddar.ui.main.MainActivity2_;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 import com.tonyjhuang.cheddar.ui.utils.FeedbackDialogHelper;
 
@@ -281,7 +282,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         if (leaveChatRoomDialog != null) {
             leaveChatRoomDialog.dismiss();
         }
-        MainActivity_.intent(this).start();
+        MainActivity2_.intent(this).start();
     }
 
     @Override

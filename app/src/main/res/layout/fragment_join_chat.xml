@@ -30,7 +30,7 @@
         android:layout_marginBottom="24dp"
         android:layout_marginLeft="@dimen/welcome_left_margin"
         android:gravity="bottom"
-        android:text="@string/catchphrase"
+        android:text="@string/app_tagline"
         android:textColor="@android:color/transparent"
         android:textSize="18sp"
         tools:textColor="#4000" />

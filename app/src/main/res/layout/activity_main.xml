@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.tonyjhuang.cheddar.MainActivity"
+    tools:context="com.tonyjhuang.cheddar.ui.main.MainActivity"
     tools:ignore="MissingPrefix">
 
     <View
@@ -104,7 +104,7 @@
         android:layout_marginBottom="24dp"
         android:layout_marginLeft="@dimen/welcome_left_margin"
         android:gravity="bottom"
-        android:text="@string/catchphrase"
+        android:text="@string/app_tagline"
         android:textColor="#D000"
         android:textSize="18sp" />
 

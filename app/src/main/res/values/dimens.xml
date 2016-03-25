@@ -10,6 +10,8 @@
     <dimen name="foreground_final_vertical_padding">96dp</dimen>
     <dimen name="cheese_parallax">72dp</dimen>
 
+    <dimen name="onboard_bg_parallax">100dp</dimen>
+
     <dimen name="chat_bubble_padding">6dp</dimen>
     <dimen name="chat_bubble_padding_minimized">1dp</dimen>
     <dimen name="chat_bubble_min_height">34dp</dimen>
