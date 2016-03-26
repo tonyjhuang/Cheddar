@@ -7,6 +7,7 @@ import com.tonyjhuang.cheddar.CheddarPrefs_;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -45,7 +46,13 @@ public class UnreadMessagesCounter {
     }
 
     private Map<String, Integer> loadMap() {
-        return gson.fromJson(prefs.unreadMessages().get(),
+        Map<String, Integer> map = gson.fromJson(prefs.unreadMessages().get(),
                 new TypeToken<Map<String, Integer>>() {}.getType());
+
+        if (map == null) {
+            map = new HashMap<>();
+        }
+
+        return map;
     }
 }

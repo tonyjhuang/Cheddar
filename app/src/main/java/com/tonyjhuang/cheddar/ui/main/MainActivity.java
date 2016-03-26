@@ -2,7 +2,6 @@ package com.tonyjhuang.cheddar.ui.main;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 
 import com.flyco.pageindicator.anim.select.ZoomInEnter;
@@ -13,6 +12,7 @@ import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
+import com.tonyjhuang.cheddar.ui.customviews.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager;
 import com.tonyjhuang.cheddar.ui.customviews.ParalloidImageView;
 
@@ -114,7 +114,7 @@ public class MainActivity extends CheddarActivity {
     }
 
     public void onEvent(AlphaWarningFragment.JoinChatEvent event) {
-        Log.d(TAG, "onEvent!");
+        LoadingDialog.show(this, R.string.chat_join_chat);
         subscribe(cheddarApi.joinNextAvailableChatRoom(5), alias -> {
             CheddarMetricTracker.trackJoinChatRoom(alias.getChatRoomId());
             ChatActivity_.intent(this).aliasId(alias.getObjectId()).start();

@@ -17,9 +17,7 @@ public class Message extends ParseObject implements ChatEvent {
     private Type type;
 
     public static Message createPlaceholderMessage(Alias alias, String body) {
-        // TODO: HORRIBLE HORRIBLE HACK, ALL TIMES PASSED FROM SERVER ARE IN GMT
-        // TODO: BUT WE
-        Date now = new Date(System.currentTimeMillis());
+        Date now = new Date();
         Log.d("MESSAGE", "CREATED NEW DATE AT " + now.toString());
         Message message = new Message();
         message.put("body", body);

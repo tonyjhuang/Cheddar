@@ -38,7 +38,6 @@
 
         <activity
             android:name="com.tonyjhuang.cheddar.ui.main.MainActivity_"
-            android:noHistory="true"
             android:screenOrientation="portrait" />
 
         <activity

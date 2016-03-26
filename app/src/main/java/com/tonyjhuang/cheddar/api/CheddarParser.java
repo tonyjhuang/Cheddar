@@ -19,7 +19,7 @@ public class CheddarParser {
     private static final String DATA_OBJECT = "object";
     private static final String DATA_OBJECT_TYPE = "objectType";
 
-    public static ChatEvent parseMessageEvent(JSONObject object) throws UnrecognizedParseException {
+    public static ChatEvent parseChatEvent(JSONObject object) throws UnrecognizedParseException {
         try {
             JSONObject data = object.getJSONObject(DATA_OBJECT);
             switch (MessageEventObjectType.valueOf(object.getString(DATA_OBJECT_TYPE))) {
@@ -38,7 +38,7 @@ public class CheddarParser {
     public static Observable<ChatEvent> parseMessageEventRx(JSONObject object) {
         return Observable.create((subscriber -> {
             try {
-                subscriber.onNext(parseMessageEvent(object));
+                subscriber.onNext(parseChatEvent(object));
                 subscriber.onCompleted();
             } catch (UnrecognizedParseException e) {
                 subscriber.onError(e);

@@ -1,5 +1,6 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
+import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
 
@@ -19,6 +20,8 @@ public interface ChatRoomView {
      * Incoming messages are from history.
      */
     void displayOldChatEvents(String currentUserId, List<ChatEvent> messages);
+
+    void displayActiveAliases(List<Alias> aliases);
 
     void displayLoadHistoryChatEventsError();
 

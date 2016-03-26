@@ -1,12 +1,13 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
-import android.app.ProgressDialog;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.EditText;
@@ -16,8 +17,11 @@ import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
+import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
+import com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar;
+import com.tonyjhuang.cheddar.ui.customviews.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 import com.tonyjhuang.cheddar.ui.utils.FeedbackDialogHelper;
@@ -44,7 +48,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     private static final String TAG = ChatActivity.class.getSimpleName();
 
     @ViewById(R.id.toolbar)
-    Toolbar toolbar;
+    ClickableTitleToolbar toolbar;
 
     @ViewById(R.id.message_list_view)
     PreserveScrollStateListView chatEventListView;
@@ -72,12 +76,20 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
      */
     private ChatEventListAdapter adapter;
 
+    /**
+     * Have we retrieved our initial list of ChatEvents yet?
+     */
     private boolean firstLoad = true;
+
+    /**
+     * The current list of active Aliases in this Chat Room.
+     */
+    private List<Alias> activeAliases;
 
     /**
      * Loading dialog for when the user is leaving the chatroom.
      */
-    private ProgressDialog leaveChatRoomDialog;
+    private LoadingDialog leaveChatRoomDialog;
 
     @AfterInject
     public void afterInject() {
@@ -92,6 +104,28 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         assert getSupportActionBar() != null;
         getSupportActionBar().setTitle(R.string.chat_title_group);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void displayActiveAliasesDialog() {
+        showToast("Hello!");
+    }
+
+    @Override
+    public void displayActiveAliases(List<Alias> aliases) {
+        assert getSupportActionBar() != null;
+        ActionBar actionBar = getSupportActionBar();
+
+        int numAliases = aliases.size();
+        if (numAliases == 0) {
+            actionBar.setSubtitle(null);
+        } else if (numAliases == 1) {
+            actionBar.setSubtitle("Waiting for others..");
+            toolbar.getSubtitleTextView().setOnClickListener(null);
+        } else {
+            actionBar.setSubtitle(numAliases + " members");
+            toolbar.getSubtitleTextView().setOnClickListener(v -> displayActiveAliasesDialog());
+        }
+        activeAliases = aliases;
     }
 
     @Click(R.id.send_message)
@@ -130,7 +164,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         setUpChatEventListView(currentUserId);
         chatEventListView.pauseDrawing();
         for (ChatEvent chatEvent : chatEvents) {
-            adapter.addOrUpdateMessageEvent(chatEvent, false);
+            adapter.addOrUpdateMessageEvent(chatEvent, true);
         }
 
         chatEventListView.animate().alpha(1f).setDuration(250);
@@ -268,7 +302,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
      */
     private void leaveChatRoom() {
         presenter.leaveChatRoom(this);
-        leaveChatRoomDialog = ProgressDialog.show(this, "Leaving Chat..", "", false);
+        leaveChatRoomDialog = LoadingDialog.show(this, R.string.chat_leave_chat);
     }
 
     @Override

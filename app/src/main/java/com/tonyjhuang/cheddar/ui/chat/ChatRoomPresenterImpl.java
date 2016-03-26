@@ -11,6 +11,7 @@ import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
+import com.tonyjhuang.cheddar.api.models.Presence;
 import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.background.PushRegistrationIntentService_;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
@@ -20,13 +21,16 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subjects.AsyncSubject;
+import rx.subjects.BehaviorSubject;
 import rx.subjects.ReplaySubject;
 
 /**
@@ -62,16 +66,29 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private ConnectableObservable<ChatEvent> chatEventObservable;
 
     /**
-     * Caches incoming ChatEvents until the View calls onResume.
+     * Caches incoming ChatEvents until the View calls onResume. Should
+     * subscribe to cacheChatEventSubject for ChatEvents instead of
+     * subscribing to chatEventObservable directly.
      */
     private Subscription cacheChatEventSubscription;
     private ReplaySubject<ChatEvent> cacheChatEventSubject;
 
     /**
-     * Subscription for loading ChatEvent history. Need to keep around to
-     * delete in onDestroy.
+     * Subscription for loading ChatEvent history.
      */
     private Subscription historyChatEventSubscription;
+
+    /**
+     * Listens on chatEventObservable for new Presence events and retrieves
+     * the list of Aliases for the active Chat Room on each event.
+     */
+    private Subscription activeAliasSubscription;
+    private BehaviorSubject<List<Alias>> activeAliasSubject;
+
+    /**
+     * Subscription for updating the view with users joining/leaving the Chat Room.
+     */
+    private Subscription activeAliasesSubscription;
 
     /**
      * Caches the result of loading ChatEvent history in case the view has called
@@ -112,6 +129,27 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     unreadMessagesCounter.clear(chatRoomId);
                     PushRegistrationIntentService_.intent(context).registerForPush(chatRoomId).start();
                     registerReceiver(context, chatRoomId);
+
+                    if (activeAliasSubscription == null) {
+                        // Listen to ChatEvent stream for Presence events and get
+                        // the updated list of active Aliases.
+                        Observable<List<Alias>> aliasUpdates = chatEventObservable
+                                .filter(chatEvent -> chatEvent instanceof Presence)
+                                .flatMap(chatEvent -> api.getActiveAliases(chatRoomId));
+
+                        activeAliasSubject = BehaviorSubject.create(new ArrayList<>());
+                        activeAliasSubscription = api.getActiveAliases(chatRoomId)
+                                .concatWith(aliasUpdates)
+                                .compose(Scheduler.backgroundSchedulers())
+                                .subscribe(activeAliasSubject);
+                    }
+
+                    // Update View if number of active Aliases changes.
+                    activeAliasesSubscription = activeAliasSubject
+                            .compose(Scheduler.defaultSchedulers())
+                            .subscribe(aliases -> {
+                                if (view != null) view.displayActiveAliases(aliases);
+                            });
                 });
 
         if (cacheChatEventSubscription == null) {
@@ -145,11 +183,19 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     }
 
     private void sendViewNewChatEvents(List<ChatEvent> chatEvents) {
+        Log.d(TAG, ((Message) chatEvents.get(0)).getCreatedAt().toString());
         aliasSubject.compose(Scheduler.defaultSchedulers()).subscribe(alias -> {
             if (view != null) view.displayNewChatEvents(alias.getUserId(), chatEvents);
         });
     }
 
+    /**
+     * cacheChatEventSubject will subscribe to our ChatEvent message stream and
+     * store all incoming ChatEvents to an internal cache. When a new subscriber
+     * subscribes to cacheChatEventSubject, it will immediately receive all
+     * incoming ChatEvents from the moment cacheChatEventSubject was first created
+     * in order as well as all future ChatEvents as they come in.
+     */
     private Subscription subscribeCacheChatEventSubjectToObservable() {
         cacheChatEventSubject = ReplaySubject.create();
         return chatEventObservable
@@ -161,6 +207,9 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     public void onPause(Context context) {
         // Stop sending ChatEvents to View.
         unsubscribe(chatEventSubscription);
+
+        // Stop sending user join/leave events to View.
+        unsubscribe(activeAliasesSubscription);
 
         // Restart ReplaySubject to avoid sending ChatEvents that have already
         // been replayed to the View in onResume().
@@ -185,6 +234,15 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         cacheHistoryChatEventSubject = AsyncSubject.create();
         cacheHistoryChatEventSubscription = aliasSubject.map(Alias::getObjectId)
                 .flatMap(aliasId -> api.replayMessageEvents(aliasId, REPLAY_COUNT))
+                .doOnNext(chatEvents -> {
+                    for(ChatEvent e : chatEvents) {
+                        if(e instanceof Presence) {
+                            Log.d(TAG, "p : " + ((Presence) e).getAlias().getCreatedAt());
+                        } else {
+                            Log.d(TAG, "m : " + ((Message) e).getCreatedAt());
+                        }
+                    }
+                })
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(cacheHistoryChatEventSubject);
 
@@ -282,6 +340,8 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         unsubscribe(chatEventSubscription);
         unsubscribe(historyChatEventSubscription);
         unsubscribe(cacheHistoryChatEventSubscription);
+        unsubscribe(activeAliasSubscription);
+        unsubscribe(activeAliasesSubscription);
         view = null;
     }
 

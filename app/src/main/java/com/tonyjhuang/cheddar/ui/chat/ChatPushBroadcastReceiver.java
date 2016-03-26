@@ -29,7 +29,7 @@ public class ChatPushBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.e(TAG, "activity on receive!");
         try {
-            ChatEvent chatEvent = CheddarParser.parseMessageEvent(
+            ChatEvent chatEvent = CheddarParser.parseChatEvent(
                     new JSONObject(intent.getStringExtra("payload")));
             switch (chatEvent.getType()) {
                 case MESSAGE:

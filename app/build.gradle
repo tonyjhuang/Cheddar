@@ -25,9 +25,9 @@ dependencies {
     apt "org.androidannotations:androidannotations:$AAVersion"
     compile "org.androidannotations:androidannotations-api:$AAVersion"
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar')
-    {
-        transitive = true;
-    }
+            {
+                transitive = true;
+            }
 }
 
 
@@ -158,6 +158,5 @@ dependencies {
 
     compile 'com.android.support:multidex:1.0.1'
 }
-
 
 apply plugin: 'com.google.gms.google-services'

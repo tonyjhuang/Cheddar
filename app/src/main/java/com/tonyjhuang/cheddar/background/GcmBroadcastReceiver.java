@@ -36,7 +36,7 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
         Log.d(TAG, "onReceive!");
         String payloadString = intent.getStringExtra("payload");
         try {
-            ChatEvent chatEvent = CheddarParser.parseMessageEvent(new JSONObject(payloadString));
+            ChatEvent chatEvent = CheddarParser.parseChatEvent(new JSONObject(payloadString));
             api.getCurrentUser().subscribe(currentUser -> {
                 if(!currentUser.getObjectId().equals(chatEvent.getAlias().getUserId())) {
                     handleMessageEvent(context, chatEvent);

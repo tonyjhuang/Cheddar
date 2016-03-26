@@ -130,6 +130,7 @@ public class ChatEventListAdapter extends BaseAdapter {
         if (addToEnd) {
             for (int i = itemViewInfos.size() - 1; i >= 0; i--) {
                 ChatEventViewInfo otherInfo = getItem(i);
+                // Don't add duplicate ChatEvents
                 if (viewInfo.isSameObject(otherInfo)) return;
                 if (viewInfo.getDate().after(otherInfo.getDate())) {
                     indexOfNewViewInfo = i + 1;
@@ -139,6 +140,7 @@ public class ChatEventListAdapter extends BaseAdapter {
         } else {
             for (int i = 0; i < itemViewInfos.size(); i++) {
                 ChatEventViewInfo otherInfo = getItem(i);
+                // Don't add duplicate ChatEvents
                 if (viewInfo.isSameObject(otherInfo)) return;
                 if (viewInfo.getDate().before(otherInfo.getDate())) {
                     indexOfNewViewInfo = i;

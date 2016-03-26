@@ -42,6 +42,10 @@ public class CheddarApi {
     public CheddarApi() {
     }
 
+    //******************************************************
+    //                Users
+    //******************************************************
+
     public Observable<ParseUser> getCurrentUser() {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser == null) {
@@ -66,6 +70,10 @@ public class CheddarApi {
         return ParseObservable.callFunction("registerNewUser", new HashMap<>());
     }
 
+    //******************************************************
+    //                Chat Rooms
+    //******************************************************
+
     public Observable<Map<String, Object>> getDefaultParams(ParseUser user) {
         Map<String, Object> params = new HashMap<>();
         params.put("userId", user.getObjectId());
@@ -88,6 +96,16 @@ public class CheddarApi {
         params.put("pubkey", PUBKEY);
         return ParseObservable.callFunction("leaveChatRoom", params);
     }
+
+    public Observable<List<Alias>> getActiveAliases(String chatRoomId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("chatRoomId", chatRoomId);
+        return ParseObservable.callFunction("getActiveAliases", params);
+    }
+
+    //******************************************************
+    //                Messages
+    //******************************************************
 
     public Observable<Void> sendMessage(String aliasId, String body) {
         return getCurrentUser()
@@ -169,23 +187,9 @@ public class CheddarApi {
         return new JSONObject(map);
     }
 
-    public Observable<Object> registerForPushNotifications(String aliasId, String registrationToken) {
-        return getAlias(aliasId).flatMap(alias ->
-                messageApi.registerForPushNotifications(alias.getChatRoomId(), registrationToken));
-    }
-
-
-    public Observable<Object> unregisterForPushNotifications(String aliasId, String registrationToken) {
-        return getAlias(aliasId).flatMap(alias ->
-                messageApi.unregisterForPushNotifications(alias.getChatRoomId(), registrationToken));
-    }
-
-    public Observable<List<Alias>> getUsersInChatRoom(String chatRoomId) {
-        ParseQuery<Alias> query = ParseQuery.getQuery(Alias.class);
-        query.whereEqualTo("active", true);
-        query.whereEqualTo("chatRoomId", chatRoomId);
-        return ParseObservable.find(query).toList();
-    }
+    //******************************************************
+    //                Miscellaneous
+    //******************************************************
 
     /**
      * Sends user feedback to backend.

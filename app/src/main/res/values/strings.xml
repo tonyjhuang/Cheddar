@@ -22,18 +22,6 @@
     <string name="alpha_warning">Thanks for testing cheddar! Things might break but you knew that already ;)</string>
     <string name="alpha_confirm">Ok, let me in!</string>
 
-    <!-- main -->
-    <string name="welcome_to">WELCOME TO</string>
-    <string name="get_started">Cheddar pairs you with up to 4 other Northeastern students in a completely anonymous chat room. It\'s up to you to decide what you do and what you talk about. Make a new friend or maybe an enemy, ready?</string>
-    <string name="lets_go">Let\'s go</string>
-    <string name="find_chat">Match</string>
-    <string name="single">Single</string>
-    <string name="group">Group</string>
-    <string name="single_description">Get paired with one other for a more intimate setting. Perfect for making new connections.</string>
-    <string name="select_dorm">(Optional) Select your dorm and we\'ll try to match you with someone nearby.</string>
-    <string name="group_description">Join the mayhem. Anything goes in this up to 5 person chat room. Warning: Not for the faint of heart.</string>
-    <string name="main_loading">Joining chat room&#8230;</string>
-
     <!-- signup -->
     <string name="signup_header">Signup</string>
     <string name="signup_progress_1">1 of 2</string>
@@ -50,6 +38,7 @@
     <string name="signup_verify_email">Thanks! Please check your inbox at %1$s for your verification link to finish.</string>
 
     <!-- chat -->
+    <string name="chat_join_chat">Joining chat&#8230;</string>
     <string name="chat_message_input_hint">Say cheese!</string>
     <string name="chat_send_message">Send</string>
     <string name="chat_title_group">Group</string>
@@ -58,13 +47,14 @@
     <string name="chat_action_leave">Leave Chat</string>
     <string name="chat_leave_confirm">Leave</string>
     <string name="chat_leave_cancel">Cancel</string>
+    <string name="chat_leave_chat">Leaving chat&#8230;</string>
     <string name="chat_message_failed">Could not deliver message. Check your connection settings?</string>
     <string name="chat_play_services_missing">"Couldn\'t find Google Play Services. Push notifications will not work."</string>
     <string name="chat_gcm_registration_failed">Couldn\'t register for push notifications.</string>
 
     <!-- feedback -->
     <string name="feedback_title">Send feedback</string>
-    <string name="feedback_message">Your feedback will be used to make Cheddar even better</string>
+    <string name="feedback_message">Hi there, tester! Is something weird or broken?</string>
     <string name="feedback_hint">What\'s up?</string>
     <string name="feedback_thanks">Thanks for your feedback!</string>
     <string name="feedback_empty">Please write some feedback first!</string>
