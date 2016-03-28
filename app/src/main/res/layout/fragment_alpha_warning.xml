@@ -26,7 +26,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
+            android:layout_marginLeft="10dp"
             android:text="@string/alpha_header"
             android:textColor="@color/onboard_text_color"
             android:textSize="44sp" />
@@ -63,15 +63,6 @@
         android:layout_height="0dp"
         android:layout_centerInParent="true"
         android:background="@android:color/black" />
-
-    <ImageView
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:layout_below="@+id/alpha_warning"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="96dp"
-        android:scaleType="centerInside"
-        android:src="@drawable/husky_right" />
 
     <Button
         android:id="@+id/confirm"

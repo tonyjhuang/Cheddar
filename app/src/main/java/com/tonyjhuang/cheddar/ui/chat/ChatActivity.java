@@ -1,13 +1,12 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.EditText;
@@ -120,7 +119,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
             actionBar.setSubtitle(null);
         } else if (numAliases == 1) {
             actionBar.setSubtitle("Waiting for others..");
-            toolbar.getSubtitleTextView().setOnClickListener(null);
+            toolbar.getSubtitleTextView().setOnClickListener(v -> showToast(R.string.chat_waiting));
         } else {
             actionBar.setSubtitle(numAliases + " members");
             toolbar.getSubtitleTextView().setOnClickListener(v -> displayActiveAliasesDialog());
@@ -310,7 +309,10 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         if (leaveChatRoomDialog != null) {
             leaveChatRoomDialog.dismiss();
         }
-        MainActivity_.intent(this).start();
+        MainActivity_.intent(this)
+                .flags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                .start();
+        finish();
     }
 
     @Override

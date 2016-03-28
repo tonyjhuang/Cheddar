@@ -39,6 +39,7 @@
 
     <!-- chat -->
     <string name="chat_join_chat">Joining chat&#8230;</string>
+    <string name="chat_waiting">You\'ll receive a notification when someone joins the chat.</string>
     <string name="chat_message_input_hint">Say cheese!</string>
     <string name="chat_send_message">Send</string>
     <string name="chat_title_group">Group</string>

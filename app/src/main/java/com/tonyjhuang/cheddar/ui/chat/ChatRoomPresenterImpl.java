@@ -149,7 +149,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                             .compose(Scheduler.defaultSchedulers())
                             .subscribe(aliases -> {
                                 if (view != null) view.displayActiveAliases(aliases);
-                            });
+                            }, error -> Log.e(TAG, "error? " + error.toString()));
                 });
 
         if (cacheChatEventSubscription == null) {
@@ -183,7 +183,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     }
 
     private void sendViewNewChatEvents(List<ChatEvent> chatEvents) {
-        Log.d(TAG, ((Message) chatEvents.get(0)).getCreatedAt().toString());
         aliasSubject.compose(Scheduler.defaultSchedulers()).subscribe(alias -> {
             if (view != null) view.displayNewChatEvents(alias.getUserId(), chatEvents);
         });

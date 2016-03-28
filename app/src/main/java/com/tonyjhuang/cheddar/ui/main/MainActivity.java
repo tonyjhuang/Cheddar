@@ -1,5 +1,6 @@
 package com.tonyjhuang.cheddar.ui.main;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -61,6 +62,8 @@ public class MainActivity extends CheddarActivity {
     // ViewPager adapter.
     private MainPagerAdapter onboardAdapter;
 
+    private LoadingDialog loadingDialog;
+
     @AfterViews
     void updateViews() {
         onboardAdapter = new MainPagerAdapter(getSupportFragmentManager());
@@ -77,14 +80,14 @@ public class MainActivity extends CheddarActivity {
 
             @Override
             public void onPageSelected(int position) {
-                int numItems = onboardAdapter.getCount();
-                if (position == 0 || position == numItems) {
+                int end = onboardAdapter.getCount() - 1;
+                if (position == 0 || position == end) {
                     pagerLeft.animate().alpha(0);
                 } else {
                     pagerLeft.animate().alpha(1);
                 }
 
-                if (position == numItems) {
+                if (position == end) {
                     indicator.animate().alpha(0);
                     pagerRight.animate().alpha(0);
                     husky.animate().setDuration(100).yBy(husky.getHeight());
@@ -93,13 +96,15 @@ public class MainActivity extends CheddarActivity {
                     pagerRight.animate().alpha(1);
                 }
 
-                if (position == numItems - 1 && prevPosition == numItems) {
+                if (position == end - 1 && prevPosition == end) {
                     husky.animate().setDuration(100).yBy(-husky.getHeight());
                 }
 
                 prevPosition = position;
             }
         });
+
+        LoadingDialog.show(this, R.string.chat_join_chat);
     }
 
     @Click(R.id.pager_left)
@@ -114,11 +119,22 @@ public class MainActivity extends CheddarActivity {
     }
 
     public void onEvent(AlphaWarningFragment.JoinChatEvent event) {
-        LoadingDialog.show(this, R.string.chat_join_chat);
-        subscribe(cheddarApi.joinNextAvailableChatRoom(5), alias -> {
+        loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
+        /*subscribe(cheddarApi.joinNextAvailableChatRoom(5), alias -> {
             CheddarMetricTracker.trackJoinChatRoom(alias.getChatRoomId());
-            ChatActivity_.intent(this).aliasId(alias.getObjectId()).start();
-        });
+            navigateToChatView(alias.getObjectId());
+        });*/
+    }
+
+    private void navigateToChatView(String aliasId) {
+        if (loadingDialog != null) {
+            loadingDialog.dismiss();
+        }
+        ChatActivity_.intent(this)
+                .flags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                .aliasId(aliasId)
+                .start();
+        finish();
     }
 
     @Override
