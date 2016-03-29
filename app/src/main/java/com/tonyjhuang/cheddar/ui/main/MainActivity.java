@@ -3,6 +3,7 @@ package com.tonyjhuang.cheddar.ui.main;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 
 import com.flyco.pageindicator.anim.select.ZoomInEnter;
@@ -22,6 +23,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
@@ -103,8 +105,6 @@ public class MainActivity extends CheddarActivity {
                 prevPosition = position;
             }
         });
-
-        LoadingDialog.show(this, R.string.chat_join_chat);
     }
 
     @Click(R.id.pager_left)
@@ -120,10 +120,10 @@ public class MainActivity extends CheddarActivity {
 
     public void onEvent(AlphaWarningFragment.JoinChatEvent event) {
         loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
-        /*subscribe(cheddarApi.joinNextAvailableChatRoom(5), alias -> {
+        subscribe(cheddarApi.joinNextAvailableChatRoom(5), alias -> {
             CheddarMetricTracker.trackJoinChatRoom(alias.getChatRoomId());
             navigateToChatView(alias.getObjectId());
-        });*/
+        });
     }
 
     private void navigateToChatView(String aliasId) {
@@ -131,9 +131,13 @@ public class MainActivity extends CheddarActivity {
             loadingDialog.dismiss();
         }
         ChatActivity_.intent(this)
-                .flags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 .aliasId(aliasId)
-                .start();
+                .startForResult(0);
+    }
+
+    @OnActivityResult(0)
+    void onResult() {
+        Log.d(TAG, "onResult");
         finish();
     }
 

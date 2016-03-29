@@ -73,10 +73,10 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('/Users/tonyjhuang/.android/cheddar.jks')
-            storePassword 'cheddarapp'
-            keyAlias 'alpha'
-            keyPassword 'cheddaralpha'
+            storeFile file(System.getenv("CHEDDAR_KEYSTORE"))
+            storePassword System.getenv("CHEDDAR_KEYSTORE_PW")
+            keyAlias System.getenv("CHEDDAR_KEYSTORE_ALIAS")
+            keyPassword System.getenv("CHEDDAR_KEYSTORE_ALIAS_PW")
         }
     }
 
@@ -130,6 +130,8 @@ dependencies {
     compile 'com.android.support:cardview-v7:23.1.1'
 
     compile 'de.greenrobot:eventbus:2.4.0'
+
+    compile 'com.ocpsoft:ocpsoft-pretty-time:1.0.6'
 
     compile 'uk.co.chrisjenx:calligraphy:2.1.0'
 

@@ -20,18 +20,13 @@
         android:textColor="@color/chat_text_light_gray"
         tools:text="Dynamic Seagull" />
 
-    <TextView
+    <com.tonyjhuang.cheddar.ui.chat.AliasDisplayView_
         android:id="@+id/author_display"
-        fontPath="Effra-Medium.ttf"
+        style="@style/AliasDisplay"
         android:layout_width="@dimen/chat_bubble_min_height"
         android:layout_height="@dimen/chat_bubble_min_height"
         android:layout_alignBottom="@+id/body"
         android:layout_alignParentLeft="true"
-        android:background="@drawable/chat_bubble_background"
-        android:gravity="center"
-        android:textColor="@android:color/primary_text_dark"
-        android:textSize="@dimen/chat_bubble_author_text_size"
-        tools:ignore="MissingPrefix"
         tools:text="DS" />
 
     <TextView

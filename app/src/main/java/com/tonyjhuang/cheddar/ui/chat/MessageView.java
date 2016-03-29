@@ -14,15 +14,16 @@ import org.androidannotations.annotations.res.ColorRes;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
 /**
- * This should always be constructed in code, not xml.
+ * Can't use @EViewGroup(layoutId) here since the
+ * layout is set programmatically based on the Message direction.
  */
 @EViewGroup
-public class ChatEventView extends RelativeLayout {
+public class MessageView extends RelativeLayout {
 
-    private static final String TAG = ChatEventView.class.getSimpleName();
+    private static final String TAG = MessageView.class.getSimpleName();
 
     RelativeLayout container;
-    TextView authorDisplayView;
+    AliasDisplayView authorDisplayView;
     TextView authorFullNameView;
     TextView bodyView;
 
@@ -57,11 +58,11 @@ public class ChatEventView extends RelativeLayout {
 
     private ChatEventViewInfo info, prevInfo, nextInfo;
 
-    public ChatEventView(Context context) {
+    public MessageView(Context context) {
         super(context);
     }
 
-    public ChatEventView(Context context, Direction direction) {
+    public MessageView(Context context, Direction direction) {
         super(context);
         int layout = direction == Direction.OUTGOING ?
                 R.layout.stub_chat_view_right : R.layout.stub_chat_view_left;
@@ -69,7 +70,7 @@ public class ChatEventView extends RelativeLayout {
 
         container = (RelativeLayout) findViewById(R.id.message_container);
         authorFullNameView = (TextView) findViewById(R.id.author_full_name);
-        authorDisplayView = (TextView) findViewById(R.id.author_display);
+        authorDisplayView = (AliasDisplayView) findViewById(R.id.author_display);
         bodyView = (TextView) findViewById(R.id.body);
     }
 
@@ -83,7 +84,7 @@ public class ChatEventView extends RelativeLayout {
     public void updateViews() {
         String aliasName = info.getMessage().getAlias().getName();
         authorFullNameView.setText(aliasName);
-        authorDisplayView.setText(getAliasDisplayName(aliasName));
+        authorDisplayView.setAliasName(aliasName);
         bodyView.setText(info.getMessage().getBody());
 
         int textBackgroundColor;
@@ -103,13 +104,13 @@ public class ChatEventView extends RelativeLayout {
                     textBackgroundColor = outgoingSendingTextBackgroundColor;
             }
 
-            ((GradientDrawable) authorDisplayView.getBackground()).setColor(outgoingAuthorBackgroundColor);
+            authorDisplayView.setColor(outgoingAuthorBackgroundColor);
             authorDisplayView.setTextColor(outgoingAuthorTextColor);
 
             ((GradientDrawable) bodyView.getBackground()).setColor(textBackgroundColor);
             bodyView.setTextColor(outgoingTextColor);
         } else {
-            ((GradientDrawable) authorDisplayView.getBackground()).setColor(incomingAuthorBackgroundColor);
+            authorDisplayView.setColor(incomingAuthorBackgroundColor);
             authorDisplayView.setTextColor(incomingAuthorTextColor);
 
             ((GradientDrawable) bodyView.getBackground()).setColor(incomingTextBackgroundColor);
@@ -117,14 +118,6 @@ public class ChatEventView extends RelativeLayout {
         }
 
         setPosition(getPosition());
-    }
-
-    private String getAliasDisplayName(String name) {
-        String display = "";
-        for (String namePart : name.split(" ")) {
-            display += namePart.substring(0, 1).toUpperCase();
-        }
-        return display;
     }
 
     private int getTimeSensitiveTopPadding() {

@@ -21,7 +21,7 @@ public interface ChatRoomView {
      */
     void displayOldChatEvents(String currentUserId, List<ChatEvent> messages);
 
-    void displayActiveAliases(List<Alias> aliases);
+    void displayActiveAliases(List<Alias> aliases, String currentUserId);
 
     void displayLoadHistoryChatEventsError();
 

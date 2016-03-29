@@ -231,7 +231,7 @@ public class ChatEventListAdapter extends BaseAdapter {
             switch (viewType) {
                 case MESSAGE_LEFT:
                 case MESSAGE_RIGHT:
-                    convertView = ChatEventView_.build(parent.getContext(), info.direction);
+                    convertView = MessageView_.build(parent.getContext(), info.direction);
                     break;
                 case PRESENCE:
                     convertView = View.inflate(parent.getContext(), R.layout.stub_presence_view, null);
@@ -244,8 +244,8 @@ public class ChatEventListAdapter extends BaseAdapter {
         switch (viewType) {
             case MESSAGE_LEFT:
             case MESSAGE_RIGHT:
-                ChatEventView chatEventView = (ChatEventView) convertView;
-                chatEventView.setMessageInfo((MessageChatEventViewInfo) info, prevInfo, nextInfo);
+                MessageView messageView = (MessageView) convertView;
+                messageView.setMessageInfo((MessageChatEventViewInfo) info, prevInfo, nextInfo);
                 break;
             case PRESENCE:
                 Presence presence = info.getPresence();

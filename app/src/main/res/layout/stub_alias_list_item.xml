@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/message_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingBottom="@dimen/chat_bubble_padding"
+    android:paddingTop="@dimen/chat_bubble_padding"
+    tools:ignore="RtlHardcoded">
+
+    <com.tonyjhuang.cheddar.ui.chat.AliasDisplayView_
+        android:id="@+id/alias_display"
+        style="@style/AliasDisplay"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:textSize="22sp"
+        tools:text="DS" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/alias_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/primary_text_light"
+            android:textSize="18sp"
+            tools:text="anonymous narwhale" />
+
+        <TextView
+            android:id="@+id/joined_at"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Joined 5 days ago"
+            android:textColor="@color/chat_text_light_gray"
+            tools:text="Joined 5 days ago" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,6 +1,5 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
-import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -24,6 +23,7 @@ import com.tonyjhuang.cheddar.ui.customviews.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 import com.tonyjhuang.cheddar.ui.utils.FeedbackDialogHelper;
+import com.tonyjhuang.cheddar.ui.utils.StringUtils;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterTextChange;
@@ -84,6 +84,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
      * The current list of active Aliases in this Chat Room.
      */
     private List<Alias> activeAliases;
+    private String currentUserId;
 
     /**
      * Loading dialog for when the user is leaving the chatroom.
@@ -106,11 +107,13 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     }
 
     private void displayActiveAliasesDialog() {
-        showToast("Hello!");
+        if (activeAliases != null) {
+            AliasListDialog.show(this, activeAliases, currentUserId);
+        }
     }
 
     @Override
-    public void displayActiveAliases(List<Alias> aliases) {
+    public void displayActiveAliases(List<Alias> aliases, String currentUserId) {
         assert getSupportActionBar() != null;
         ActionBar actionBar = getSupportActionBar();
 
@@ -118,13 +121,15 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         if (numAliases == 0) {
             actionBar.setSubtitle(null);
         } else if (numAliases == 1) {
-            actionBar.setSubtitle("Waiting for others..");
+            actionBar.setSubtitle(getString(R.string.chat_no_members));
             toolbar.getSubtitleTextView().setOnClickListener(v -> showToast(R.string.chat_waiting));
         } else {
-            actionBar.setSubtitle(numAliases + " members");
+            actionBar.setSubtitle(getString(R.string.chat_members, numAliases));
+            toolbar.getTitleTextView().setOnClickListener(v -> displayActiveAliasesDialog());
             toolbar.getSubtitleTextView().setOnClickListener(v -> displayActiveAliasesDialog());
         }
         activeAliases = aliases;
+        this.currentUserId = currentUserId;
     }
 
     @Click(R.id.send_message)
@@ -310,7 +315,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
             leaveChatRoomDialog.dismiss();
         }
         MainActivity_.intent(this)
-                .flags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                //.flags(Intent.FLAG_ACTIVITY_NO_HISTORY|Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .start();
         finish();
     }

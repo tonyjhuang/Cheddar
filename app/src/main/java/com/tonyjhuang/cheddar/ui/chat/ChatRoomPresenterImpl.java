@@ -124,8 +124,8 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     public void onResume(Context context) {
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .doOnNext(alias -> prefs.lastOpenedAlias().put(alias.getObjectId()))
-                .map(Alias::getChatRoomId)
-                .subscribe(chatRoomId -> {
+                .subscribe(alias -> {
+                    String chatRoomId = alias.getChatRoomId();
                     unreadMessagesCounter.clear(chatRoomId);
                     PushRegistrationIntentService_.intent(context).registerForPush(chatRoomId).start();
                     registerReceiver(context, chatRoomId);
@@ -148,7 +148,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     activeAliasesSubscription = activeAliasSubject
                             .compose(Scheduler.defaultSchedulers())
                             .subscribe(aliases -> {
-                                if (view != null) view.displayActiveAliases(aliases);
+                                if (view != null) view.displayActiveAliases(aliases, alias.getUserId());
                             }, error -> Log.e(TAG, "error? " + error.toString()));
                 });
 

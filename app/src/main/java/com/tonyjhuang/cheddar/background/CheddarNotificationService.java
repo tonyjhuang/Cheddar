@@ -17,7 +17,6 @@ import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import com.parse.ParseObject;
 import com.tonyjhuang.cheddar.AppRouter_;
@@ -26,6 +25,8 @@ import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.api.models.Presence;
+import com.tonyjhuang.cheddar.ui.chat.AliasDisplayView;
+import com.tonyjhuang.cheddar.ui.utils.StringUtils;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -64,16 +65,6 @@ public class CheddarNotificationService {
     @Bean
     UnreadMessagesCounter unreadMessagesCounter;
 
-    private Spannable boldSubstring(String source, String target) {
-        int targetIndex = source.indexOf(target);
-        Spannable sb = new SpannableString(source);
-        if(targetIndex != -1) {
-            sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),
-                    targetIndex, targetIndex + target.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        }
-        return sb;
-    }
-
     public void createOrUpdatePresenceNotification(Context context, Presence presence) {
         String authorName = WordUtils.capitalizeFully(presence.getAlias().getName());
         String presenceText = authorName;
@@ -82,7 +73,7 @@ public class CheddarNotificationService {
 
         NotificationCompat.Builder builder = getBuilder(context)
                 .setLargeIcon(getAuthorBitmap(context, presence.getAlias()))
-                .setContentText(boldSubstring(presenceText, authorName))
+                .setContentText(StringUtils.boldSubstring(presenceText, authorName))
                 .setTicker(presenceText)
                 .setNumber(unreadMessagesCounter.get(presence.getAlias().getChatRoomId()));
 
@@ -100,7 +91,7 @@ public class CheddarNotificationService {
         String contextText = authorName + ": " + message.getBody();
         NotificationCompat.Builder builder = getBuilder(context)
                 .setLargeIcon(getAuthorBitmap(context, message.getAlias()))
-                .setContentText(boldSubstring(contextText, authorName))
+                .setContentText(StringUtils.boldSubstring(contextText, authorName))
                 .setTicker(contextText)
                 .setNumber(unreadMessagesCounter.get(message.getAlias().getChatRoomId()));
 
@@ -130,22 +121,23 @@ public class CheddarNotificationService {
     }
 
     private Bitmap getAuthorBitmap(Context context, Alias alias) {
-        TextView textView = (TextView) View.inflate(context, R.layout.stub_notif_author_view, null);
-        textView.setText(getAliasDisplayName(alias));
-        textView.setTextColor(incomingAuthorTextColor);
-        ((GradientDrawable) textView.getBackground()).setColor(incomingAuthorBackgroundColor);
+        AliasDisplayView aliasDisplayView = (AliasDisplayView)
+                View.inflate(context, R.layout.stub_notif_author_view, null);
+        aliasDisplayView.setAliasName(alias.getName());
+        aliasDisplayView.setTextColor(incomingAuthorTextColor);
+        ((GradientDrawable) aliasDisplayView.getBackground()).setColor(incomingAuthorBackgroundColor);
 
         if (typeface == null) {
             typeface = Typeface.createFromAsset(context.getAssets(), "Effra-Medium.ttf");
         }
-        textView.setTypeface(typeface);
+        aliasDisplayView.setTypeface(typeface);
 
         // Measure view so height and width are not 0
-        textView.measure(View.MeasureSpec.makeMeasureSpec(largeIconDimen, View.MeasureSpec.EXACTLY),
+        aliasDisplayView.measure(View.MeasureSpec.makeMeasureSpec(largeIconDimen, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(largeIconDimen, View.MeasureSpec.EXACTLY));
-        textView.layout(0, 0, textView.getMeasuredWidth(), textView.getMeasuredHeight());
+        aliasDisplayView.layout(0, 0, aliasDisplayView.getMeasuredWidth(), aliasDisplayView.getMeasuredHeight());
 
-        return getBitmapFromView(textView);
+        return getBitmapFromView(aliasDisplayView);
     }
 
     private Bitmap getBitmapFromView(View view) {

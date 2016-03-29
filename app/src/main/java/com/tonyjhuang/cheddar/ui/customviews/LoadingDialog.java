@@ -69,6 +69,7 @@ public class LoadingDialog extends AlertDialog {
         setContentView(R.layout.dialog_loading);
         container = (ViewGroup) findViewById(R.id.container);
         image = (GifImageView) findViewById(R.id.image);
+        imageBackup = (ImageView) findViewById(R.id.image_backup);
         label = (TextView) findViewById(R.id.label);
         label.setText(labelText);
 
@@ -109,7 +110,7 @@ public class LoadingDialog extends AlertDialog {
     private Observable<GifDrawable> loadLoadingImage() {
         return Observable.create(subscriber -> {
             try {
-                subscriber.onNext(new GifDrawable(getContext().getAssets(), "loading.gif"));
+                subscriber.onNext(new GifDrawable(getContext().getAssets(), LOADING_GIF));
                 subscriber.onCompleted();
             } catch (IOException e) {
                 subscriber.onError(e);

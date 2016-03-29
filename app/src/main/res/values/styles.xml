@@ -14,26 +14,15 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="CountdownLabel">
-        <item name="android:textColor">@android:color/secondary_text_dark</item>
-        <item name="android:textSize">16sp</item>
-    </style>
-
-    <style name="CountdownNumber">
-        <item name="android:textColor">@android:color/primary_text_dark</item>
-        <item name="android:textSize">24sp</item>
-    </style>
-
-    <style name="CountdownContainer">
-        <item name="android:paddingBottom">32dp</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:orientation">vertical</item>
+    <style name="AliasDisplay" parent="@android:style/TextAppearance.Small">
+        <item name="fontPath">Effra-Medium.ttf</item>
+        <item name="android:layout_width">@dimen/chat_bubble_min_height</item>
+        <item name="android:layout_height">@dimen/chat_bubble_min_height</item>
+        <item name="android:layout_alignBottom">@+id/body</item>
+        <item name="android:background">@drawable/chat_bubble_background</item>
         <item name="android:gravity">center</item>
-        <item name="android:alpha">0</item>
-    </style>
-
-    <style name="SignupTextField">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@android:color/primary_text_dark</item>
+        <item name="android:textSize">@dimen/chat_bubble_author_text_size</item>
     </style>
 
 </resources>
