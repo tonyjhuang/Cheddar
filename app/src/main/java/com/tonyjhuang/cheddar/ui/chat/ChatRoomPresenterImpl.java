@@ -174,7 +174,10 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     }
                 });
 
-        if (cacheChatEventSubscription == null) {
+        if (cacheChatEventSubscription == null || cacheChatEventSubject.hasCompleted()) {
+            // (Re)connect to pubnub if there's no existing connection or the
+            // connection dropped.
+            // TODO If connection dropped, we should retrieve the most recent messages.
             cacheChatEventSubscription = subscribeCacheChatEventSubjectToObservable();
         }
 
