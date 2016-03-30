@@ -161,6 +161,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 }, error -> {
                     Log.e(TAG, "couldn't find current alias in onResume! " + error.toString());
                     if (view != null) {
+                        prefs.lastOpenedAlias().put(null);
                         view.navigateToListView();
                     }
                 });
@@ -339,6 +340,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     view.navigateToListView();
                 }, error -> {
                     Log.e(TAG, "couldn't find current alias to leave chatroom! " + error.toString());
+                    prefs.lastOpenedAlias().put(null);
                     view.navigateToListView();
                 });
     }
