@@ -3,13 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/chat_ui_bg"
     android:orientation="vertical">
 
     <com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/chat_light_light_gray" />
+        android:background="@color/chat_ui_bars" />
 
     <View
         android:id="@+id/toolbar_divider"
@@ -19,21 +20,21 @@
         android:background="@color/divider_gray" />
 
     <ProgressBar
-        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
 
     <com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView
-        android:transcriptMode="alwaysScroll"
-        android:background="?android:colorBackground"
         android:id="@+id/message_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/message_input_divider"
         android:layout_below="@+id/toolbar_divider"
         android:alpha="0"
+        android:background="?android:colorBackground"
         android:divider="@null"
         android:listSelector="@android:color/transparent"
+        android:transcriptMode="alwaysScroll"
         tools:listitem="@layout/stub_chat_view_left" />
 
     <View
@@ -48,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/chat_light_light_gray"
+        android:background="@color/chat_ui_bars"
         android:orientation="horizontal">
 
 

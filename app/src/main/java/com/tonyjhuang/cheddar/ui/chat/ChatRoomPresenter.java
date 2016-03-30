@@ -30,5 +30,5 @@ public interface ChatRoomPresenter extends Presenter<ChatRoomView> {
 
     void onDestroy();
 
-    void sendFeedback(String feedback);
+    void sendFeedback(String name, String feedback);
 }

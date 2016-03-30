@@ -32,7 +32,7 @@ public class PresenceChatEventViewInfo extends ChatEventViewInfo {
     public boolean isSameObject(ChatEventViewInfo otherInfo) {
         Presence otherPresence = otherInfo.getPresence();
         return otherPresence != null && presence.getAction().equals(otherPresence.getAction())
-                && presence.getAlias().getObjectId().equals(presence.getAlias().getObjectId());
+                && presence.getAlias().getObjectId().equals(otherPresence.getAlias().getObjectId());
     }
 
     @Override

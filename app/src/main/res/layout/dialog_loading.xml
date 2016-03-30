@@ -10,7 +10,7 @@
         android:layout_margin="16dp"
         android:gravity="center"
         android:maxWidth="300dp"
-        android:minHeight="140dp"
+        android:minHeight="160dp"
         android:minWidth="200dp"
         android:orientation="vertical">
 
@@ -22,13 +22,14 @@
                 android:id="@+id/image"
                 android:scaleType="centerInside"
                 android:visibility="gone"
-                android:layout_width="56dp"
-                android:layout_height="56dp" />
+                android:layout_width="@dimen/feedback_loading"
+                android:layout_height="@dimen/feedback_loading" />
 
             <ImageView
                 android:id="@+id/image_backup"
-                android:layout_width="56dp"
-                android:layout_height="56dp"/>
+                android:scaleType="centerInside"
+                android:layout_width="@dimen/feedback_loading"
+                android:layout_height="@dimen/feedback_loading"/>
         </FrameLayout>
 
         <TextView

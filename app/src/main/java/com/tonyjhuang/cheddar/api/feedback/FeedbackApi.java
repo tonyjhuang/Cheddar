@@ -44,9 +44,9 @@ public class FeedbackApi {
     /**
      * chatRoomId is optional.
      */
-    public Observable<String> sendFeedback(String userId, String chatRoomId, String feedback) {
-        String chatRoomText = chatRoomId != null ? " in ChatRoom(" + chatRoomId + ")" : "";
-        String text = String.format("User(%s)%s: %s", userId, chatRoomText, feedback);
+    public Observable<String> sendFeedback(String userId, String chatRoomId, String name, String feedback) {
+        String chatRoomText = chatRoomId != null ? ", ChatRoomId: " + chatRoomId : "";
+        String text = String.format("(UserId: %s%s) %s: %s", userId, chatRoomText, name, feedback);
 
         FeedbackRequest request = new FeedbackRequest(text);
         return service.sendFeedback(request);

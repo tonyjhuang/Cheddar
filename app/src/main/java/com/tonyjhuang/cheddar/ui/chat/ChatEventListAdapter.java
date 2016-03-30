@@ -44,18 +44,6 @@ public class ChatEventListAdapter extends BaseAdapter {
     }
 
     /**
-     * Either creates a new ChatEventViewInfo for |chatEvent| or updates
-     * a matching, existing one (placeholder) if it exists.
-     * TODO: Either add a boolean flag here or a new method to
-     * TODO: denote adding to the end of the boolean. This currently
-     * TODO: loops through itemViewInfos from youngest to oldest
-     * TODO: and is extremely inefficient for adding replayed MessageEvents.
-     */
-    public void addOrUpdateMessageEvent(ChatEvent chatEvent) {
-        addOrUpdateMessageEvent(chatEvent, true);
-    }
-
-    /**
      * Adds a ChatEvent to this adapter by order of date. If addToEnd is true
      * then this method will attempt to add it to the end of the list (most recent) and
      * search for the proper state backwards.
@@ -77,6 +65,7 @@ public class ChatEventListAdapter extends BaseAdapter {
      * Adds |presence| to the adapter by creating a new ChatEventViewInfo.
      */
     private void addPresence(Presence presence, boolean addToEnd) {
+        Log.e(TAG, presence.toString());
         addNewChatItemViewInfo(new PresenceChatEventViewInfo(presence), addToEnd);
     }
 

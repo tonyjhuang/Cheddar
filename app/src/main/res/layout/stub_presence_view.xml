@@ -9,6 +9,6 @@
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
     android:paddingTop="16dp"
-    android:textColor="@color/chat_text_light_gray"
+    android:textColor="@color/chat_text_light"
     android:textSize="12sp"
     tools:ignore="MissingPrefix" />

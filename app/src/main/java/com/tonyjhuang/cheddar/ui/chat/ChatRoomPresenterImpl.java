@@ -112,12 +112,18 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void setAliasId(String aliasId) {
+        api.resetReplayMessageEvents();
         chatEventObservable = api.getMessageStream(aliasId).publish();
         chatEventObservable.connect();
 
         aliasSubscription = api.getAlias(aliasId)
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(aliasSubject);
+    }
+
+    @Override
+    public void setView(ChatRoomView view) {
+        this.view = view;
     }
 
     @Override
@@ -325,8 +331,8 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     }
 
     @Override
-    public void sendFeedback(String feedback) {
-        aliasSubject.flatMap(alias -> api.sendFeedback(alias.getUserId(), alias.getChatRoomId(), feedback))
+    public void sendFeedback(String name, String feedback) {
+        aliasSubject.flatMap(alias -> api.sendFeedback(alias.getUserId(), alias.getChatRoomId(), name, feedback))
                 .doOnNext(result -> CheddarMetricTracker.trackFeedback(CheddarMetricTracker.FeedbackLifecycle.SENT))
                 .compose(Scheduler.backgroundSchedulers())
                 .publish().connect();
@@ -346,10 +352,5 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     private void unsubscribe(Subscription s) {
         if (s != null) s.unsubscribe();
-    }
-
-    @Override
-    public void setView(ChatRoomView view) {
-        this.view = view;
     }
 }

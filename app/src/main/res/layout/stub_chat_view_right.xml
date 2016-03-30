@@ -17,7 +17,7 @@
         android:layout_alignRight="@+id/body"
         android:layout_marginBottom="2dp"
         android:layout_marginRight="12dp"
-        android:textColor="@color/chat_text_light_gray"
+        android:textColor="@color/chat_text_light"
         tools:text="Dynamic Seagull" />
 
     <com.tonyjhuang.cheddar.ui.chat.AliasDisplayView_

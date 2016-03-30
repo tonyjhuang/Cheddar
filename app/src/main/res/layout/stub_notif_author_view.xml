@@ -1,4 +1,6 @@
 <com.tonyjhuang.cheddar.ui.chat.AliasDisplayView_ xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/AliasDisplay"
+    android:background="@drawable/notif_author_background"
+    android:textSize="@dimen/notif_author_text_size"
     tools:text="DS" />

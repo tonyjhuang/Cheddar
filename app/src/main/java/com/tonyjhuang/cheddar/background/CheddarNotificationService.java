@@ -107,7 +107,7 @@ public class CheddarNotificationService {
 
 
     private Observable<String> getNotificationTitle(String currentUserId, String chatRoomId) {
-        return Observable.just("Cheddar - Beta");
+        return Observable.just("Cheddar - Alpha");
         /*
         return api.getUsersInChatRoom(chatRoomId)
                 .flatMap(Observable::from)
@@ -147,14 +147,6 @@ public class CheddarNotificationService {
         bgDrawable.draw(canvas);
         view.draw(canvas);
         return returnedBitmap;
-    }
-
-    private String getAliasDisplayName(Alias alias) {
-        String display = "";
-        for (String namePart : alias.getName().split(" ")) {
-            display += namePart.substring(0, 1).toUpperCase();
-        }
-        return display;
     }
 
     private PendingIntent getContentPendingIntent(Context context) {

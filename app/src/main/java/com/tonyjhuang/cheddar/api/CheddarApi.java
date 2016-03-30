@@ -196,7 +196,7 @@ public class CheddarApi {
      * chatRoomId is optional, use null if user is
      * providing feedback from the chat list.
      */
-    public Observable<String> sendFeedback(String userId, String chatRoomId, String feedback) {
-        return feedbackApi.sendFeedback(userId, chatRoomId, feedback);
+    public Observable<String> sendFeedback(String userId, String chatRoomId, String name, String feedback) {
+        return feedbackApi.sendFeedback(userId, chatRoomId, name, feedback);
     }
 }

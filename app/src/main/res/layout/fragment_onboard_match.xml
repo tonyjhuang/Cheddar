@@ -31,7 +31,6 @@
         android:layout_marginTop="148dp"
         android:gravity="center"
         android:text="@string/onboard_match_value_prop_1"
-        android:textColor="@color/onboard_text_color"
         android:textSize="24sp"
         tools:ignore="MissingPrefix" />
 
@@ -45,7 +44,6 @@
         android:layout_marginTop="6dp"
         android:gravity="center"
         android:text="@string/onboard_match_value_prop_2"
-        android:textColor="@color/onboard_text_color"
         android:textSize="24sp"
         tools:ignore="MissingPrefix" />
 

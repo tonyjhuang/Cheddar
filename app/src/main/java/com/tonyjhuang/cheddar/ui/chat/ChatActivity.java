@@ -228,7 +228,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @Override
     public void displayPlaceholderMessage(Message message) {
         adapter.addPlaceholderMessage(message);
-        chatEventListView.post(() -> chatEventListView.setSelection(adapter.getCount()));
+        chatEventListView.post(() -> chatEventListView.setSelection(adapter.getCount() - 1));
     }
 
     @Override
@@ -241,8 +241,6 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     protected void onResume() {
         super.onResume();
         presenter.onResume(this);
-
-
     }
 
     @Override
@@ -272,10 +270,10 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 promptToLeaveChatRoom();
                 return true;
             case R.id.action_feedback:
-                FeedbackDialogHelper.getFeedback(this, feedback -> {
+                FeedbackDialogHelper.getFeedback(this, (name, feedback) -> {
                     if (feedback != null && !feedback.isEmpty()) {
                         showToast(R.string.feedback_thanks);
-                        presenter.sendFeedback(feedback);
+                        presenter.sendFeedback(name, feedback);
                     }
                 });
                 return true;
@@ -314,9 +312,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         if (leaveChatRoomDialog != null) {
             leaveChatRoomDialog.dismiss();
         }
-        MainActivity_.intent(this)
-                //.flags(Intent.FLAG_ACTIVITY_NO_HISTORY|Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .start();
+        MainActivity_.intent(this).start();
         finish();
     }
 
