@@ -191,6 +191,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     }
 
     private void sendViewNewChatEvents(List<ChatEvent> chatEvents) {
+        Log.d(TAG, "Sendchat events?");
         aliasSubject.compose(Scheduler.defaultSchedulers()).subscribe(alias -> {
             if (view != null) view.displayNewChatEvents(alias.getUserId(), chatEvents);
         });
@@ -206,6 +207,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private Subscription subscribeCacheChatEventSubjectToObservable() {
         cacheChatEventSubject = ReplaySubject.create();
         return chatEventObservable
+                .doOnNext(chatEvent -> Log.d(TAG, "got chat event: " + chatEvent))
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(cacheChatEventSubject);
     }

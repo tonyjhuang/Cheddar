@@ -94,6 +94,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @AfterInject
     public void afterInject() {
+        Log.d(TAG, "afterInject");
         presenter.setView(this);
         presenter.setAliasId(aliasId);
         presenter.loadMoreMessages();
@@ -242,6 +243,12 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     protected void onResume() {
         super.onResume();
         presenter.onResume(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
     }
 
     @Override
