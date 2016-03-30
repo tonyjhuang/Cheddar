@@ -13,7 +13,6 @@ import com.google.gson.reflect.TypeToken;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.MessageApi;
-import com.tonyjhuang.cheddar.presenter.Scheduler;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EIntentService;
@@ -54,12 +53,6 @@ public class PushRegistrationIntentService extends AbstractIntentService {
             Log.e(TAG, "hmm test");
             addRegisteredChannel(channel);
             messageApi.registerForPushNotifications(channel, token).publish().connect();
-                    /*.compose(Scheduler.defaultSchedulers())
-                    .subscribe(result -> Log.d(TAG, "registered for push on channel " + channel),
-                            error -> {
-                                Log.e(TAG, "failed to register for push: " + error.toString());
-                                showRegistrationFailedError();
-                            });*/
         }
     }
 
@@ -70,19 +63,15 @@ public class PushRegistrationIntentService extends AbstractIntentService {
 
     @ServiceAction
     void unregisterForPush(String channel) {
+        Log.d(TAG, "unregisterForPush");
         String token = getToken();
         if (token == null) {
             Log.e(TAG, "COULDN'T RETRIEVE GCM TOKEN");
             showUnregistrationFailedError();
         } else {
+            Log.d(TAG, "token: " + token);
             removeRegisteredChannel(channel);
-            messageApi.unregisterForPushNotifications(channel, token)
-                    .compose(Scheduler.backgroundSchedulers())
-                    .subscribe(result -> Log.d(TAG, "unregistered for push on channel " + channel),
-                            error -> {
-                                Log.e(TAG, "failed to unregister for push: " + error.toString());
-                                showUnregistrationFailedError();
-                            });
+            messageApi.unregisterForPushNotifications(channel, token).publish().connect();
         }
     }
 

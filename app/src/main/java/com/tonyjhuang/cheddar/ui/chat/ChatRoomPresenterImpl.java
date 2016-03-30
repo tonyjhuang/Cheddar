@@ -154,7 +154,8 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     activeAliasesSubscription = activeAliasSubject
                             .compose(Scheduler.defaultSchedulers())
                             .subscribe(aliases -> {
-                                if (view != null) view.displayActiveAliases(aliases, alias.getUserId());
+                                if (view != null)
+                                    view.displayActiveAliases(aliases, alias.getUserId());
                             }, error -> Log.e(TAG, "error? " + error.toString()));
                 });
 
@@ -240,8 +241,8 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         cacheHistoryChatEventSubscription = aliasSubject.map(Alias::getObjectId)
                 .flatMap(aliasId -> api.replayMessageEvents(aliasId, REPLAY_COUNT))
                 .doOnNext(chatEvents -> {
-                    for(ChatEvent e : chatEvents) {
-                        if(e instanceof Presence) {
+                    for (ChatEvent e : chatEvents) {
+                        if (e instanceof Presence) {
                             Log.d(TAG, "p : " + ((Presence) e).getAlias().getCreatedAt());
                         } else {
                             Log.d(TAG, "m : " + ((Message) e).getCreatedAt());
@@ -317,18 +318,24 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     @Override
     public void leaveChatRoom(Context context) {
         api.resetReplayMessageEvents();
-        aliasSubject.map(Alias::getObjectId)
+        aliasSubject.compose(Scheduler.backgroundSchedulers())
+                .doOnNext(alias -> unregisterForPush(context, alias.getChatRoomId()))
+                .map(Alias::getObjectId)
                 .flatMap(api::leaveChatRoom)
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
                     prefs.lastOpenedAlias().put(null);
-                    PushRegistrationIntentService_.intent(context).unregisterForPush(alias.getChatRoomId());
                     api.endMessageStream(alias.getObjectId()).publish().connect();
                     long lengthOfStay = new Date().getTime() - alias.getCreatedAt().getTime();
                     CheddarMetricTracker.trackLeaveChatRoom(alias.getChatRoomId(), lengthOfStay);
                     view.navigateToListView();
                 });
     }
+
+    private void unregisterForPush(Context context, String chatRoomId) {
+        PushRegistrationIntentService_.intent(context).unregisterForPush(chatRoomId).start();
+    }
+
 
     @Override
     public void sendFeedback(String name, String feedback) {

@@ -103,21 +103,23 @@ public class MessageApi {
     }
 
     public Observable<Object> unregisterForPushNotifications(String channel, String registrationToken) {
-        return Observable.create(subscriber ->
-                pubnub.disablePushNotificationsOnChannel(channel, registrationToken, new Callback() {
-                    @Override
-                    public void successCallback(String channel, Object message) {
-                        Log.d(TAG, "unregistered for push: " + message);
-                        subscriber.onNext(message);
-                        subscriber.onCompleted();
-                    }
+        return Observable.create(subscriber -> {
+                    Log.d(TAG, "unregister..");
+                    pubnub.disablePushNotificationsOnChannel(channel, registrationToken, new Callback() {
+                        @Override
+                        public void successCallback(String channel, Object message) {
+                            Log.d(TAG, "unregistered for push: " + message);
+                            subscriber.onNext(message);
+                            subscriber.onCompleted();
+                        }
 
-                    @Override
-                    public void errorCallback(String channel, PubnubError error) {
-                        Log.d(TAG, "failed to unregister for push: " + error.toString());
-                        subscriber.onError(new PubnubException(error));
-                    }
-                })
+                        @Override
+                        public void errorCallback(String channel, PubnubError error) {
+                            Log.d(TAG, "failed to unregister for push: " + error.toString());
+                            subscriber.onError(new PubnubException(error));
+                        }
+                    });
+                }
         );
     }
 }

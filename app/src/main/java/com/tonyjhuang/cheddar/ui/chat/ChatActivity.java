@@ -1,5 +1,6 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
+import android.content.Context;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
 
@@ -23,7 +25,6 @@ import com.tonyjhuang.cheddar.ui.customviews.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 import com.tonyjhuang.cheddar.ui.utils.FeedbackDialogHelper;
-import com.tonyjhuang.cheddar.ui.utils.StringUtils;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterTextChange;
@@ -305,6 +306,8 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     private void leaveChatRoom() {
         presenter.leaveChatRoom(this);
         leaveChatRoomDialog = LoadingDialog.show(this, R.string.chat_leave_chat);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(toolbar.getWindowToken(), 0);
     }
 
     @Override
