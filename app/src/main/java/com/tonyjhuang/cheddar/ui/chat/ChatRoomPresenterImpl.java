@@ -132,6 +132,11 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .doOnNext(alias -> prefs.lastOpenedAlias().put(alias.getObjectId()))
                 .subscribe(alias -> {
+                    if (!alias.isActive()) {
+                        leaveChatRoom(context);
+                        return;
+                    }
+
                     String chatRoomId = alias.getChatRoomId();
                     unreadMessagesCounter.clear(chatRoomId);
                     PushRegistrationIntentService_.intent(context).registerForPush(chatRoomId).start();
@@ -160,9 +165,12 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                             }, error -> Log.e(TAG, "error? " + error.toString()));
                 }, error -> {
                     Log.e(TAG, "couldn't find current alias in onResume! " + error.toString());
+                    // This generally happens if the alias was deleted on the backend.
                     if (view != null) {
                         prefs.lastOpenedAlias().put(null);
                         view.navigateToListView();
+                        // How do we unregister for push notifications here?
+                        //unregisterForPush(context, alias.getChatRoomId())
                     }
                 });
 
