@@ -158,6 +158,11 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                                 if (view != null)
                                     view.displayActiveAliases(aliases, alias.getUserId());
                             }, error -> Log.e(TAG, "error? " + error.toString()));
+                }, error -> {
+                    Log.e(TAG, "couldn't find current alias in onResume! " + error.toString());
+                    if (view != null) {
+                        view.navigateToListView();
+                    }
                 });
 
         if (cacheChatEventSubscription == null) {
@@ -331,6 +336,9 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     api.endMessageStream(alias.getObjectId()).publish().connect();
                     long lengthOfStay = new Date().getTime() - alias.getCreatedAt().getTime();
                     CheddarMetricTracker.trackLeaveChatRoom(alias.getChatRoomId(), lengthOfStay);
+                    view.navigateToListView();
+                }, error -> {
+                    Log.e(TAG, "couldn't find current alias to leave chatroom! " + error.toString());
                     view.navigateToListView();
                 });
     }
