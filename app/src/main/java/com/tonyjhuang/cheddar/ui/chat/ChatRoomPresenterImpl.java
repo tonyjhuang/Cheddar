@@ -128,6 +128,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void onResume(Context context) {
+        Log.d(TAG, "onResume");
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .doOnNext(alias -> prefs.lastOpenedAlias().put(alias.getObjectId()))
                 .subscribe(alias -> {

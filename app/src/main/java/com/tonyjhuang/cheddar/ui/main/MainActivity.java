@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.flyco.pageindicator.anim.select.ZoomInEnter;
 import com.flyco.pageindicator.indicator.FlycoPageIndicaor;
+import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
@@ -52,6 +53,9 @@ public class MainActivity extends CheddarActivity {
     @ViewById(R.id.pager_right)
     View pagerRight;
 
+    @ViewById(R.id.debug_label)
+    View debugLabel;
+
     @ViewById(R.id.husky)
     View husky;
 
@@ -68,6 +72,10 @@ public class MainActivity extends CheddarActivity {
 
     @AfterViews
     void updateViews() {
+        if (BuildConfig.DEBUG) {
+            debugLabel.setVisibility(View.VISIBLE);
+        }
+
         onboardAdapter = new MainPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(onboardAdapter);
         viewPager.setOffscreenPageLimit(1);
