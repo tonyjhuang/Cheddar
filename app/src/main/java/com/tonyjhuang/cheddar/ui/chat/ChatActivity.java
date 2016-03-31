@@ -7,6 +7,7 @@ import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
@@ -59,6 +60,9 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @ViewById(R.id.send_message_container)
     SendMessageImageOverlay sendMessageView;
 
+    @ViewById(R.id.network_connection_error)
+    View networkConnectErrorView;
+
     @Bean(ChatRoomPresenterImpl.class)
     ChatRoomPresenter presenter;
 
@@ -96,8 +100,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     public void afterInject() {
         Log.d(TAG, "afterInject");
         presenter.setView(this);
-        presenter.setAliasId(aliasId);
-        presenter.loadMoreMessages();
+        presenter.setAliasId(this, aliasId);
     }
 
     @AfterViews
@@ -106,6 +109,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         assert getSupportActionBar() != null;
         getSupportActionBar().setTitle(R.string.chat_title_group);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        presenter.loadMoreMessages(this);
     }
 
     private void displayActiveAliasesDialog() {
@@ -178,6 +182,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
             chatEventListView.setSelection(adapter.getCount());
             chatEventListView.resumeDrawing();
         });
+        showListView(true);
     }
 
     @Override
@@ -197,8 +202,12 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
             } else {
                 chatEventListView.restoreScrollStateAndResumeDrawing();
             }
-            chatEventListView.animate().alpha(1f).setDuration(250);
+            showListView(true);
         });
+    }
+
+    private void showListView(boolean show) {
+        chatEventListView.animate().alpha(show ? 1 : 0).setDuration(250);
     }
 
     /**
@@ -216,7 +225,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem == 0) presenter.loadMoreMessages();
+                if (firstVisibleItem == 0) presenter.loadMoreMessages(ChatActivity.this);
             }
         });
     }
@@ -246,15 +255,26 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop");
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         presenter.onPause(this);
+    }
+
+    @Override
+    public void displayNetworkConnectionError() {
+        networkConnectErrorView.animate().alpha(1);
+        showListView(true);
+    }
+
+    @Override
+    public void hideNetworkConnectionError() {
+        networkConnectErrorView.animate().alpha(0);
+        if (firstLoad) {
+            // If we're just now getting network and we haven't loaded the first
+            // set of messages yet, load them now.
+            presenter.loadMoreMessages(this);
+            showListView(false);
+        }
     }
 
     @Override

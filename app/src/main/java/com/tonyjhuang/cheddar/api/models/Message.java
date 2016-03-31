@@ -18,7 +18,6 @@ public class Message extends ParseObject implements ChatEvent {
 
     public static Message createPlaceholderMessage(Alias alias, String body) {
         Date now = new Date();
-        Log.d("MESSAGE", "CREATED NEW DATE AT " + now.toString());
         Message message = new Message();
         message.put("body", body);
         message.put("alias", alias);

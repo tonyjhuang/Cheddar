@@ -12,6 +12,8 @@
 
     <!-- chat -->
     <color name="chat_text_light">#a0a0a0</color>
+    <color name="chat_text_error_bg">@color/colorPrimaryDark</color>
+    <color name="chat_text_error_text">@color/chat_author_text_incoming</color>
 
     <!-- incoming -->
     <color name="chat_author_text_incoming">@android:color/primary_text_dark</color>

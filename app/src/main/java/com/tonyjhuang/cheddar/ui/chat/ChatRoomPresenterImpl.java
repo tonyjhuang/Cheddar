@@ -13,6 +13,7 @@ import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.api.models.Presence;
 import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
+import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
 import com.tonyjhuang.cheddar.background.PushRegistrationIntentService_;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.presenter.Scheduler;
@@ -52,6 +53,11 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Pref
     CheddarPrefs_ prefs;
+
+    /**
+     * Current network connection.
+     */
+    private Subscription networkConnectionSubscription;
 
     /**
      * Caches the current Alias for this room.
@@ -109,9 +115,12 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
      */
     private boolean loadingMessages = false;
     private boolean reachedEndOfMessages = false;
+    private boolean firstLoad = true;
+
+    private Date lostConnection;
 
     @Override
-    public void setAliasId(String aliasId) {
+    public void setAliasId(Context context, String aliasId) {
         api.resetReplayMessageEvents();
         chatEventObservable = api.getMessageStream(aliasId).publish();
         chatEventObservable.connect();
@@ -119,6 +128,41 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         aliasSubscription = api.getAlias(aliasId)
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(aliasSubject);
+
+        networkConnectionSubscription = ConnectivityBroadcastReceiver.connectionObservable
+                .map(status -> status == ConnectivityBroadcastReceiver.Status.CONNECTED)
+                .compose(Scheduler.defaultSchedulers())
+                .subscribe(connected -> {
+                    if (view != null) {
+                        if (connected) {
+                            view.hideNetworkConnectionError();
+                        } else {
+                            view.displayNetworkConnectionError();
+                        }
+                    }
+                    if (connected) {
+                        // If there's no internet connection when the app first starts,
+                        // aliasSubject will receive an error due to network timeouts.
+                        // Restart the connection here.
+                        if (aliasSubject.hasThrowable()) {
+                            aliasSubscription.unsubscribe();
+                            aliasSubscription = api.getAlias(aliasId)
+                                    .compose(Scheduler.backgroundSchedulers())
+                                    .subscribe(aliasSubject);
+                        }
+
+                        if(firstLoad && lostConnection != null) {
+                            init(context);
+                        } else if (!firstLoad && lostConnection != null) {
+                            api.replayChatEvents(aliasId, new Date(), lostConnection)
+                                    .compose(Scheduler.defaultSchedulers())
+                                    .subscribe(this::displayViewNewChatEvents, error ->
+                                            Log.e(TAG, "error loading missed messages: " + error));
+                        }
+                    } else {
+                        lostConnection = new Date();
+                    }
+                });
     }
 
     @Override
@@ -129,10 +173,17 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     @Override
     public void onResume(Context context) {
         Log.d(TAG, "onResume");
+
+        if (!ConnectivityBroadcastReceiver.isConnected(context)) return;
+        init(context);
+    }
+
+    private void init(Context context) {
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .doOnNext(alias -> prefs.lastOpenedAlias().put(alias.getObjectId()))
                 .subscribe(alias -> {
                     if (!alias.isActive()) {
+                        // Respect server switches to active status.
                         leaveChatRoom(context);
                         return;
                     }
@@ -169,24 +220,23 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     if (view != null) {
                         prefs.lastOpenedAlias().put(null);
                         view.navigateToListView();
-                        // How do we unregister for push notifications here?
+                        // TODO:How do we unregister for push notifications here?
                         //unregisterForPush(context, alias.getChatRoomId())
                     }
                 });
 
-        if (cacheChatEventSubscription == null || cacheChatEventSubject.hasCompleted()) {
-            // (Re)connect to pubnub if there's no existing connection or the
-            // connection dropped.
-            // TODO If connection dropped, we should retrieve the most recent messages.
+        if (cacheChatEventSubscription == null || cacheChatEventSubscription.isUnsubscribed()) {
             cacheChatEventSubscription = subscribeCacheChatEventSubjectToObservable();
         }
 
-        // Subscribe to cached and future chat events.
-        chatEventSubscription = cacheChatEventSubject
-                .map(chatEvent -> new ChatEvent[]{chatEvent})
-                .map(Arrays::asList)
-                .compose(Scheduler.defaultSchedulers())
-                .subscribe(this::sendViewNewChatEvents, e -> Log.e(TAG, e.toString()));
+        if (chatEventSubscription == null || chatEventSubscription.isUnsubscribed()) {
+            // Subscribe to cached and future chat events.
+            chatEventSubscription = cacheChatEventSubject
+                    .map(chatEvent -> new ChatEvent[]{chatEvent})
+                    .map(Arrays::asList)
+                    .compose(Scheduler.defaultSchedulers())
+                    .subscribe(this::displayViewNewChatEvents, e -> Log.e(TAG, e.toString()));
+        }
 
         if (cacheHistoryChatEventSubscription != null &&
                 !cacheHistoryChatEventSubscription.isUnsubscribed() &&
@@ -207,7 +257,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         context.registerReceiver(chatPushBroadcastReceiver, chatPushIntentFilter);
     }
 
-    private void sendViewNewChatEvents(List<ChatEvent> chatEvents) {
+    private void displayViewNewChatEvents(List<ChatEvent> chatEvents) {
         Log.d(TAG, "Sendchat events?");
         aliasSubject.compose(Scheduler.defaultSchedulers()).subscribe(alias -> {
             if (view != null) view.displayNewChatEvents(alias.getUserId(), chatEvents);
@@ -246,29 +296,27 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         unsubscribe(historyChatEventSubscription);
 
         if (chatPushBroadcastReceiver != null) {
-            context.unregisterReceiver(chatPushBroadcastReceiver);
+            try {
+                context.unregisterReceiver(chatPushBroadcastReceiver);
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Receiver not registered?? " + e.toString());
+            }
         }
     }
 
     @Override
-    public void loadMoreMessages() {
+    public void loadMoreMessages(Context context) {
+        if (!ConnectivityBroadcastReceiver.isConnected(context)) return;
+
         if (loadingMessages || reachedEndOfMessages) return;
         loadingMessages = true;
+        firstLoad = false;
 
         // Subscribe AsyncSubject so the result is cached in case
         // the View calls onPause.
         cacheHistoryChatEventSubject = AsyncSubject.create();
         cacheHistoryChatEventSubscription = aliasSubject.map(Alias::getObjectId)
-                .flatMap(aliasId -> api.replayMessageEvents(aliasId, REPLAY_COUNT))
-                .doOnNext(chatEvents -> {
-                    for (ChatEvent e : chatEvents) {
-                        if (e instanceof Presence) {
-                            Log.d(TAG, "p : " + ((Presence) e).getAlias().getCreatedAt());
-                        } else {
-                            Log.d(TAG, "m : " + ((Message) e).getCreatedAt());
-                        }
-                    }
-                })
+                .flatMap(aliasId -> api.replayChatEvents(aliasId, REPLAY_COUNT))
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(cacheHistoryChatEventSubject);
 
@@ -371,6 +419,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void onDestroy() {
+        unsubscribe(networkConnectionSubscription);
         unsubscribe(aliasSubscription);
         unsubscribe(cacheChatEventSubscription);
         unsubscribe(chatEventSubscription);

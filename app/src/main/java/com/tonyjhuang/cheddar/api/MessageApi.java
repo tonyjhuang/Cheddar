@@ -7,14 +7,17 @@ import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 import com.tonyjhuang.cheddar.BuildConfig;
+import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
 
 import org.androidannotations.annotations.EBean;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import de.greenrobot.event.EventBus;
 import rx.Observable;
 import rx.Subscriber;
+import rx.subjects.BehaviorSubject;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class MessageApi {
@@ -24,40 +27,48 @@ public class MessageApi {
     private static final String TAG = MessageApi.class.getSimpleName();
     private Pubnub pubnub = new Pubnub(PUBKEY, SUBKEY);
 
-    private Map<String, Observable<Object>> channelObservables = new HashMap<>();
+    private Map<String, PubnubObservableCallback> channelObservables = new HashMap<>();
 
+    private boolean wasConnected = ConnectivityBroadcastReceiver.getLastKnownConnected();
+
+    public MessageApi() {
+        super();
+        ConnectivityBroadcastReceiver.connectionObservable
+                .map(status -> status == ConnectivityBroadcastReceiver.Status.CONNECTED)
+                .subscribe(isConnected-> {
+                    if(isConnected && !wasConnected) {
+                        pubnub.disconnectAndResubscribe();
+                    }
+                    wasConnected = isConnected;
+                }
+        );
+    }
 
     public Observable<Object> subscribe(String channel) {
-        return Observable.defer(() -> {
-            if (channelObservables.containsKey(channel)) {
-                Log.d(TAG, "returning cached");
-                return channelObservables.get(channel);
-            }
+        if (channelObservables.containsKey(channel)) {
+            return channelObservables.get(channel).getObservable();
+        } else {
+            channelObservables.put(channel, new PubnubObservableCallback());
+        }
 
-            Log.d(TAG, "create new");
-            PubnubObservableCallback callback = new PubnubObservableCallback() {
-                @Override
-                public void disconnectCallback(String channel, Object message) {
-                    channelObservables.remove(channel);
-                    super.disconnectCallback(channel, message);
-                }
-            };
+        return Observable.defer(() -> {
+            PubnubObservableCallback callback = channelObservables.get(channel);
             try {
                 pubnub.subscribe(channel, callback);
+                channelObservables.put(channel, callback);
             } catch (PubnubException e) {
                 Log.e(TAG, "Error subscribing to channel: " + e.toString());
                 callback.onError(e);
             }
 
-            Observable<Object> channelObservable = callback.getObservable();
-            channelObservables.put(channel, channelObservable);
-            return channelObservable;
+            return callback.getObservable();
         });
     }
 
     public Observable<Void> unsubscribe(String channel) {
         return Observable.create(subscriber -> {
             Log.e(TAG, "unsubscribing from " + channel);
+            channelObservables.remove(channel);
             pubnub.unsubscribe(channel, new Callback() {
                 @Override
                 public void successCallback(String channel, Object message) {
@@ -122,7 +133,6 @@ public class MessageApi {
                 }
         );
     }
-
     /**
      * Propagates Pubnub events to a subscriber.
      */
@@ -136,7 +146,7 @@ public class MessageApi {
          * to a channel.
          */
         public void onError(PubnubException error) {
-            if (subscriber != null) {
+            if (subscriber != null && !subscriber.isUnsubscribed()) {
                 subscriber.onError(error);
             } else {
                 this.error = error;
@@ -151,9 +161,10 @@ public class MessageApi {
         @Override
         public void successCallback(String channel, Object message) {
             Log.d(TAG, "got object: " + message.toString());
-            if (subscriber != null) {
+            if (subscriber != null && !subscriber.isUnsubscribed()) {
                 subscriber.onNext(message);
             }
+
         }
 
         @Override
@@ -163,20 +174,12 @@ public class MessageApi {
 
         @Override
         public void errorCallback(String channel, PubnubError error) {
-            Log.e(TAG, "error connecting.. " + error.toString());
-            if (subscriber != null) {
-                subscriber.onError(new PubnubException(error));
-                subscriber = null;
-            }
+            Log.e(TAG, "error.. " + error.toString());
         }
 
         @Override
         public void disconnectCallback(String channel, Object message) {
             Log.e(TAG, "Disconnected..");
-            if (subscriber != null) {
-                subscriber.onCompleted();
-                subscriber = null;
-            }
         }
 
         public Observable<Object> getObservable() {

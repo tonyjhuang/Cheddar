@@ -52,6 +52,7 @@
     <string name="chat_leave_cancel">Cancel</string>
     <string name="chat_leave_chat">Leaving chat&#8230;</string>
     <string name="chat_message_failed">Could not deliver message. Check your connection settings?</string>
+    <string name="chat_network_connection_error">NO NETWORK CONNECTION</string>
     <string name="chat_play_services_missing">"Couldn\'t find Google Play Services. Push notifications will not work."</string>
     <string name="chat_alias_list_header">Active Members</string>
     <string name="chat_alias_timestamp">Joined %1$s.</string>

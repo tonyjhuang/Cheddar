@@ -27,6 +27,10 @@ public interface ChatRoomView {
 
     void displayPlaceholderMessage(Message message);
 
+    void displayNetworkConnectionError();
+
+    void hideNetworkConnectionError();
+
     void notifyPlaceholderMessageFailed(Message message);
 
     void navigateToListView();

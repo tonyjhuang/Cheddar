@@ -9,7 +9,7 @@ import com.tonyjhuang.cheddar.presenter.Presenter;
  */
 public interface ChatRoomPresenter extends Presenter<ChatRoomView> {
 
-    void setAliasId(String aliasId);
+    void setAliasId(Context context, String aliasId);
 
     /**
      * Notifies the presenter that the View is ready to start receiving items (again).
@@ -26,7 +26,7 @@ public interface ChatRoomPresenter extends Presenter<ChatRoomView> {
 
     void sendMessage(String message);
 
-    void loadMoreMessages();
+    void loadMoreMessages(Context context);
 
     void onDestroy();
 

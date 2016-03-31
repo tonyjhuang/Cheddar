@@ -22,7 +22,6 @@ import org.json.JSONObject;
 @EReceiver
 public class GcmBroadcastReceiver extends BroadcastReceiver {
 
-    public static final String MESSAGE_NOTIF_DELETED_ACTION = "com.tonyjhuang.cheddar.MESSAGE_NOTIF_DELETED";
     private static final String TAG = GcmBroadcastReceiver.class.getSimpleName();
     @Bean
     CheddarNotificationService notificationService;

@@ -2,7 +2,6 @@ package com.tonyjhuang.cheddar.api;
 
 import android.util.Log;
 
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
 import com.tonyjhuang.cheddar.api.models.Alias;
@@ -13,6 +12,7 @@ import org.androidannotations.annotations.EBean;
 import org.json.JSONObject;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -142,9 +142,9 @@ public class CheddarApi {
     }
 
     /**
-     * Retrieve past MessageEvents, sorted from newest to oldest.
+     * Retrieve past ChatEvents, sorted from newest to oldest.
      */
-    public Observable<List<ChatEvent>> replayMessageEvents(String aliasId, int count) {
+    public Observable<List<ChatEvent>> replayChatEvents(String aliasId, int count) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("aliasId", aliasId);
         params.put("count", count);
@@ -154,15 +154,33 @@ public class CheddarApi {
             params.put("startTimeToken", replayPagerToken);
         }
 
-        Log.e(TAG, "replayMessageEvents | " + params);
+        Log.e(TAG, "replayChatEvents | " + params);
 
+        return ParseObservable.callFunction("replayEvents", params).cast(HashMap.class)
+                .doOnNext(response -> replayPagerToken = Long.valueOf((String) response.get("startTimeToken")))
+                .compose(parseChatEvents());
+    }
+
+    public Observable<List<ChatEvent>> replayChatEvents(String aliasId, Date start, Date end) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("aliasId", aliasId);
+        params.put("count", 999);
+        params.put("subkey", SUBKEY);
+        params.put("startTimeToken", start.getTime() * 10000);
+        params.put("endTimeToken", end.getTime() * 10000);
+
+        Log.e(TAG, "replayChatEvents | " + params);
+
+        return ParseObservable.callFunction("replayEvents", params).cast(HashMap.class)
+                .compose(parseChatEvents());
+    }
+    
+    private Observable.Transformer<HashMap, List<ChatEvent>> parseChatEvents() {
         // Returns:
         // {"events":[{event}, {event}],
         //   "startTimeToken": "00000",
         //   "endTimeToken": "00000"}
-        return ParseObservable.callFunction("replayEvents", params)
-                .cast(HashMap.class)
-                .doOnNext(response -> replayPagerToken = Long.valueOf((String) response.get("startTimeToken")))
+        return o -> o
                 .doOnNext(response -> Log.e(TAG, response.toString()))
                 .map(map -> (List<Object>) map.get("events"))
                 .flatMap(Observable::from)
