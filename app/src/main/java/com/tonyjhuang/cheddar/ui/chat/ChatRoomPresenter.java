@@ -1,7 +1,5 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
-import android.content.Context;
-
 import com.tonyjhuang.cheddar.presenter.Presenter;
 
 /**
@@ -9,24 +7,24 @@ import com.tonyjhuang.cheddar.presenter.Presenter;
  */
 public interface ChatRoomPresenter extends Presenter<ChatRoomView> {
 
-    void setAliasId(Context context, String aliasId);
+    void setAliasId(String aliasId);
 
     /**
      * Notifies the presenter that the View is ready to start receiving items (again).
      */
-    void onResume(Context context);
+    void onResume();
 
     /**
      * Notifies the presenter that any new items for the View should be cached
      * until onResume is called or thrown away in onDestroy.
      */
-    void onPause(Context context);
+    void onPause();
 
-    void leaveChatRoom(Context context);
+    void leaveChatRoom();
 
     void sendMessage(String message);
 
-    void loadMoreMessages(Context context);
+    void loadMoreMessages();
 
     void onDestroy();
 

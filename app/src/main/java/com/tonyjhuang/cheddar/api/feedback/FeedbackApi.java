@@ -1,10 +1,6 @@
 package com.tonyjhuang.cheddar.api.feedback;
 
-import android.util.Log;
-
 import org.androidannotations.annotations.EBean;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -42,13 +38,68 @@ public class FeedbackApi {
     }
 
     /**
-     * chatRoomId is optional.
+     * All string args are optional.
      */
-    public Observable<String> sendFeedback(String userId, String chatRoomId, String name, String feedback) {
-        String chatRoomText = chatRoomId != null ? ", ChatRoomId: " + chatRoomId : "";
-        String text = String.format("(UserId: %s%s) %s: %s", userId, chatRoomText, name, feedback);
-
-        FeedbackRequest request = new FeedbackRequest(text);
+    public Observable<String> sendFeedback(FeedbackInfo info) {
+        FeedbackRequest request = new FeedbackRequest(info.toString());
         return service.sendFeedback(request);
+    }
+
+    public static class FeedbackInfo {
+        String versionName;
+        String userId;
+        String aliasName;
+        String chatRoomId;
+        String name = "Anonymous";
+        String feedback;
+
+        public String toString() {
+            return String.format(
+                    "\nVersionName: %s\nUserId: %s\nChatRoomId: %s\nAliasName: %s\n%s: %s"
+                            + "\n-----------------------",
+                    versionName, userId, chatRoomId, aliasName, name, feedback);
+        }
+
+        public static class Builder {
+            private FeedbackInfo info;
+
+            public Builder() {
+                this.info = new FeedbackInfo();
+            }
+
+            public FeedbackInfo build() {
+                return info;
+            }
+
+            public Builder setVersionName(String versionName) {
+                info.versionName = versionName;
+                return this;
+            }
+
+            public Builder setUserId(String userId) {
+                info.userId = userId;
+                return this;
+            }
+
+            public Builder setAliasName(String aliasName) {
+                info.aliasName = aliasName;
+                return this;
+            }
+
+            public Builder setChatRoomId(String chatRoomId) {
+                info.chatRoomId = chatRoomId;
+                return this;
+            }
+
+            public Builder setName(String name) {
+                info.name = (name == null || name.isEmpty()) ? "Anonymous" : name;
+                return this;
+            }
+
+            public Builder setFeedback(String feedback) {
+                info.feedback = feedback;
+                return this;
+            }
+        }
     }
 }

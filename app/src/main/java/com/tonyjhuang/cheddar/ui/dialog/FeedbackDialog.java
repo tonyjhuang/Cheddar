@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.utils;
+package com.tonyjhuang.cheddar.ui.dialog;
 
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
@@ -15,7 +15,7 @@ import org.androidannotations.annotations.EBean;
  * Wrapper for customized feedback AlertDialog.
  */
 @EBean
-public class FeedbackDialogHelper {
+public class FeedbackDialog {
 
     public static void getFeedback(Context context, Callback callback) {
         View view = View.inflate(context, R.layout.dialog_feedback, null);

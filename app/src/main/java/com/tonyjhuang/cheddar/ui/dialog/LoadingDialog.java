@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.customviews;
+package com.tonyjhuang.cheddar.ui.dialog;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -26,7 +26,6 @@ import rx.Subscription;
 public class LoadingDialog extends AlertDialog {
 
     private static final String LOADING_GIF = "loading.gif";
-    private static final int LOADING_BACKUP = R.drawable.loading_backup;
 
     ViewGroup container;
     GifImageView image;
@@ -35,14 +34,6 @@ public class LoadingDialog extends AlertDialog {
     private String labelText;
 
     private Subscription loadLoadingGifSubscription;
-
-    protected LoadingDialog(Context context) {
-        super(context);
-    }
-
-    protected LoadingDialog(Context context, int theme) {
-        super(context, theme);
-    }
 
     protected LoadingDialog(Context context, boolean cancelable, OnCancelListener cancelListener) {
         super(context, cancelable, cancelListener);

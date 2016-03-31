@@ -14,4 +14,6 @@ public interface CheddarPrefs {
     String unreadMessages();
 
     String pushChannels();
+
+    String lastVersionName();
 }

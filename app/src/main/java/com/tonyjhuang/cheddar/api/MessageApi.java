@@ -14,10 +14,8 @@ import org.androidannotations.annotations.EBean;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.greenrobot.event.EventBus;
 import rx.Observable;
 import rx.Subscriber;
-import rx.subjects.BehaviorSubject;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class MessageApi {
@@ -29,19 +27,11 @@ public class MessageApi {
 
     private Map<String, PubnubObservableCallback> channelObservables = new HashMap<>();
 
-    private boolean wasConnected = ConnectivityBroadcastReceiver.getLastKnownConnected();
-
     public MessageApi() {
         super();
         ConnectivityBroadcastReceiver.connectionObservable
                 .map(status -> status == ConnectivityBroadcastReceiver.Status.CONNECTED)
-                .subscribe(isConnected-> {
-                    if(isConnected && !wasConnected) {
-                        pubnub.disconnectAndResubscribe();
-                    }
-                    wasConnected = isConnected;
-                }
-        );
+                .subscribe(isConnected -> pubnub.disconnectAndResubscribe());
     }
 
     public Observable<Object> subscribe(String channel) {
@@ -133,6 +123,7 @@ public class MessageApi {
                 }
         );
     }
+
     /**
      * Propagates Pubnub events to a subscriber.
      */

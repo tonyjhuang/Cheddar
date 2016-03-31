@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.ui.chat.ChatEventViewInfo.Direction;
-import com.tonyjhuang.cheddar.ui.utils.TimeHelper;
+import com.tonyjhuang.cheddar.utils.TimeHelper;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.res.ColorRes;

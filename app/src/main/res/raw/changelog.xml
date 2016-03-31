@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelog bulletedList="true">
+
+    <changelogversion versionName="0.1.1.0" changeDate="Mar 31, 2016">
+        <changelogimprovement>Display 'no network connection' when connection drops.</changelogimprovement>
+        <changelogimprovement>Added a changelog!</changelogimprovement>
+        <changelogbug>Reconnect to server after connection drops and reconnects.</changelogbug>
+        <changelogtext>Various bug fixes.</changelogtext>
+        <changelogtext>[i]Thanks to testers: [/i]Aakash.</changelogtext>
+    </changelogversion>
+</changelog>

@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.utils;
+package com.tonyjhuang.cheddar.utils;
 
 import android.text.Spannable;
 import android.text.SpannableString;

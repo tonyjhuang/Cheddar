@@ -12,6 +12,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
@@ -22,10 +23,10 @@ import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar;
-import com.tonyjhuang.cheddar.ui.customviews.LoadingDialog;
+import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
-import com.tonyjhuang.cheddar.ui.utils.FeedbackDialogHelper;
+import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterTextChange;
@@ -62,6 +63,9 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @ViewById(R.id.network_connection_error)
     View networkConnectErrorView;
+
+    @ViewById
+    TextView version;
 
     @Bean(ChatRoomPresenterImpl.class)
     ChatRoomPresenter presenter;
@@ -100,16 +104,17 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     public void afterInject() {
         Log.d(TAG, "afterInject");
         presenter.setView(this);
-        presenter.setAliasId(this, aliasId);
+        presenter.setAliasId(aliasId);
     }
 
     @AfterViews
-    public void updateViews() {
+    public void afterViews() {
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
         getSupportActionBar().setTitle(R.string.chat_title_group);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        presenter.loadMoreMessages(this);
+        presenter.loadMoreMessages();
+        version.setText(getVersionName());
     }
 
     private void displayActiveAliasesDialog() {
@@ -225,7 +230,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem == 0) presenter.loadMoreMessages(ChatActivity.this);
+                if (firstVisibleItem == 0) presenter.loadMoreMessages();
             }
         });
     }
@@ -251,13 +256,14 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @Override
     protected void onResume() {
         super.onResume();
-        presenter.onResume(this);
+        presenter.onResume();
+        showChangeLog(prefs);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        presenter.onPause(this);
+        presenter.onPause();
     }
 
     @Override
@@ -272,7 +278,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         if (firstLoad) {
             // If we're just now getting network and we haven't loaded the first
             // set of messages yet, load them now.
-            presenter.loadMoreMessages(this);
+            presenter.loadMoreMessages();
             showListView(false);
         }
     }
@@ -298,7 +304,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 promptToLeaveChatRoom();
                 return true;
             case R.id.action_feedback:
-                FeedbackDialogHelper.getFeedback(this, (name, feedback) -> {
+                FeedbackDialog.getFeedback(this, (name, feedback) -> {
                     if (feedback != null && !feedback.isEmpty()) {
                         showToast(R.string.feedback_thanks);
                         presenter.sendFeedback(name, feedback);
@@ -331,7 +337,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
      * Removes the user from this ChatRoom.
      */
     private void leaveChatRoom() {
-        presenter.leaveChatRoom(this);
+        presenter.leaveChatRoom();
         leaveChatRoomDialog = LoadingDialog.show(this, R.string.chat_leave_chat);
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(toolbar.getWindowToken(), 0);

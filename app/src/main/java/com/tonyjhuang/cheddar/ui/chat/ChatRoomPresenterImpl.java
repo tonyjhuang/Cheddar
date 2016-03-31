@@ -2,6 +2,7 @@ package com.tonyjhuang.cheddar.ui.chat;
 
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.util.Log;
 
@@ -20,6 +21,7 @@ import com.tonyjhuang.cheddar.presenter.Scheduler;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
@@ -53,6 +55,9 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Pref
     CheddarPrefs_ prefs;
+
+    @RootContext
+    Context context;
 
     /**
      * Current network connection.
@@ -120,7 +125,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private Date lostConnection;
 
     @Override
-    public void setAliasId(Context context, String aliasId) {
+    public void setAliasId(String aliasId) {
         api.resetReplayMessageEvents();
         chatEventObservable = api.getMessageStream(aliasId).publish();
         chatEventObservable.connect();
@@ -151,9 +156,12 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                                     .subscribe(aliasSubject);
                         }
 
-                        if(firstLoad && lostConnection != null) {
+                        if (firstLoad && lostConnection != null) {
+                            // The app was started without internet connection. Network
+                            // connection was regained, let's start 'er up!
                             init(context);
                         } else if (!firstLoad && lostConnection != null) {
+                            // Grab all the messages that were missed while the user was offline.
                             api.replayChatEvents(aliasId, new Date(), lostConnection)
                                     .compose(Scheduler.defaultSchedulers())
                                     .subscribe(this::displayViewNewChatEvents, error ->
@@ -171,7 +179,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     }
 
     @Override
-    public void onResume(Context context) {
+    public void onResume() {
         Log.d(TAG, "onResume");
 
         if (!ConnectivityBroadcastReceiver.isConnected(context)) return;
@@ -184,7 +192,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .subscribe(alias -> {
                     if (!alias.isActive()) {
                         // Respect server switches to active status.
-                        leaveChatRoom(context);
+                        leaveChatRoom();
                         return;
                     }
 
@@ -280,7 +288,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     }
 
     @Override
-    public void onPause(Context context) {
+    public void onPause() {
         // Stop sending ChatEvents to View.
         unsubscribe(chatEventSubscription);
 
@@ -305,7 +313,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     }
 
     @Override
-    public void loadMoreMessages(Context context) {
+    public void loadMoreMessages() {
         if (!ConnectivityBroadcastReceiver.isConnected(context)) return;
 
         if (loadingMessages || reachedEndOfMessages) return;
@@ -384,7 +392,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     }
 
     @Override
-    public void leaveChatRoom(Context context) {
+    public void leaveChatRoom() {
         api.resetReplayMessageEvents();
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .doOnNext(alias -> unregisterForPush(context, alias.getChatRoomId()))
@@ -411,10 +419,16 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void sendFeedback(String name, String feedback) {
-        aliasSubject.flatMap(alias -> api.sendFeedback(alias.getUserId(), alias.getChatRoomId(), name, feedback))
-                .doOnNext(result -> CheddarMetricTracker.trackFeedback(CheddarMetricTracker.FeedbackLifecycle.SENT))
-                .compose(Scheduler.backgroundSchedulers())
-                .publish().connect();
+        try {
+            String versionName = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0).versionName;
+            aliasSubject.flatMap(alias -> api.sendFeedback(versionName, alias, name, feedback))
+                    .doOnNext(result -> CheddarMetricTracker.trackFeedback(CheddarMetricTracker.FeedbackLifecycle.SENT))
+                    .compose(Scheduler.backgroundSchedulers())
+                    .publish().connect();
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "couldn't get versionName: " + e);
+        }
     }
 
     @Override

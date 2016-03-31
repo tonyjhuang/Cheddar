@@ -1,10 +1,9 @@
 package com.tonyjhuang.cheddar.ui.main;
 
-import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.flyco.pageindicator.anim.select.ZoomInEnter;
 import com.flyco.pageindicator.indicator.FlycoPageIndicaor;
@@ -14,17 +13,17 @@ import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
+import com.tonyjhuang.cheddar.presenter.Scheduler;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
-import com.tonyjhuang.cheddar.ui.customviews.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager;
 import com.tonyjhuang.cheddar.ui.customviews.ParalloidImageView;
+import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
@@ -59,6 +58,9 @@ public class MainActivity extends CheddarActivity {
     @ViewById(R.id.husky)
     View husky;
 
+    @ViewById
+    TextView version;
+
     @Bean
     CheddarApi cheddarApi;
 
@@ -71,7 +73,7 @@ public class MainActivity extends CheddarActivity {
     private LoadingDialog loadingDialog;
 
     @AfterViews
-    void updateViews() {
+    void afterViews() {
         if (BuildConfig.DEBUG) {
             debugLabel.setVisibility(View.VISIBLE);
         }
@@ -113,6 +115,8 @@ public class MainActivity extends CheddarActivity {
                 prevPosition = position;
             }
         });
+
+        version.setText(getVersionName());
     }
 
     @Click(R.id.pager_left)
@@ -128,31 +132,28 @@ public class MainActivity extends CheddarActivity {
 
     public void onEvent(AlphaWarningFragment.JoinChatEvent event) {
         loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
-        subscribe(cheddarApi.joinNextAvailableChatRoom(5), alias -> {
-            CheddarMetricTracker.trackJoinChatRoom(alias.getChatRoomId());
-            navigateToChatView(alias.getObjectId());
-        });
+        cheddarApi.joinNextAvailableChatRoom(5).compose(Scheduler.defaultSchedulers())
+                .subscribe(alias -> {
+                    CheddarMetricTracker.trackJoinChatRoom(alias.getChatRoomId());
+                    navigateToChatView(alias.getObjectId());
+                }, error -> {
+                    showToast("Couldn't join chat.");
+                    loadingDialog.dismiss();
+                });
     }
 
     private void navigateToChatView(String aliasId) {
         if (loadingDialog != null) {
             loadingDialog.dismiss();
         }
-        ChatActivity_.intent(this)
-                .aliasId(aliasId)
-                .startForResult(0);
-    }
-
-    @OnActivityResult(0)
-    void onResult() {
-        Log.d(TAG, "onResult");
-        finish();
+        ChatActivity_.intent(this).aliasId(aliasId).start();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
+        showChangeLog(prefs);
     }
 
     @Override

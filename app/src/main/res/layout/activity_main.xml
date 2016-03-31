@@ -64,12 +64,20 @@
     <TextView
         android:id="@+id/debug_label"
         fontPath="Effra-Medium.ttf"
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="DEBUG"
         android:textSize="20sp"
+        android:visibility="gone"
         tools:ignore="MissingPrefix" />
+
+    <TextView
+        android:id="@+id/version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:padding="8dp" />
 
 
 </RelativeLayout>

@@ -174,7 +174,7 @@ public class CheddarApi {
         return ParseObservable.callFunction("replayEvents", params).cast(HashMap.class)
                 .compose(parseChatEvents());
     }
-    
+
     private Observable.Transformer<HashMap, List<ChatEvent>> parseChatEvents() {
         // Returns:
         // {"events":[{event}, {event}],
@@ -210,11 +210,28 @@ public class CheddarApi {
     //******************************************************
 
     /**
-     * Sends user feedback to backend.
-     * chatRoomId is optional, use null if user is
-     * providing feedback from the chat list.
+     * Send Feedback from a non-chat context.
      */
-    public Observable<String> sendFeedback(String userId, String chatRoomId, String name, String feedback) {
-        return feedbackApi.sendFeedback(userId, chatRoomId, name, feedback);
+    public Observable<String> sendFeedback(String versionName, String userId, String name, String feedback) {
+        FeedbackApi.FeedbackInfo.Builder builder = new FeedbackApi.FeedbackInfo.Builder()
+                .setVersionName(versionName)
+                .setUserId(userId)
+                .setName(name)
+                .setFeedback(feedback);
+        return feedbackApi.sendFeedback(builder.build());
+    }
+
+    /**
+     * Send feedback from the chat context.
+     */
+    public Observable<String> sendFeedback(String versionName, Alias alias, String name, String feedback) {
+        FeedbackApi.FeedbackInfo.Builder builder = new FeedbackApi.FeedbackInfo.Builder()
+                .setVersionName(versionName)
+                .setUserId(alias.getUserId())
+                .setChatRoomId(alias.getChatRoomId())
+                .setAliasName(alias.getName())
+                .setName(name)
+                .setFeedback(feedback);
+        return feedbackApi.sendFeedback(builder.build());
     }
 }
