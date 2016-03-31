@@ -7,7 +7,7 @@ buildscript {
     }
     dependencies {
         classpath 'me.tatarka:gradle-retrolambda:3.2.4'
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.0.0-rc1'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath 'io.fabric.tools:gradle:1.+'
     }
@@ -35,6 +35,7 @@ dependencies {
 
 apt {
     arguments {
+        resourcePackageName android.defaultConfig.applicationId
         androidManifestFile variant.outputs[0]?.processResources?.manifestFile
     }
 }
@@ -98,12 +99,14 @@ android {
             resValue 'string', 'PARSE_CLIKEY', PARSE_CLIKEY_DEV
             buildConfigField 'String', 'PUBNUB_PUBKEY', PUBNUB_PUBKEY
             buildConfigField 'String', 'PUBNUB_SUBKEY', PUBNUB_SUBKEY
+            applicationIdSuffix ".dev"
         }
         alpha {
             resValue 'string', 'PARSE_APPKEY', PARSE_APPKEY_ALPHA
             resValue 'string', 'PARSE_CLIKEY', PARSE_CLIKEY_ALPHA
             buildConfigField 'String', 'PUBNUB_PUBKEY', PUBNUB_PUBKEY_ALPHA
             buildConfigField 'String', 'PUBNUB_SUBKEY', PUBNUB_SUBKEY_ALPHA
+            applicationIdSuffix ".alpha"
             signingConfig signingConfigs.release
         }
     }
@@ -127,9 +130,9 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:design:23.1.1'
-    compile 'com.android.support:cardview-v7:23.1.1'
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:cardview-v7:23.2.1'
 
     compile 'de.greenrobot:eventbus:2.4.0'
 
@@ -159,7 +162,7 @@ dependencies {
 
     compile 'com.pubnub:pubnub-android:3.7.6'
 
-    compile "com.google.android.gms:play-services-gcm:8.3.0"
+    compile 'com.google.android.gms:play-services-gcm:8.4.0'
 
     compile 'com.android.support:multidex:1.0.1'
 }

@@ -73,4 +73,7 @@
 
     <!-- report -->
     <string name="report_coming_soon">Coming soon!</string>
+
+    <!-- notif -->
+    <string name="notif_title">Cheddar - Alpha</string>
 </resources>

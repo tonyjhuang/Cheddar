@@ -19,8 +19,6 @@ public class AppRouter extends CheddarActivity {
 
     @AfterInject
     public void start() {
-        //MainActivity2_.intent(this).start();
-        ///*
         String lastOpenedAlias = prefs.lastOpenedAlias().get();
         Log.e("AppRouter", "lastOpened: " + lastOpenedAlias);
         if (lastOpenedAlias == null || lastOpenedAlias.isEmpty()) {
@@ -28,6 +26,5 @@ public class AppRouter extends CheddarActivity {
         } else {
             ChatActivity_.intent(this).aliasId(lastOpenedAlias).start();
         }
-        //*/
     }
 }

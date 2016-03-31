@@ -12,13 +12,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.View;
 
-import com.parse.ParseObject;
 import com.tonyjhuang.cheddar.AppRouter_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
@@ -34,8 +29,6 @@ import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.res.ColorRes;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 import org.apache.commons.lang3.text.WordUtils;
-
-import rx.Observable;
 
 /**
  * Created by tonyjhuang on 3/15/16.
@@ -71,53 +64,30 @@ public class CheddarNotificationService {
         presenceText += presence.getAction() == Presence.Action.JOIN ? " joined the room." :
                 " left the room.";
 
+        String chatRoomId = presence.getAlias().getChatRoomId();
+
         NotificationCompat.Builder builder = getBuilder(context)
                 .setLargeIcon(getAuthorBitmap(context, presence.getAlias()))
                 .setContentText(StringUtils.boldSubstring(presenceText, authorName))
                 .setTicker(presenceText)
-                .setNumber(unreadMessagesCounter.get(presence.getAlias().getChatRoomId()));
+                .setNumber(unreadMessagesCounter.get(chatRoomId));
 
-        api.getCurrentUser().map(ParseObject::getObjectId)
-                .flatMap(currentUserId -> getNotificationTitle(currentUserId,
-                        presence.getAlias().getChatRoomId()))
-                .subscribe(title -> {
-                    builder.setContentTitle(title);
-                    notificationManager.notify(0, builder.build());
-                }, error -> Log.e(TAG, "failed to get notification title: " + error.toString()));
+        notificationManager.notify(chatRoomId.hashCode(), builder.build());
     }
 
     public void createOrUpdateMessageNotification(Context context, Message message) {
         String authorName = WordUtils.capitalizeFully(message.getAlias().getName());
         String contextText = authorName + ": " + message.getBody();
+
+        String chatRoomId = message.getAlias().getChatRoomId();
+
         NotificationCompat.Builder builder = getBuilder(context)
                 .setLargeIcon(getAuthorBitmap(context, message.getAlias()))
                 .setContentText(StringUtils.boldSubstring(contextText, authorName))
                 .setTicker(contextText)
                 .setNumber(unreadMessagesCounter.get(message.getAlias().getChatRoomId()));
 
-
-        api.getCurrentUser().map(ParseObject::getObjectId)
-                .flatMap(currentUserId -> getNotificationTitle(currentUserId,
-                        message.getAlias().getChatRoomId()))
-                .subscribe(title -> {
-                    builder.setContentTitle(title);
-                    notificationManager.notify(0, builder.build());
-                }, error -> Log.e(TAG, "failed to get notification title: " + error.toString()));
-    }
-
-
-    private Observable<String> getNotificationTitle(String currentUserId, String chatRoomId) {
-        return Observable.just("Cheddar - Alpha");
-        /*
-        return api.getUsersInChatRoom(chatRoomId)
-                .flatMap(Observable::from)
-                .filter(alias -> !alias.getUserId().equals(currentUserId))
-                .map(Alias::getName)
-                .map(name -> name.split(" "))
-                // Turn Vindictive Fireant into V. Fireant
-                .map(nameParts -> nameParts[0].substring(0, 1) + ". " + nameParts[1])
-                .compose(o -> StringObservable.join(o, ", "));
-                */
+        notificationManager.notify(chatRoomId.hashCode(), builder.build());
     }
 
     private Bitmap getAuthorBitmap(Context context, Alias alias) {
@@ -167,6 +137,7 @@ public class CheddarNotificationService {
                 .setVibrate(vibratePattern)
                 .setSound(sound)
                 .setAutoCancel(true)
+                .setContentTitle(context.getString(R.string.notif_title))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE);
     }
