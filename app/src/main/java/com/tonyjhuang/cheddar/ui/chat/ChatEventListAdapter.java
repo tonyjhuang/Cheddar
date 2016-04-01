@@ -4,14 +4,20 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
-import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.api.models.Presence;
-import com.tonyjhuang.cheddar.ui.chat.ChatEventViewInfo.Direction;
-import com.tonyjhuang.cheddar.ui.chat.ChatEventViewInfo.Status;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.ChatEventViewInfo;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.ChatEventViewInfo.Direction;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.ChatEventViewInfo.Status;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.IncomingMessageView_;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.MessageChatEventViewInfo;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.MessageView;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.OutgoingMessageView_;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.PresenceChatEventViewInfo;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.PresenceView;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.PresenceView_;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -219,11 +225,13 @@ public class ChatEventListAdapter extends BaseAdapter {
         if (convertView == null) {
             switch (viewType) {
                 case MESSAGE_LEFT:
+                    convertView = IncomingMessageView_.build(parent.getContext());
+                    break;
                 case MESSAGE_RIGHT:
-                    convertView = MessageView_.build(parent.getContext(), info.direction);
+                    convertView = OutgoingMessageView_.build(parent.getContext());
                     break;
                 case PRESENCE:
-                    convertView = View.inflate(parent.getContext(), R.layout.stub_presence_view, null);
+                    convertView = PresenceView_.build(parent.getContext());
                     break;
                 default:
                     convertView = new View(parent.getContext());
@@ -235,24 +243,15 @@ public class ChatEventListAdapter extends BaseAdapter {
             case MESSAGE_RIGHT:
                 MessageView messageView = (MessageView) convertView;
                 messageView.setMessageInfo((MessageChatEventViewInfo) info, prevInfo, nextInfo);
+                convertView.setVisibility(View.VISIBLE);
                 break;
             case PRESENCE:
-                Presence presence = info.getPresence();
-                String presenceText = presence.getAlias().getName();
-                switch (presence.getAction()) {
-                    case JOIN:
-                        presenceText += " has joined";
-                        convertView.setVisibility(View.VISIBLE);
-                        break;
-                    case LEAVE:
-                        presenceText += " has left";
-                        convertView.setVisibility(View.VISIBLE);
-                        break;
-                    default:
-                        convertView.setVisibility(View.GONE);
-                }
-                ((TextView) convertView).setText(presenceText.toUpperCase());
+                PresenceView presenceView = (PresenceView) convertView;
+                presenceView.setPresenceInfo((PresenceChatEventViewInfo) info);
+                convertView.setVisibility(View.VISIBLE);
                 break;
+            default:
+                convertView.setVisibility(View.GONE);
         }
 
         return convertView;

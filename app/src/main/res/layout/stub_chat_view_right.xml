@@ -20,7 +20,7 @@
         android:textColor="@color/chat_text_light"
         tools:text="Dynamic Seagull" />
 
-    <com.tonyjhuang.cheddar.ui.chat.AliasDisplayView_
+    <com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_
         android:id="@+id/author_display"
         style="@style/AliasDisplay"
         android:layout_width="@dimen/chat_bubble_min_height"

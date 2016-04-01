@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.chat;
+package com.tonyjhuang.cheddar.ui.customviews;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;

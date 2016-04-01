@@ -20,7 +20,7 @@ import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.api.models.Presence;
-import com.tonyjhuang.cheddar.ui.chat.AliasDisplayView;
+import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 import com.tonyjhuang.cheddar.utils.StringUtils;
 
 import org.androidannotations.annotations.Bean;

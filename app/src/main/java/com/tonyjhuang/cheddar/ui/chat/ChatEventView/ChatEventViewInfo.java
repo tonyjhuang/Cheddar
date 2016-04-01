@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.chat;
+package com.tonyjhuang.cheddar.ui.chat.chateventview;
 
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.api.models.Presence;

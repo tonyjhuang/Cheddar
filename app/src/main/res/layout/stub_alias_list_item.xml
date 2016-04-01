@@ -11,7 +11,7 @@
     android:paddingTop="@dimen/chat_bubble_padding"
     tools:ignore="RtlHardcoded">
 
-    <com.tonyjhuang.cheddar.ui.chat.AliasDisplayView_
+    <com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_
         android:id="@+id/alias_display"
         style="@style/AliasDisplay"
         android:layout_width="40dp"

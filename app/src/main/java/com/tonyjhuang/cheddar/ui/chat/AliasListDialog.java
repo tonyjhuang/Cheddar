@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.ocpsoft.pretty.time.PrettyTime;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.models.Alias;
+import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 
 import java.util.List;
 

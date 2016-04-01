@@ -57,6 +57,8 @@
     <string name="chat_play_services_missing">"Couldn\'t find Google Play Services. Push notifications will not work."</string>
     <string name="chat_alias_list_header">Active Members</string>
     <string name="chat_alias_timestamp">Joined %1$s.</string>
+    <string name="chat_presence_joined">%1$s has joined.</string>
+    <string name="chat_presence_left">%1$s has left.</string>
 
     <!-- gcm -->
     <string name="gcm_registration_failed">Couldn\'t register for push notifications.</string>
