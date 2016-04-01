@@ -59,6 +59,7 @@
     <string name="chat_alias_timestamp">Joined %1$s.</string>
     <string name="chat_presence_joined">%1$s has joined.</string>
     <string name="chat_presence_left">%1$s has left.</string>
+    <string name="chat_copied_to_clipboard">Copied message.</string>
 
     <!-- gcm -->
     <string name="gcm_registration_failed">Couldn\'t register for push notifications.</string>

@@ -1,5 +1,7 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -22,6 +24,8 @@ import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.ChatEventViewInfo;
+import com.tonyjhuang.cheddar.ui.chat.chateventview.MessageChatEventViewInfo;
 import com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
@@ -36,6 +40,8 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.EditorAction;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.ItemLongClick;
+import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
@@ -77,6 +83,9 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     CheddarApi api;
     @Pref
     CheddarPrefs_ prefs;
+    @SystemService
+    ClipboardManager clipboardManager;
+
     /**
      * Data adapter for our ChatEvents.
      */
@@ -241,6 +250,16 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                     newMessagesIndicator.animate().alpha(0);
             }
         });
+    }
+
+    @ItemLongClick(R.id.message_list_view)
+    public void onChatEventItemLongClick(ChatEventViewInfo info) {
+        if (info instanceof MessageChatEventViewInfo) {
+            Message message = info.getMessage();
+            ClipData clip = ClipData.newPlainText(message.getAlias().getName() + " said:", message.getBody());
+            clipboardManager.setPrimaryClip(clip);
+            showToast(R.string.chat_copied_to_clipboard);
+        }
     }
 
     @Override
