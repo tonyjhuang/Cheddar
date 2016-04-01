@@ -63,13 +63,11 @@ public class PushRegistrationIntentService extends AbstractIntentService {
 
     @ServiceAction
     void unregisterForPush(String channel) {
-        Log.d(TAG, "unregisterForPush");
         String token = getToken();
         if (token == null) {
             Log.e(TAG, "COULDN'T RETRIEVE GCM TOKEN");
             showUnregistrationFailedError();
         } else {
-            Log.d(TAG, "token: " + token);
             removeRegisteredChannel(channel);
             messageApi.unregisterForPushNotifications(channel, token).publish().connect();
         }
@@ -108,7 +106,6 @@ public class PushRegistrationIntentService extends AbstractIntentService {
     }
 
     private void saveRegisteredChannels(Set<String> registeredChannels) {
-        Log.e(TAG, "registeredChannels: " + registeredChannels);
         prefs.pushChannels().put(gson.toJson(registeredChannels));
     }
 
@@ -122,7 +119,7 @@ public class PushRegistrationIntentService extends AbstractIntentService {
             token = fetchGcmRegistrationToken();
             prefs.gcmRegistrationToken().put(token);
         }
-        Log.e(TAG, "Token: " + token);
+        Log.v(TAG, "Token: " + token);
         return token;
     }
 
@@ -130,13 +127,10 @@ public class PushRegistrationIntentService extends AbstractIntentService {
      * Fetches a new token from the server.
      */
     private String fetchGcmRegistrationToken() {
-        Log.e(TAG, "fetchGcmRegistrationToken");
         InstanceID instanceID = InstanceID.getInstance(this);
         try {
-            String token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
+            return instanceID.getToken(getString(R.string.gcm_defaultSenderId),
                     GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            Log.e(TAG, "token: " + token);
-            return token;
         } catch (IOException e) {
             Log.e(TAG, e.toString());
             return null;

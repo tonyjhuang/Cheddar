@@ -35,6 +35,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/author_full_name"
         android:layout_marginLeft="6dp"
+        android:autoLink="web"
+        android:textColorLink="@color/chat_text_outgoing"
         android:layout_marginRight="6dp"
         android:layout_toLeftOf="@+id/author_display"
         android:background="@drawable/chat_bubble_background"
@@ -44,7 +46,7 @@
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
         android:paddingTop="6dp"
-        android:textColor="@android:color/primary_text_dark"
+        android:textColor="@color/chat_text_outgoing"
         android:textSize="@dimen/chat_bubble_text_size"
         tools:text="blahb lbhal balhb albh a" />
 

@@ -23,10 +23,10 @@ import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar;
-import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
-import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
+import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
+import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterTextChange;
@@ -67,18 +67,16 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @ViewById
     TextView version;
 
+    @ViewById(R.id.new_messages)
+    View newMessagesIndicator;
     @Bean(ChatRoomPresenterImpl.class)
     ChatRoomPresenter presenter;
-
     @Extra
     String aliasId;
-
     @Bean
     CheddarApi api;
-
     @Pref
     CheddarPrefs_ prefs;
-
     /**
      * Data adapter for our ChatEvents.
      */
@@ -177,6 +175,10 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @Override
     public void displayNewChatEvents(String currentUserId, List<ChatEvent> chatEvents) {
         setUpChatEventListView(currentUserId);
+
+        boolean isBottomAnchored = adapter.getCount() == 0 ||
+                chatEventListView.getLastVisiblePosition() == adapter.getCount() - 1;
+
         chatEventListView.pauseDrawing();
         for (ChatEvent chatEvent : chatEvents) {
             adapter.addOrUpdateMessageEvent(chatEvent, true);
@@ -184,7 +186,11 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
         chatEventListView.animate().alpha(1f).setDuration(250);
         chatEventListView.post(() -> {
-            chatEventListView.setSelection(adapter.getCount());
+            if (isBottomAnchored) {
+                chatEventListView.setSelection(adapter.getCount() - 1);
+            } else {
+                newMessagesIndicator.animate().alpha(1);
+            }
             chatEventListView.resumeDrawing();
         });
         showListView(true);
@@ -231,6 +237,8 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (firstVisibleItem == 0) presenter.loadMoreMessages();
+                if (view.getLastVisiblePosition() == adapter.getCount() - 1 && newMessagesIndicator.getAlpha() == 1)
+                    newMessagesIndicator.animate().alpha(0);
             }
         });
     }
@@ -251,6 +259,11 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     public void notifyPlaceholderMessageFailed(Message placeholder) {
         adapter.notifyFailed(placeholder);
         showToast(R.string.chat_message_failed);
+    }
+
+    @Click(R.id.new_messages)
+    public void onNewMessagesClick() {
+        chatEventListView.smoothScrollToPosition(adapter.getCount() - 1);
     }
 
     @Override

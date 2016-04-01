@@ -141,4 +141,8 @@ public class CheddarNotificationService {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE);
     }
+
+    public void removeNotification(String chatRoomId) {
+        notificationManager.cancel(chatRoomId.hashCode());
+    }
 }

@@ -14,6 +14,7 @@ import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.Message;
 import com.tonyjhuang.cheddar.api.models.Presence;
 import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
+import com.tonyjhuang.cheddar.background.CheddarNotificationService;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
 import com.tonyjhuang.cheddar.background.PushRegistrationIntentService_;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
@@ -58,6 +59,9 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @RootContext
     Context context;
+
+    @Bean
+    CheddarNotificationService notificationService;
 
     /**
      * Current network connection.
@@ -198,6 +202,8 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
                     String chatRoomId = alias.getChatRoomId();
                     unreadMessagesCounter.clear(chatRoomId);
+                    notificationService.removeNotification(chatRoomId);
+
                     PushRegistrationIntentService_.intent(context).registerForPush(chatRoomId).start();
                     registerReceiver(context, chatRoomId);
 
@@ -266,7 +272,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     }
 
     private void displayViewNewChatEvents(List<ChatEvent> chatEvents) {
-        Log.d(TAG, "Sendchat events?");
         aliasSubject.compose(Scheduler.defaultSchedulers()).subscribe(alias -> {
             if (view != null) view.displayNewChatEvents(alias.getUserId(), chatEvents);
         });
@@ -282,7 +287,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private Subscription subscribeCacheChatEventSubjectToObservable() {
         cacheChatEventSubject = ReplaySubject.create();
         return chatEventObservable
-                .doOnNext(chatEvent -> Log.d(TAG, "got chat event: " + chatEvent))
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(cacheChatEventSubject);
     }
