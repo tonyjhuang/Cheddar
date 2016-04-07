@@ -3,19 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/chat_ui_bg"
+    android:background="@color/ui_light_gray"
     android:orientation="vertical">
 
     <com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/chat_ui_bars" />
+        android:background="@color/ui_medium_gray" />
 
     <View
         android:id="@+id/toolbar_divider"
         android:layout_width="match_parent"
-        android:layout_height="2px"
+        android:layout_height="@dimen/ui_divider_height"
         android:layout_below="@+id/toolbar"
         android:background="@color/divider_gray" />
 
@@ -39,12 +39,12 @@
         android:paddingBottom="8dp"
         android:paddingTop="12dp"
         android:transcriptMode="normal"
-        tools:listitem="@layout/stub_chat_view_left" />
+        tools:listitem="@layout/row_chat_message_left" />
 
     <TextView
         android:id="@+id/new_messages"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="34dp"
         android:layout_alignBottom="@+id/message_list_view"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="8dp"
@@ -75,67 +75,83 @@
     <View
         android:id="@+id/message_input_divider"
         android:layout_width="match_parent"
-        android:layout_height="2px"
-        android:layout_above="@+id/input_container"
+        android:layout_height="@dimen/ui_divider_height"
+        android:layout_above="@+id/message_input"
         android:background="@color/divider_gray" />
 
-    <LinearLayout
-        android:id="@+id/input_container"
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/message_input"
+        android:background="@color/ui_medium_gray" />
+
+    <EditText
+        android:id="@+id/message_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/chat_ui_bars"
-        android:orientation="horizontal">
+        android:layout_toLeftOf="@+id/send_message_container"
+        android:layout_toStartOf="@+id/send_message_container"
+        android:background="@android:color/transparent"
+        android:hint="@string/chat_message_input_hint"
+        android:imeOptions="actionSend"
+        android:maxLines="4"
+        android:minHeight="@dimen/chat_input_min_height"
+        android:paddingBottom="12dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="12dp" />
 
 
-        <EditText
-            android:id="@+id/message_input"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:hint="@string/chat_message_input_hint"
-            android:imeOptions="actionSend"
-            android:maxLines="4"
-            android:minHeight="56dp"
-            android:paddingBottom="12dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:paddingTop="12dp" />
+    <TextView
+        android:id="@+id/character_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/message_input"
+        android:alpha="0"
+        android:paddingBottom="8dp"
+        android:paddingEnd="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp"
+        android:textColor="@color/text_secondary" />
 
-        <com.tonyjhuang.cheddar.ui.chat.SendMessageImageOverlay
-            android:id="@+id/send_message_container"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_gravity="bottom">
+    <com.tonyjhuang.cheddar.ui.chat.SendMessageImageOverlay
+        android:id="@+id/send_message_container"
+        android:layout_width="@dimen/chat_input_min_height"
+        android:layout_height="@dimen/chat_input_min_height"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true">
 
-            <ImageButton
-                android:id="@+id/send_message"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="16dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/chat_send" />
+        <ImageButton
+            android:id="@+id/send_message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="16dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/chat_send" />
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="16dp"
-                android:background="@drawable/chat_send_disabled"
-                android:clickable="false"
-                android:scaleType="centerCrop" />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="16dp"
+            android:background="@drawable/chat_send_disabled"
+            android:clickable="false"
+            android:scaleType="centerCrop" />
 
-        </com.tonyjhuang.cheddar.ui.chat.SendMessageImageOverlay>
-
-    </LinearLayout>
+    </com.tonyjhuang.cheddar.ui.chat.SendMessageImageOverlay>
 
     <TextView
         android:id="@+id/version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingRight="8dp"
         android:layout_alignParentBottom="true"
         android:paddingLeft="8dp"
-        android:textColor="@color/text_secondary" />
+        android:textColor="@color/text_tertiary" />
 </RelativeLayout>

@@ -48,6 +48,10 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustResize" />
+        
+        <activity android:name=".ui.list.RoomListActivity_"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
 
         <receiver android:name=".background.ConnectivityBroadcastReceiver_"
             android:exported="false">

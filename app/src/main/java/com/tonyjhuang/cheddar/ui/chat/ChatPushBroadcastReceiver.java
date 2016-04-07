@@ -7,8 +7,6 @@ import android.util.Log;
 
 import com.tonyjhuang.cheddar.api.CheddarParser;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
-import com.tonyjhuang.cheddar.api.models.Message;
-import com.tonyjhuang.cheddar.api.models.Presence;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,30 +29,13 @@ public class ChatPushBroadcastReceiver extends BroadcastReceiver {
         try {
             ChatEvent chatEvent = CheddarParser.parseChatEvent(
                     new JSONObject(intent.getStringExtra("payload")));
-            switch (chatEvent.getType()) {
-                case MESSAGE:
-                    handleMessage((Message) chatEvent);
-                    break;
-                case PRESENCE:
-                    handlePresence((Presence) chatEvent);
-                    break;
+            if (chatEvent.getChatRoomId().equals(chatRoomId)) {
+                Log.d(TAG, "aborting push broadcast.");
+                abortBroadcast();
             }
-        } catch (JSONException | CheddarParser.UnrecognizedParseException e) {
+
+        } catch (JSONException | CheddarParser.UnableToParseChatEvent e) {
             Log.e(TAG, "couldn't parse gcm payload into ChatEvent: " + intent.getStringExtra("payload"));
-            abortBroadcast();
-        }
-    }
-
-    private void handlePresence(Presence presence) {
-        if (presence.getAlias().getChatRoomId().equals(chatRoomId)) {
-            Log.d(TAG, "message event matches current chatroom id");
-            abortBroadcast();
-        }
-    }
-
-    private void handleMessage(Message message) {
-        if (message.getAlias().getChatRoomId().equals(chatRoomId)) {
-            Log.d(TAG, "message event matches current chatroom id");
             abortBroadcast();
         }
     }

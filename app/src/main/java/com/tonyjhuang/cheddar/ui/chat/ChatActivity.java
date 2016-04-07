@@ -23,14 +23,12 @@ import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
-import com.tonyjhuang.cheddar.api.models.Message;
-import com.tonyjhuang.cheddar.ui.chat.chateventview.ChatEventViewInfo;
-import com.tonyjhuang.cheddar.ui.chat.chateventview.MessageChatEventViewInfo;
+import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo;
 import com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
-import com.tonyjhuang.cheddar.ui.main.MainActivity_;
+import com.tonyjhuang.cheddar.ui.list.RoomListActivity_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterTextChange;
@@ -53,8 +51,8 @@ import java.util.List;
 @EActivity(R.layout.activity_chat)
 public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
+    public static final int CHARACTER_COUNT_MAX = 250;
     private static final String TAG = ChatActivity.class.getSimpleName();
-
     @ViewById(R.id.toolbar)
     ClickableTitleToolbar toolbar;
 
@@ -72,6 +70,9 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @ViewById
     TextView version;
+
+    @ViewById(R.id.character_count)
+    TextView inputCharacterCount;
 
     @ViewById(R.id.new_messages)
     View newMessagesIndicator;
@@ -152,7 +153,9 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @Click(R.id.send_message)
     public void onSendMessageClick() {
-        sendMessage();
+        if (messageInput.getText().length() <= CHARACTER_COUNT_MAX) {
+            sendMessage();
+        }
     }
 
     @AfterTextChange(R.id.message_input)
@@ -169,6 +172,22 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         return false;
     }
 
+    @AfterTextChange(R.id.message_input)
+    void afterMessageInputTextChanged(Editable text) {
+        int textLength = text.length();
+        inputCharacterCount.setText(String.valueOf(textLength));
+        if (textLength >= 225) {
+            inputCharacterCount.animate().alpha(1).setDuration(100);
+            if (textLength >= CHARACTER_COUNT_MAX) {
+                inputCharacterCount.setTextColor(getResources().getColor(R.color.colorAccent));
+            } else {
+                inputCharacterCount.setTextColor(getResources().getColor(R.color.text_secondary));
+            }
+        } else {
+            inputCharacterCount.animate().alpha(0).setDuration(100);
+        }
+    }
+
     /**
      * Do basic message validation before handing off to presenter.
      */
@@ -178,7 +197,6 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
         messageInput.setText("");
         presenter.sendMessage(body);
-        Log.e(TAG, "sending message: " + body);
     }
 
     @Override
@@ -254,8 +272,8 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @ItemLongClick(R.id.message_list_view)
     public void onChatEventItemLongClick(ChatEventViewInfo info) {
-        if (info instanceof MessageChatEventViewInfo) {
-            Message message = info.getMessage();
+        if (info.chatEvent.getType().equals(ChatEvent.Type.MESSAGE)) {
+            ChatEvent message = info.chatEvent;
             ClipData clip = ClipData.newPlainText(message.getAlias().getName() + " said:", message.getBody());
             clipboardManager.setPrimaryClip(clip);
             showToast(R.string.chat_copied_to_clipboard);
@@ -269,13 +287,13 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     }
 
     @Override
-    public void displayPlaceholderMessage(Message message) {
+    public void displayPlaceholderMessage(ChatEvent message) {
         adapter.addPlaceholderMessage(message);
         chatEventListView.post(() -> chatEventListView.setSelection(adapter.getCount() - 1));
     }
 
     @Override
-    public void notifyPlaceholderMessageFailed(Message placeholder) {
+    public void notifyPlaceholderMessageFailed(ChatEvent placeholder) {
         adapter.notifyFailed(placeholder);
         showToast(R.string.chat_message_failed);
     }
@@ -290,6 +308,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         super.onResume();
         presenter.onResume();
         showChangeLog(prefs);
+        checkCurrentUser(api);
     }
 
     @Override
@@ -329,11 +348,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                /**
-                 * TODO: REMOVE THIS FOR FINAL RELEASE. IN BETA, THE BACK BUTTON WILL CAUSE
-                 * TODO: THE USER TO LEAVE THE CHATROOM.
-                 */
-                promptToLeaveChatRoom();
+                navigateToListView();
                 return true;
             case R.id.action_feedback:
                 FeedbackDialog.getFeedback(this, (name, feedback) -> {
@@ -380,7 +395,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         if (leaveChatRoomDialog != null) {
             leaveChatRoomDialog.dismiss();
         }
-        MainActivity_.intent(this).start();
+        RoomListActivity_.intent(this).start();
         finish();
     }
 

@@ -49,13 +49,16 @@ public class CheddarApi {
     public Observable<ParseUser> getCurrentUser() {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser == null) {
-            Log.d(TAG, "registering new user");
             return registerNewUser()
                     .flatMap((user) -> ParseObservable.logIn(user.getUsername(), PASSWORD));
         } else {
-            Log.d(TAG, "returning user: " + currentUser.getObjectId());
             return Observable.just(currentUser);
         }
+    }
+
+    public Observable<ParseUser> fetchCurrentUser() {
+        return getCurrentUser().map(ParseUser::getObjectId)
+                .flatMap(userId -> ParseObservable.get(ParseUser.class, userId));
     }
 
     public Observable<Void> logout() {
@@ -116,6 +119,7 @@ public class CheddarApi {
                     Log.e(TAG, "Calling with " + params);
                 })
                 .flatMap(params -> ParseObservable.callFunction("sendMessage", params))
+                .doOnError(error -> Log.e(TAG, "failed to send message: " + error))
                 .map((object) -> null);
     }
 
@@ -126,7 +130,8 @@ public class CheddarApi {
                 .map(Alias::getChatRoomId)
                 .flatMap(messageApi::subscribe)
                 .cast(JSONObject.class)
-                .flatMap(CheddarParser::parseMessageEventRx);
+                // Continue past any Exceptions thrown in parseChatEventRx.
+                .flatMap(CheddarParser::parseChatEventRxSkippable);
     }
 
     public Observable<Void> endMessageStream(String aliasId) {
@@ -185,7 +190,7 @@ public class CheddarApi {
                 .map(map -> (List<Object>) map.get("events"))
                 .flatMap(Observable::from)
                 .cast(HashMap.class)
-                .flatMap((HashMap map) -> CheddarParser.parseMessageEventRx(sanitize(map)))
+                .flatMap((HashMap map) -> CheddarParser.parseChatEventRxSkippable(sanitize(map)))
                 .toList()
                 .doOnNext(Collections::reverse);
     }

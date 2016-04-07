@@ -11,8 +11,6 @@ import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
-import com.tonyjhuang.cheddar.api.models.Message;
-import com.tonyjhuang.cheddar.api.models.Presence;
 import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.background.CheddarNotificationService;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
@@ -36,14 +34,13 @@ import rx.observables.ConnectableObservable;
 import rx.subjects.AsyncSubject;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.ReplaySubject;
+import timber.log.Timber;
 
 /**
  * Created by tonyjhuang on 3/17/16.
  */
 @EBean
 public class ChatRoomPresenterImpl implements ChatRoomPresenter {
-
-    private static final String TAG = ChatRoomPresenterImpl.class.getSimpleName();
 
     // Number of ChatEvents to fetch per replay request.
     private static final int REPLAY_COUNT = 20;
@@ -169,7 +166,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                             api.replayChatEvents(aliasId, new Date(), lostConnection)
                                     .compose(Scheduler.defaultSchedulers())
                                     .subscribe(this::displayViewNewChatEvents, error ->
-                                            Log.e(TAG, "error loading missed messages: " + error));
+                                            Timber.e("error loading missed messages: " + error));
                         }
                     } else {
                         lostConnection = new Date();
@@ -184,7 +181,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void onResume() {
-        Log.d(TAG, "onResume");
+        Timber.d("onResume");
 
         if (!ConnectivityBroadcastReceiver.isConnected(context)) return;
         init(context);
@@ -211,7 +208,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                         // Listen to ChatEvent stream for Presence events and get
                         // the updated list of active Aliases.
                         Observable<List<Alias>> aliasUpdates = chatEventObservable
-                                .filter(chatEvent -> chatEvent instanceof Presence)
+                                .filter(chatEvent -> chatEvent.getType().equals(ChatEvent.Type.PRESENCE))
                                 .flatMap(chatEvent -> api.getActiveAliases(chatRoomId));
 
                         activeAliasSubject = BehaviorSubject.create(new ArrayList<>());
@@ -227,9 +224,9 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                             .subscribe(aliases -> {
                                 if (view != null)
                                     view.displayActiveAliases(aliases, alias.getUserId());
-                            }, error -> Log.e(TAG, "error? " + error.toString()));
+                            }, error -> Timber.e("error? " + error.toString()));
                 }, error -> {
-                    Log.e(TAG, "couldn't find current alias in onResume! " + error.toString());
+                    Timber.e("couldn't find current alias in onResume! " + error.toString());
                     // This generally happens if the alias was deleted on the backend.
                     if (view != null) {
                         prefs.lastOpenedAlias().put(null);
@@ -249,7 +246,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     .map(chatEvent -> new ChatEvent[]{chatEvent})
                     .map(Arrays::asList)
                     .compose(Scheduler.defaultSchedulers())
-                    .subscribe(this::displayViewNewChatEvents, e -> Log.e(TAG, e.toString()));
+                    .subscribe(this::displayViewNewChatEvents, e -> Timber.e(e.toString()));
         }
 
         if (cacheHistoryChatEventSubscription != null &&
@@ -311,7 +308,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
             try {
                 context.unregisterReceiver(chatPushBroadcastReceiver);
             } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Receiver not registered?? " + e.toString());
+                Timber.e("Receiver not registered?? " + e.toString());
             }
         }
     }
@@ -346,7 +343,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     reachedEndOfMessages = chatEvents.size() < REPLAY_COUNT;
                     new Handler().postDelayed(() -> loadingMessages = false, 250);
                 }, e -> {
-                    Log.e(TAG, "Failed to load more messages: " + e.toString());
+                    Timber.e("Failed to load more messages: " + e.toString());
                     view.displayLoadHistoryChatEventsError();
                     loadingMessages = false;
                     reachedEndOfMessages = true;
@@ -367,7 +364,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
          */
         aliasSubject.compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
-                    Message placeholder = Message.createPlaceholderMessage(alias, message);
+                    ChatEvent placeholder = ChatEvent.createPlaceholderMessage(alias, message);
                     view.displayPlaceholderMessage(placeholder);
                     CheddarMetricTracker.trackSendMessage(alias.getChatRoomId(), CheddarMetricTracker.MessageLifecycle.SENT);
                 });
@@ -388,7 +385,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private void handleFailedMessage(String message) {
         aliasSubject.compose(Scheduler.defaultSchedulers()).subscribe(alias -> {
             CheddarMetricTracker.trackSendMessage(alias.getChatRoomId(), CheddarMetricTracker.MessageLifecycle.FAILED);
-            Message placeholder = Message.createPlaceholderMessage(alias, message);
+            ChatEvent placeholder = ChatEvent.createPlaceholderMessage(alias, message);
             if (view != null) {
                 view.notifyPlaceholderMessageFailed(placeholder);
             }
@@ -410,7 +407,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     CheddarMetricTracker.trackLeaveChatRoom(alias.getChatRoomId(), lengthOfStay);
                     view.navigateToListView();
                 }, error -> {
-                    Log.e(TAG, "couldn't find current alias to leave chatroom! " + error.toString());
+                    Timber.e("couldn't find current alias to leave chatroom! " + error.toString());
                     prefs.lastOpenedAlias().put(null);
                     view.navigateToListView();
                 });
@@ -431,7 +428,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     .compose(Scheduler.backgroundSchedulers())
                     .publish().connect();
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "couldn't get versionName: " + e);
+            Timber.e("couldn't get versionName: " + e);
         }
     }
 

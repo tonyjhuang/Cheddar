@@ -47,10 +47,8 @@ public class PushRegistrationIntentService extends AbstractIntentService {
     void registerForPush(String channel) {
         String token = getToken();
         if (token == null) {
-            Log.e(TAG, "COULDN'T RETRIEVE GCM TOKEN");
             showRegistrationFailedError();
         } else {
-            Log.e(TAG, "hmm test");
             addRegisteredChannel(channel);
             messageApi.registerForPushNotifications(channel, token).publish().connect();
         }

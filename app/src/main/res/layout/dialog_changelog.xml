@@ -7,4 +7,4 @@
     android:layout_gravity="center"
     app:changeLogFileResourceId="@raw/changelog"
     app:rowHeaderLayoutId="@layout/changelogrowheader_material_layout"
-    app:rowLayoutId="@layout/stub_changelog_row" />
+    app:rowLayoutId="@layout/row_changelog" />

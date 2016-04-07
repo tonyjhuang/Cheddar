@@ -18,8 +18,7 @@ import com.tonyjhuang.cheddar.AppRouter_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.Alias;
-import com.tonyjhuang.cheddar.api.models.Message;
-import com.tonyjhuang.cheddar.api.models.Presence;
+import com.tonyjhuang.cheddar.api.models.ChatEvent;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 import com.tonyjhuang.cheddar.utils.StringUtils;
 
@@ -58,24 +57,20 @@ public class CheddarNotificationService {
     @Bean
     UnreadMessagesCounter unreadMessagesCounter;
 
-    public void createOrUpdatePresenceNotification(Context context, Presence presence) {
+    public void createOrUpdatePresenceNotification(Context context, ChatEvent presence) {
         String authorName = WordUtils.capitalizeFully(presence.getAlias().getName());
-        String presenceText = authorName;
-        presenceText += presence.getAction() == Presence.Action.JOIN ? " joined the room." :
-                " left the room.";
-
         String chatRoomId = presence.getAlias().getChatRoomId();
 
         NotificationCompat.Builder builder = getBuilder(context)
                 .setLargeIcon(getAuthorBitmap(context, presence.getAlias()))
-                .setContentText(StringUtils.boldSubstring(presenceText, authorName))
-                .setTicker(presenceText)
+                .setContentText(StringUtils.boldSubstring(presence.getBody(), authorName))
+                .setTicker(presence.getBody())
                 .setNumber(unreadMessagesCounter.get(chatRoomId));
 
         notificationManager.notify(chatRoomId.hashCode(), builder.build());
     }
 
-    public void createOrUpdateMessageNotification(Context context, Message message) {
+    public void createOrUpdateMessageNotification(Context context, ChatEvent message) {
         String authorName = WordUtils.capitalizeFully(message.getAlias().getName());
         String contextText = authorName + ": " + message.getBody();
 

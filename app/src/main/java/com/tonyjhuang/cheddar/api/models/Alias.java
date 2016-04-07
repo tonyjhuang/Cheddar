@@ -24,24 +24,6 @@ public class Alias extends JSONParseObject{
         return alias;
     }
 
-    /**
-     * We need to provide this override since we're creating Alias objects from
-     * JSONObjects using createWithoutData() and put("createdAt") does not
-     * update the ParseObject's internal createdAt Date.
-     */
-    @Override
-    public Date getCreatedAt() {
-        return super.getCreatedAt() == null ? (Date) get("createdAt") : super.getCreatedAt();
-    }
-
-    /**
-     * See getCreatedAt
-     */
-    @Override
-    public Date getUpdatedAt() {
-        return super.getUpdatedAt() == null ? (Date) get("updatedAt") : super.getUpdatedAt();
-    }
-
     public String getName() {
         return getString("name");
     }
@@ -56,16 +38,5 @@ public class Alias extends JSONParseObject{
 
     public String getUserId() {
         return getString("userId");
-    }
-
-    @Override
-    public String toString() {
-        return "{" +
-                getObjectId() +
-                "|=> name: " + getName() +
-                ", active: " + isActive() +
-                ", chatRoomId: " + getChatRoomId() +
-                ", userId: " + getUserId() +
-                "}";
     }
 }

@@ -30,6 +30,7 @@ public class PreserveScrollStateListView extends ListView {
 
     public PreserveScrollStateListView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        if(!isInEditMode())
         getViewTreeObserver().addOnPreDrawListener(() -> shouldDraw);
     }
 

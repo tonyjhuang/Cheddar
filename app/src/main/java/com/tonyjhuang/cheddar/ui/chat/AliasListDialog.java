@@ -59,7 +59,7 @@ public class AliasListDialog extends AlertDialog {
         int outgoingColor = getContext().getResources().getColor(R.color.chat_author_background_outgoing);
 
         for (Alias alias : aliases) {
-            View aliasView = View.inflate(getContext(), R.layout.stub_alias_list_item, null);
+            View aliasView = View.inflate(getContext(), R.layout.row_alias_alias, null);
             AliasDisplayView aliasDisplay = (AliasDisplayView) aliasView.findViewById(R.id.alias_display);
             TextView aliasName = (TextView) aliasView.findViewById(R.id.alias_name);
             TextView joinedAt = (TextView) aliasView.findViewById(R.id.joined_at);

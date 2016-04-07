@@ -62,7 +62,7 @@ public class MainActivity extends CheddarActivity {
     TextView version;
 
     @Bean
-    CheddarApi cheddarApi;
+    CheddarApi api;
 
     @Pref
     CheddarPrefs_ prefs;
@@ -132,7 +132,7 @@ public class MainActivity extends CheddarActivity {
 
     public void onEvent(AlphaWarningFragment.JoinChatEvent event) {
         loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
-        cheddarApi.joinNextAvailableChatRoom(5).compose(Scheduler.defaultSchedulers())
+        api.joinNextAvailableChatRoom(5).compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
                     CheddarMetricTracker.trackJoinChatRoom(alias.getChatRoomId());
                     navigateToChatView(alias.getObjectId());
@@ -154,6 +154,12 @@ public class MainActivity extends CheddarActivity {
         super.onResume();
         EventBus.getDefault().register(this);
         showChangeLog(prefs);
+        checkCurrentUser(api);
+    }
+
+    @Override
+    protected void navigateToMainView() {
+        // Override to no-op.
     }
 
     @Override

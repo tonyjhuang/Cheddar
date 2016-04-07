@@ -7,10 +7,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.parse.ParseUser;
+import com.tonyjhuang.cheddar.api.CheddarApi;
+import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
+import com.tonyjhuang.cheddar.presenter.Scheduler;
 import com.tonyjhuang.cheddar.ui.dialog.ChangelogDialog;
+import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 
 import org.androidannotations.annotations.EActivity;
 
+import rx.Observable;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 @EActivity(R.layout.activity_main)
@@ -27,12 +33,25 @@ public abstract class CheddarActivity extends AppCompatActivity {
         String lastVersionName = prefs.lastVersionName().get();
         String versionName = getVersionName();
         if ((!versionName.isEmpty() && !versionName.equals(lastVersionName))) {
-            Log.d(TAG, "Showing changelog.");
             ChangelogDialog.show(this);
             prefs.lastVersionName().put(versionName);
-        } else {
-            Log.d(TAG, "Skipping changelog. Current version: " + versionName);
         }
+    }
+
+    protected void checkCurrentUser(CheddarApi api) {
+        if(ConnectivityBroadcastReceiver.getLastKnownConnected()) {
+            api.fetchCurrentUser().compose(Scheduler.defaultSchedulers())
+                    .doOnError(error -> {
+                        api.logout().publish().connect();
+                        navigateToMainView();
+                    })
+                    .publish().connect();
+        }
+    }
+
+    protected void navigateToMainView() {
+        MainActivity_.intent(this).start();
+        finish();
     }
 
     /**
@@ -41,6 +60,7 @@ public abstract class CheddarActivity extends AppCompatActivity {
     protected String getVersionName() {
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            Log.d(TAG, pInfo.versionName);
             return pInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Couldn't retrieve package name: " + e.toString());

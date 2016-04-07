@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_
+        android:id="@+id/alias_display"
+        style="@style/AliasDisplay"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_margin="@dimen/list_room_row_padding"
+        android:text="NM"
+        android:textColor="@color/text_primary_light"
+        android:textSize="22sp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/alias_display"
+        android:layout_marginEnd="@dimen/list_room_row_padding"
+        android:layout_marginRight="@dimen/list_room_row_padding"
+        android:layout_toEndOf="@+id/alias_display"
+        android:layout_toRightOf="@+id/alias_display"
+        android:paddingTop="6dp">
+
+        <TextView
+            android:id="@+id/group_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_toLeftOf="@+id/timestamp"
+            android:layout_toStartOf="@+id/timestamp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="Group"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:text="2/23"
+            android:textColor="@color/text_secondary" />
+
+        <TextView
+            android:id="@+id/recent_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/group_name"
+            android:ellipsize="end"
+            android:paddingTop="4dp"
+            android:singleLine="true"
+            android:text="Hey I know you were talking about that thing that I was saying but"
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/user_alias_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom_divider"
+        android:layout_toEndOf="@+id/alias_display"
+        android:layout_toRightOf="@+id/alias_display"
+        android:ellipsize="end"
+        android:paddingBottom="4dp"
+        android:singleLine="true"
+        android:text="You are: Caustic Liger"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp" />
+
+    <View
+        android:id="@+id/bottom_divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/ui_divider_height"
+        android:layout_below="@+id/alias_display"
+        android:layout_marginLeft="@dimen/list_room_row_padding"
+        android:background="@color/divider_gray" />
+
+</RelativeLayout>

@@ -2,7 +2,6 @@ package com.tonyjhuang.cheddar.ui.chat;
 
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
-import com.tonyjhuang.cheddar.api.models.Message;
 
 import java.util.List;
 
@@ -25,13 +24,13 @@ public interface ChatRoomView {
 
     void displayLoadHistoryChatEventsError();
 
-    void displayPlaceholderMessage(Message message);
+    void displayPlaceholderMessage(ChatEvent message);
 
     void displayNetworkConnectionError();
 
     void hideNetworkConnectionError();
 
-    void notifyPlaceholderMessageFailed(Message message);
+    void notifyPlaceholderMessageFailed(ChatEvent message);
 
     void navigateToListView();
 }

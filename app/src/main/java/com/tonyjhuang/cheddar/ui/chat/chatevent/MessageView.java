@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.chat.chateventview;
+package com.tonyjhuang.cheddar.ui.chat.chatevent;
 
 import android.content.Context;
 import android.widget.RelativeLayout;
@@ -11,6 +11,7 @@ import com.tonyjhuang.cheddar.utils.TimeHelper;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
+import org.apache.commons.lang3.text.WordUtils;
 
 /**
  * View representation of a Presence ChatEvent.
@@ -44,7 +45,7 @@ public abstract class MessageView extends RelativeLayout {
         super(context);
     }
 
-    public void setMessageInfo(MessageChatEventViewInfo info, ChatEventViewInfo prev, ChatEventViewInfo next) {
+    public void setMessageInfo(ChatEventViewInfo info, ChatEventViewInfo prev, ChatEventViewInfo next) {
         this.info = info;
         this.prevInfo = prev;
         position = getPosition(info, prev, next);
@@ -52,14 +53,14 @@ public abstract class MessageView extends RelativeLayout {
     }
 
     public void updateViews() {
-        String aliasName = info.getMessage().getAlias().getName();
+        String aliasName = WordUtils.capitalizeFully(info.chatEvent.getAlias().getName());
         authorFullNameView.setText(aliasName);
         authorDisplayView.setAliasName(aliasName);
-        bodyView.setText(info.getMessage().getBody());
+        bodyView.setText(info.chatEvent.getBody());
         setPosition(position);
     }
 
-    private Position getPosition(MessageChatEventViewInfo info, ChatEventViewInfo prev, ChatEventViewInfo next) {
+    private Position getPosition(ChatEventViewInfo info, ChatEventViewInfo prev, ChatEventViewInfo next) {
         Position position;
         if (prev == null) {
             if (next == null) {

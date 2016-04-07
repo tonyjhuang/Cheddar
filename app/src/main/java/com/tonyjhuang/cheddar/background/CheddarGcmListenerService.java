@@ -9,6 +9,8 @@ import com.google.android.gms.gcm.GcmListenerService;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import timber.log.Timber;
+
 /**
  * Created by tonyjhuang on 3/1/16.
  */
@@ -19,8 +21,7 @@ public class CheddarGcmListenerService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        Log.e(TAG, ">>>>>>>>>>>>>>>>>PUSHHHHHH<<<<<<<<<<<<<<<<<<<");
-        Log.e(TAG, "from: " + from);
+        Timber.e(">>>>>>>>>>>>>>>>>PUSHHHHHH<<<<<<<<<<<<<<<<<<<");
         String payload = data.getString("payload");
         if (payload != null) {
             try {
@@ -28,7 +29,6 @@ public class CheddarGcmListenerService extends GcmListenerService {
                 Intent intent = new Intent(MESSAGE_EVENT_ACTION);
                 intent.putExtra("payload", payload);
                 sendOrderedBroadcast(intent, null);
-                Log.d(TAG, "send broadcast.");
             } catch (JSONException e) {
                 Log.e(TAG, "Couldn't parse payload into json: " + payload);
             }

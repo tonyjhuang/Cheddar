@@ -61,6 +61,9 @@
     <string name="chat_presence_left">%1$s has left.</string>
     <string name="chat_copied_to_clipboard">Copied message.</string>
 
+    <!-- list -->
+    <string name="list_title">Messages</string>
+
     <!-- gcm -->
     <string name="gcm_registration_failed">Couldn\'t register for push notifications.</string>
     <string name="gcm_unregistration_failed">Couldn\'t unregister for push notifications.</string>

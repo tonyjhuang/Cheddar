@@ -2,7 +2,8 @@
 <resources>
 
     <color name="text_primary">#494949</color>
-    <color name="text_secondary">#2000</color>
+    <color name="text_secondary">#797979</color>
+    <color name="text_tertiary">#a5a5a5</color>
     <color name="text_primary_light">@android:color/primary_text_dark</color>
 
     <color name="colorPrimary">#ffd666</color>
@@ -34,6 +35,6 @@
     <color name="chat_text_outgoing_sending">#D0FFFFFF</color>
 
     <!-- ui -->
-    <color name="chat_ui_bg">#f3f3f3</color>
-    <color name="chat_ui_bars">#F0F0F0</color>
+    <color name="ui_light_gray">#f3f3f3</color>
+    <color name="ui_medium_gray">#F0F0F0</color>
 </resources>
