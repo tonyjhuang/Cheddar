@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="text_primary">#494949</color>
+
+
+    <color name="text_primary">@color/colorDark</color>
     <color name="text_secondary">#797979</color>
     <color name="text_tertiary">#a5a5a5</color>
-    <color name="text_primary_light">@android:color/primary_text_dark</color>
+    <color name="text_primary_light">#ffffffff</color>
 
     <color name="colorPrimary">#ffd666</color>
     <color name="colorPrimaryDark">#2d2d2d</color>
     <color name="colorAccent">#F26667</color>
+    <color name="colorDark">#494949</color>
 
     <color name="divider_gray">#dadada</color>
 

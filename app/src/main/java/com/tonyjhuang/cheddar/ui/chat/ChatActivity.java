@@ -265,9 +265,16 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (firstVisibleItem == 0) presenter.loadMoreMessages();
                 if (view.getLastVisiblePosition() == adapter.getCount() - 1 && newMessagesIndicator.getAlpha() == 1)
-                    newMessagesIndicator.animate().alpha(0);
+                    showNewMessagesIndicator(false);
             }
         });
+    }
+
+    /**
+     * Show or hide the new messages indicator.
+     */
+    private void showNewMessagesIndicator(boolean show) {
+        newMessagesIndicator.animate().alpha(show ? .9f : 0);
     }
 
     @ItemLongClick(R.id.message_list_view)
@@ -282,7 +289,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @Override
     public void displayLoadHistoryChatEventsError() {
-        showToast("Failed to load more messages");
+        showToast(R.string.chat_load_messages_failed);
         chatEventListView.setAlpha(1f);
     }
 
@@ -309,6 +316,11 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         presenter.onResume();
         showChangeLog(prefs);
         checkCurrentUser(api);
+        if (chatEventListView != null &&
+                adapter != null &&
+                chatEventListView.getLastVisiblePosition() == adapter.getCount() - 1) {
+            showNewMessagesIndicator(false);
+        }
     }
 
     @Override

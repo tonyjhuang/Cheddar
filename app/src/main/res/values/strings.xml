@@ -43,8 +43,9 @@
     <string name="chat_no_members">Waiting for others..</string>
     <string name="chat_members">%1$d members ></string>
     <string name="chat_message_input_hint">Say cheese!</string>
+    <string name="chat_load_messages_failed">Failed to load messages.</string>
     <string name="chat_send_message">Send</string>
-    <string name="chat_new_messages">New Messages!</string>
+    <string name="chat_new_messages">NEW MESSAGES</string>
     <string name="chat_title_group">Group</string>
     <string name="chat_action_feedback">Feedback</string>
     <string name="chat_action_report">Report User</string>

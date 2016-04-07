@@ -44,18 +44,20 @@
     <TextView
         android:id="@+id/new_messages"
         android:layout_width="wrap_content"
-        android:layout_height="34dp"
+        android:layout_height="@dimen/chat_new_messages_height"
         android:layout_alignBottom="@+id/message_list_view"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="12dp"
         android:alpha="0"
-        android:background="@color/colorPrimaryDark"
+        android:background="@drawable/new_messages_indicator_bg"
         android:gravity="center"
-        android:paddingBottom="4dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="4dp"
+        android:paddingLeft="28dp"
+        android:paddingRight="28dp"
+        android:textSize="12sp"
         android:text="@string/chat_new_messages"
+        android:textColorHighlight="@color/text_primary_light"
+        android:elevation="4dp"
+        android:textColorLink="@color/text_primary_light"
         android:textColor="@color/text_primary_light" />
 
     <TextView
@@ -150,8 +152,8 @@
         android:id="@+id/version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingRight="8dp"
         android:layout_alignParentBottom="true"
         android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:textColor="@color/text_tertiary" />
 </RelativeLayout>

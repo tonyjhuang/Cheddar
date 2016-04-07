@@ -19,6 +19,7 @@
     <dimen name="chat_bubble_text_size">18sp</dimen>
     <dimen name="chat_bubble_author_text_size">16sp</dimen>
     <dimen name="chat_input_min_height">56dp</dimen>
+    <dimen name="chat_new_messages_height">28dp</dimen>
 
     <dimen name="list_room_row_padding">24dp</dimen>
 
