@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.list.ChatRoomListActivity_">
+    <item
+        android:id="@+id/action_join"
+        android:orderInCategory="100"
+        android:title="@string/list_action_join"
+        android:icon="@drawable/action_join"
+        app:showAsAction="ifRoom" />
+</menu>

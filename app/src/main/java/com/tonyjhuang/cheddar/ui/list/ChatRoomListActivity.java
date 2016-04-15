@@ -1,12 +1,17 @@
 package com.tonyjhuang.cheddar.ui.list;
 
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.R;
+import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
 import com.tonyjhuang.cheddar.api.models.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
+import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -61,8 +66,14 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
         navigateToChatView(info.alias.getObjectId());
     }
 
-    private void navigateToChatView(String aliasId) {
+    @Override
+    public void navigateToChatView(String aliasId) {
         ChatActivity_.intent(this).aliasId(aliasId).start();
+    }
+
+    @Override
+    public void showJoinChatError() {
+        showToast(R.string.list_error_join_chat);
     }
 
     @Override
@@ -82,4 +93,28 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
         super.onDestroy();
         presenter.onDestroy();
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_join:
+                presenter.onJoinChatRoomClicked();
+                return true;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
 }

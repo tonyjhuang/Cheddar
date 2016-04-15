@@ -64,6 +64,8 @@
 
     <!-- list -->
     <string name="list_title">Messages</string>
+    <string name="list_action_join">Join new chat</string>
+    <string name="list_error_join_chat">Couldn\'t join new chat.</string>
 
     <!-- gcm -->
     <string name="gcm_registration_failed">Couldn\'t register for push notifications.</string>

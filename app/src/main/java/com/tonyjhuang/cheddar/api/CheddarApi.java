@@ -1,7 +1,5 @@
 package com.tonyjhuang.cheddar.api;
 
-import android.util.Log;
-
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
 import com.tonyjhuang.cheddar.api.models.Alias;
@@ -31,8 +29,8 @@ import static com.tonyjhuang.cheddar.api.MessageApi.SUBKEY;
 @EBean(scope = EBean.Scope.Singleton)
 public class CheddarApi {
 
-    private static final String TAG = CheddarApi.class.getSimpleName();
     private static final String PASSWORD = "password";
+    private static final int GROUP_CHAT_SIZE = 5;
 
     @Bean
     MessageApi messageApi;
@@ -87,6 +85,13 @@ public class CheddarApi {
         params.put("subkey", SUBKEY);
         params.put("pubkey", PUBKEY);
         return Observable.just(params);
+    }
+
+    public Observable<Alias> joinNextAvailableGroupChatRoom() {
+        return getCurrentUser()
+                .flatMap(this::getDefaultParams)
+                .doOnNext((params) -> params.put("maxOccupancy", GROUP_CHAT_SIZE))
+                .flatMap(params -> ParseObservable.callFunction("joinNextAvailableChatRoom", params));
     }
 
     public Observable<Alias> joinNextAvailableChatRoom(int maxOccupancy) {
@@ -144,15 +149,14 @@ public class CheddarApi {
                     params.put("aliasId", aliasId);
                     params.put("body", body);
                     params.put("messageId", UUID.randomUUID().toString());
-                    Log.e(TAG, "Calling with " + params);
+                    Timber.e("Calling with " + params);
                 })
                 .flatMap(params -> ParseObservable.callFunction("sendMessage", params))
-                .doOnError(error -> Log.e(TAG, "failed to send message: " + error))
+                .doOnError(error -> Timber.e("failed to send message: " + error))
                 .map((object) -> null);
     }
 
     public Observable<ChatEvent> getMessageStream(String aliasId) {
-        Log.e(TAG, "getMessageStream");
         return getAlias(aliasId)
                 .map(Alias::getChatRoomId)
                 .flatMap(messageApi::subscribe)
@@ -186,8 +190,6 @@ public class CheddarApi {
             params.put("startTimeToken", replayPagerToken);
         }
 
-        Log.e(TAG, "replayChatEvents | " + params);
-
         return ParseObservable.callFunction("replayEvents", params).cast(HashMap.class)
                 .doOnNext(response -> replayPagerToken = Long.valueOf((String) response.get("startTimeToken")))
                 .compose(parseChatEvents());
@@ -201,8 +203,6 @@ public class CheddarApi {
         params.put("startTimeToken", start.getTime() * 10000);
         params.put("endTimeToken", end.getTime() * 10000);
 
-        Log.e(TAG, "replayChatEvents | " + params);
-
         return ParseObservable.callFunction("replayEvents", params).cast(HashMap.class)
                 .compose(parseChatEvents());
     }
@@ -213,7 +213,7 @@ public class CheddarApi {
         //   "startTimeToken": "00000",
         //   "endTimeToken": "00000"}
         return o -> o
-                .doOnNext(response -> Log.e(TAG, response.toString()))
+                .doOnNext(response -> Timber.i(response.toString()))
                 .map(map -> (List<Object>) map.get("events"))
                 .flatMap(Observable::from)
                 .cast(HashMap.class)

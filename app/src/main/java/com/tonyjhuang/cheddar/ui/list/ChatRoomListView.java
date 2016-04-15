@@ -11,4 +11,7 @@ public interface ChatRoomListView {
 
     void displayList(List<ChatRoomInfo> infoList);
 
+    void navigateToChatView(String aliasId);
+
+    void showJoinChatError();
 }

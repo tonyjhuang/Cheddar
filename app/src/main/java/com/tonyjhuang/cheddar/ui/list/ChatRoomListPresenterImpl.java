@@ -9,7 +9,9 @@ import org.androidannotations.annotations.EBean;
 
 import java.util.List;
 
+import rx.Observable;
 import rx.Subscription;
+import rx.functions.Func2;
 import rx.subjects.AsyncSubject;
 import timber.log.Timber;
 
@@ -38,6 +40,11 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
      */
     private ChatRoomListView view;
 
+    /**
+     * Has the list of chat rooms not been loaded yet?
+     */
+    private boolean firstLoad = true;
+
     @Override
     public void setView(ChatRoomListView view) {
         this.view = view;
@@ -48,14 +55,34 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
         if (cachedChatRoomSubscription == null || cachedChatRoomSubscription.isUnsubscribed()) {
             cachedChatRoomSubscription = api.getChatRooms()
                     .compose(Scheduler.backgroundSchedulers())
+                    .flatMap(Observable::from)
+                    .toSortedList((i1, i2) -> i2.chatEvent.getUpdatedAt().compareTo(i1.chatEvent.getUpdatedAt()))
+                    .compose(Scheduler.backgroundSchedulers())
                     .doOnNext(i -> Timber.i(i.toString()))
                     .doOnError(error -> Timber.e(error.toString()))
                     .subscribe(chatRoomSubject);
         }
-        chatRoomSubscription = chatRoomSubject.compose(Scheduler.defaultSchedulers())
-                .subscribe(infos -> {
-                            if (view != null) view.displayList(infos);
-                        }, error -> Timber.e(error.toString()));
+        if (firstLoad) {
+            // Only subscribe if the list hasn't been loaded yet.
+            chatRoomSubscription = chatRoomSubject.compose(Scheduler.defaultSchedulers())
+                    .subscribe(infos -> {
+                        if (view != null) {
+                            firstLoad = false;
+                            view.displayList(infos);
+                        }
+                    }, error -> Timber.e(error.toString()));
+        }
+    }
+
+    @Override
+    public void onJoinChatRoomClicked() {
+        api.joinNextAvailableGroupChatRoom().compose(Scheduler.defaultSchedulers())
+                .subscribe(alias -> {
+                    if (view != null) view.navigateToChatView(alias.getObjectId());
+                }, error -> {
+                    if (view != null) view.showJoinChatError();
+                    Timber.e(error.toString());
+                });
     }
 
     @Override

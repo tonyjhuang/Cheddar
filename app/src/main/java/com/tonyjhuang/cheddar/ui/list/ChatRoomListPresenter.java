@@ -8,6 +8,8 @@ import com.tonyjhuang.cheddar.presenter.Presenter;
  */
 public interface ChatRoomListPresenter extends Presenter<ChatRoomListView> {
 
+    void onJoinChatRoomClicked();
+
     void onResume();
 
     void onPause();
