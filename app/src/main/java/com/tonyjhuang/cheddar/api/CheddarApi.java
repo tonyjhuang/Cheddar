@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import rx.Observable;
 import rx.parse.ParseObservable;
@@ -142,13 +143,13 @@ public class CheddarApi {
                 .doOnNext((params) -> {
                     params.put("aliasId", aliasId);
                     params.put("body", body);
+                    params.put("messageId", UUID.randomUUID().toString());
                     Log.e(TAG, "Calling with " + params);
                 })
                 .flatMap(params -> ParseObservable.callFunction("sendMessage", params))
                 .doOnError(error -> Log.e(TAG, "failed to send message: " + error))
                 .map((object) -> null);
     }
-
 
     public Observable<ChatEvent> getMessageStream(String aliasId) {
         Log.e(TAG, "getMessageStream");
