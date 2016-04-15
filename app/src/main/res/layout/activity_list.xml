@@ -19,7 +19,7 @@
 
     <ListView xmlns:tools="http://schemas.android.com/tools"
         tools:listitem="@layout/row_list_room"
-        android:id="@+id/list_view"
+        android:id="@+id/room_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar_divider"

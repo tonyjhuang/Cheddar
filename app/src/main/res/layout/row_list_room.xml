@@ -59,20 +59,6 @@
             android:textSize="16sp" />
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/user_alias_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/bottom_divider"
-        android:layout_toEndOf="@+id/alias_display"
-        android:layout_toRightOf="@+id/alias_display"
-        android:ellipsize="end"
-        android:paddingBottom="4dp"
-        android:singleLine="true"
-        android:text="You are: Caustic Liger"
-        android:textColor="@color/text_secondary"
-        android:textSize="11sp" />
-
     <View
         android:id="@+id/bottom_divider"
         android:layout_width="match_parent"

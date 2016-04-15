@@ -41,7 +41,7 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
             }, error -> Log.e(TAG, "Couldnt fetch current user. "));
         } catch (JSONException e) {
             Log.e(TAG, "Failed to parse payload into json: " + payloadString);
-        } catch (CheddarParser.UnableToParseChatEvent e) {
+        } catch (CheddarParser.UnparseableException e) {
             Log.e(TAG, "Failed to parse json into ChatEvent: " + payloadString);
         }
     }

@@ -6,6 +6,8 @@ import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
 import com.tonyjhuang.cheddar.api.models.Alias;
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.JSONParseObject;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -19,6 +21,7 @@ import java.util.Map;
 
 import rx.Observable;
 import rx.parse.ParseObservable;
+import timber.log.Timber;
 
 import static com.tonyjhuang.cheddar.api.MessageApi.PUBKEY;
 import static com.tonyjhuang.cheddar.api.MessageApi.SUBKEY;
@@ -104,6 +107,29 @@ public class CheddarApi {
         Map<String, Object> params = new HashMap<>();
         params.put("chatRoomId", chatRoomId);
         return ParseObservable.callFunction("getActiveAliases", params);
+    }
+
+    public Observable<List<ChatRoomInfo>> getChatRooms() {
+        return getChatRoomsHelper().flatMap(Observable::from)
+                .doOnNext(o -> Timber.d(o.toString()))
+                .map(this::sanitize)
+                .doOnNext(o -> Timber.d(o.toString()))
+                .flatMap(CheddarParser::parseChatRoomInfoRx)
+                .toList();
+    }
+
+    // hack to cast the result as a list<hashmap>
+    // ugh this is why i want to kill parseobservable :'(
+    public Observable<List<HashMap>> getChatRoomsHelper() {
+        return getCurrentUser()
+                .map(ParseUser::getObjectId)
+                .map(userId -> {
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("userId", userId);
+                    return params;
+                })
+                .doOnNext(params -> Timber.d(params.toString()))
+                .flatMap(params -> ParseObservable.callFunction("getChatRooms", params));
     }
 
     //******************************************************
@@ -203,8 +229,8 @@ public class CheddarApi {
             Object o = map.get(key);
             if (o instanceof HashMap) {
                 sanitize((HashMap) o);
-            } else if (o instanceof Alias) {
-                map.put(key, ((Alias) o).toJson());
+            } else if (o instanceof JSONParseObject) {
+                map.put(key, ((JSONParseObject) o).toJson());
             }
         }
         return new JSONObject(map);

@@ -34,7 +34,7 @@ public class ChatPushBroadcastReceiver extends BroadcastReceiver {
                 abortBroadcast();
             }
 
-        } catch (JSONException | CheddarParser.UnableToParseChatEvent e) {
+        } catch (JSONException | CheddarParser.UnparseableException e) {
             Log.e(TAG, "couldn't parse gcm payload into ChatEvent: " + intent.getStringExtra("payload"));
             abortBroadcast();
         }

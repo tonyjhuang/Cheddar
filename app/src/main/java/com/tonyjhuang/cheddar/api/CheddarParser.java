@@ -3,6 +3,7 @@ package com.tonyjhuang.cheddar.api;
 import android.util.Log;
 
 import com.tonyjhuang.cheddar.api.models.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.ChatRoomInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +20,7 @@ public class CheddarParser {
     private static final String DATA_OBJECT = "object";
     private static final String DATA_OBJECT_TYPE = "objectType";
 
-    public static ChatEvent parseChatEvent(JSONObject object) throws UnableToParseChatEvent {
+    public static ChatEvent parseChatEvent(JSONObject object) throws UnparseableException {
         try {
             JSONObject data = object.getJSONObject(DATA_OBJECT);
             try {
@@ -29,16 +30,16 @@ public class CheddarParser {
                         return ChatEvent.fromJson(data);
                     default:
                         Log.e(TAG, "Unhandled Type " + type);
-                        throw new UnableToParseChatEvent("unrecognized objectType");
+                        throw new UnparseableException("unrecognized objectType");
                 }
             } catch (IllegalArgumentException e) {
                 String dataType = object.getString(DATA_OBJECT_TYPE);
                 Log.e(TAG, "Not a valid Data Object type: " + dataType);
-                throw new UnableToParseChatEvent("unrecognized data object type: " + dataType);
+                throw new UnparseableException("unrecognized data object type: " + dataType);
             }
         } catch (JSONException e) {
             Log.e(TAG, "Failed to parse json: " + e.toString());
-            throw new UnableToParseChatEvent("failed to parse json");
+            throw new UnparseableException("failed to parse json");
         }
     }
 
@@ -47,7 +48,7 @@ public class CheddarParser {
             try {
                 subscriber.onNext(parseChatEvent(object));
                 subscriber.onCompleted();
-            } catch (UnableToParseChatEvent e) {
+            } catch (UnparseableException e) {
                 subscriber.onError(e);
             }
         }));
@@ -57,14 +58,25 @@ public class CheddarParser {
         return parseChatEventRx(object).onExceptionResumeNext(Observable.empty());
     }
 
+    public static Observable<ChatRoomInfo> parseChatRoomInfoRx(JSONObject object) {
+        return Observable.create((subscriber -> {
+            try {
+                subscriber.onNext(ChatRoomInfo.fromJson(object));
+                subscriber.onCompleted();
+            } catch (JSONException e) {
+                subscriber.onError(e);
+            }
+        }));
+    }
+
     public enum Type {
         ChatEvent
     }
 
-    public static class UnableToParseChatEvent extends Exception {
+    public static class UnparseableException extends Exception {
         public String reason;
 
-        public UnableToParseChatEvent(String reason) {
+        public UnparseableException(String reason) {
             this.reason = reason;
         }
     }

@@ -3,7 +3,7 @@ package com.tonyjhuang.cheddar;
 import android.util.Log;
 
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
-import com.tonyjhuang.cheddar.ui.list.RoomListActivity_;
+import com.tonyjhuang.cheddar.ui.list.ChatRoomListActivity_;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 
 import org.androidannotations.annotations.AfterInject;
@@ -20,6 +20,11 @@ public class AppRouter extends CheddarActivity {
 
     @AfterInject
     public void start() {
+        if(true) {
+            ChatRoomListActivity_.intent(this).start();
+            return;
+        }
+
         String lastOpenedAlias = prefs.lastOpenedAlias().get();
         Log.e("AppRouter", "lastOpened: " + lastOpenedAlias);
         if (lastOpenedAlias == null || lastOpenedAlias.isEmpty()) {

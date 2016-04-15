@@ -4,7 +4,9 @@ import android.content.Context;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.ocpsoft.pretty.time.PrettyTime;
 import com.tonyjhuang.cheddar.R;
+import com.tonyjhuang.cheddar.api.models.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 
 import org.androidannotations.annotations.AfterViews;
@@ -17,7 +19,9 @@ import org.androidannotations.annotations.res.ColorRes;
  */
 
 @EViewGroup(R.layout.row_list_room)
-public class RoomListItemView extends RelativeLayout {
+public class ChatRoomItemView extends RelativeLayout {
+
+    private static final PrettyTime prettyTime = new PrettyTime();
 
     @ViewById(R.id.alias_display)
     AliasDisplayView aliasDisplayView;
@@ -31,18 +35,24 @@ public class RoomListItemView extends RelativeLayout {
     @ViewById(R.id.recent_message)
     TextView recentMessageView;
 
-    @ViewById(R.id.user_alias_name)
-    TextView userAliasNameView;
-
     @ColorRes(R.color.chat_author_background_incoming)
     int aliasDisplayColor;
 
-    public RoomListItemView(Context context) {
+    private ChatRoomInfo info;
+
+    public ChatRoomItemView(Context context) {
         super(context);
     }
 
     @AfterViews
     public void afterViews() {
         aliasDisplayView.setColor(aliasDisplayColor);
+    }
+
+    public void setChatRoomInfo(ChatRoomInfo info) {
+        this.info = info;
+        recentMessageView.setText(info.chatEvent.getBody());
+        aliasDisplayView.setAliasName(info.alias.getName());
+        timestampView.setText(prettyTime.format(info.chatEvent.getUpdatedAt()));
     }
 }

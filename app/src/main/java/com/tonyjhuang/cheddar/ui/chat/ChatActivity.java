@@ -3,6 +3,7 @@ package com.tonyjhuang.cheddar.ui.chat;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -28,7 +29,7 @@ import com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
-import com.tonyjhuang.cheddar.ui.list.RoomListActivity_;
+import com.tonyjhuang.cheddar.ui.list.ChatRoomListActivity_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterTextChange;
@@ -407,8 +408,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         if (leaveChatRoomDialog != null) {
             leaveChatRoomDialog.dismiss();
         }
-        RoomListActivity_.intent(this).start();
-        finish();
+        NavUtils.navigateUpFromSameTask(this);
     }
 
     @Override
