@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
 import com.tonyjhuang.cheddar.presenter.Scheduler;
@@ -16,7 +15,6 @@ import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 
 import org.androidannotations.annotations.EActivity;
 
-import rx.Observable;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 @EActivity(R.layout.activity_main)
@@ -39,7 +37,7 @@ public abstract class CheddarActivity extends AppCompatActivity {
     }
 
     protected void checkCurrentUser(CheddarApi api) {
-        if(ConnectivityBroadcastReceiver.getLastKnownConnected()) {
+        if (ConnectivityBroadcastReceiver.getLastKnownConnected()) {
             api.fetchCurrentUser().compose(Scheduler.defaultSchedulers())
                     .doOnError(error -> {
                         api.logout().publish().connect();

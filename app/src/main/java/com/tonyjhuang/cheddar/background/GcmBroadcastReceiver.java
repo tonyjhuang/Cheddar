@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarParser;
-import com.tonyjhuang.cheddar.api.models.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EReceiver;
@@ -33,29 +33,21 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
         Log.d(TAG, "onReceive!");
         String payloadString = intent.getStringExtra("payload");
         try {
-            ChatEvent chatEvent = CheddarParser.parseChatEvent(new JSONObject(payloadString));
+            ParseChatEvent parseChatEvent = CheddarParser.parseChatEvent(new JSONObject(payloadString));
             api.getCurrentUser().subscribe(currentUser -> {
-                if (!currentUser.getObjectId().equals(chatEvent.getAlias().getUserId())) {
-                    handleMessageEvent(context, chatEvent);
+                if (!currentUser.getObjectId().equals(parseChatEvent.getAlias().getUserId())) {
+                    handleChatEvent(context, parseChatEvent);
                 }
             }, error -> Log.e(TAG, "Couldnt fetch current user. "));
         } catch (JSONException e) {
             Log.e(TAG, "Failed to parse payload into json: " + payloadString);
         } catch (CheddarParser.UnparseableException e) {
-            Log.e(TAG, "Failed to parse json into ChatEvent: " + payloadString);
+            Log.e(TAG, "Failed to parse json into ParseChatEvent: " + payloadString);
         }
     }
 
-    private void handleMessageEvent(Context context, ChatEvent chatEvent) {
-        switch (chatEvent.getType()) {
-            case PRESENCE:
-                notificationService.createOrUpdatePresenceNotification(context, chatEvent);
-                unreadMessagesCounter.increment(chatEvent.getAlias().getChatRoomId());
-                break;
-            case MESSAGE:
-                notificationService.createOrUpdateMessageNotification(context, chatEvent);
-                unreadMessagesCounter.increment(chatEvent.getAlias().getChatRoomId());
-                break;
-        }
+    private void handleChatEvent(Context context, ParseChatEvent parseChatEvent) {
+        notificationService.createOrUpdateChatEventNotification(context, parseChatEvent);
+        unreadMessagesCounter.increment(parseChatEvent.getAlias().getChatRoomId());
     }
 }

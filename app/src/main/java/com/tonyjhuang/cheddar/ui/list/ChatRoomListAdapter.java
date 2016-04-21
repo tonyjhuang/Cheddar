@@ -4,7 +4,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.tonyjhuang.cheddar.api.models.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 
 import java.util.List;
 

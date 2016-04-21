@@ -21,15 +21,14 @@ import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
-import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
-import com.tonyjhuang.cheddar.api.models.Alias;
-import com.tonyjhuang.cheddar.api.models.ChatEvent;
+import com.tonyjhuang.cheddar.api.CheddarMetrics;
+import com.tonyjhuang.cheddar.api.models.value.Alias;
+import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo;
 import com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
-import com.tonyjhuang.cheddar.ui.list.ChatRoomListActivity_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterTextChange;
@@ -250,7 +249,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     }
 
     /**
-     * Basic set up for our ChatEvent views.
+     * Basic set up for our ParseChatEvent views.
      */
     private void setUpChatEventListView(String currentUserId) {
         if (adapter != null) return;
@@ -280,9 +279,9 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @ItemLongClick(R.id.message_list_view)
     public void onChatEventItemLongClick(ChatEventViewInfo info) {
-        if (info.chatEvent.getType().equals(ChatEvent.Type.MESSAGE)) {
+        if (info.chatEvent.type().equals(ChatEvent.ChatEventType.MESSAGE)) {
             ChatEvent message = info.chatEvent;
-            ClipData clip = ClipData.newPlainText(message.getAlias().getName() + " said:", message.getBody());
+            ClipData clip = ClipData.newPlainText(message.alias().name() + " said:", message.body());
             clipboardManager.setPrimaryClip(clip);
             showToast(R.string.chat_copied_to_clipboard);
         }
@@ -373,7 +372,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 return true;
             case R.id.action_report:
                 showToast(R.string.report_coming_soon);
-                CheddarMetricTracker.trackReportUser(CheddarMetricTracker.ReportUserLifecycle.CLICKED);
+                CheddarMetrics.trackReportUser(CheddarMetrics.ReportUserLifecycle.CLICKED);
                 Log.d(TAG, "report");
                 return true;
             case R.id.action_leave:
@@ -394,7 +393,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     }
 
     /**
-     * Removes the user from this ChatRoom.
+     * Removes the user from this ParseChatRoom.
      */
     private void leaveChatRoom() {
         presenter.leaveChatRoom();

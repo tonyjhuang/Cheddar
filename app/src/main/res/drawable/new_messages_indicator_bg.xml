@@ -6,6 +6,5 @@
         android:bottomRightRadius="@dimen/chat_bubble_corners"
         android:topLeftRadius="@dimen/chat_bubble_corners"
         android:topRightRadius="@dimen/chat_bubble_corners" />
-    <solid
-        android:color="@color/text_primary" />
+    <solid android:color="@color/text_primary" />
 </shape>

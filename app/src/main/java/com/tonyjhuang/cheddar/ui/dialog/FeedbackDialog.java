@@ -7,7 +7,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
+import com.tonyjhuang.cheddar.api.CheddarMetrics;
 
 import org.androidannotations.annotations.EBean;
 
@@ -35,7 +35,7 @@ public class FeedbackDialog {
                 })
                 .setNegativeButton(R.string.feedback_cancel, null);
         builder.show();
-        CheddarMetricTracker.trackFeedback(CheddarMetricTracker.FeedbackLifecycle.OPENED);
+        CheddarMetrics.trackFeedback(CheddarMetrics.FeedbackLifecycle.OPENED);
     }
 
     public interface Callback {

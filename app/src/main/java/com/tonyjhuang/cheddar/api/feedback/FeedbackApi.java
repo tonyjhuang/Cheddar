@@ -16,7 +16,6 @@ import rx.Observable;
 @EBean(scope = EBean.Scope.Singleton)
 public class FeedbackApi {
 
-    private static final String TAG = FeedbackApi.class.getSimpleName();
     private static final String BASE_URL = "https://hooks.slack.com/services/";
 
     FeedbackService service;

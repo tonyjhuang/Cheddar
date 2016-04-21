@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.tonyjhuang.cheddar.api.models.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo.Direction;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo.Status;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the displaying of ChatEvent objects in a list.
+ * Handles the displaying of ParseChatEvent objects in a list.
  */
 public class ChatEventListAdapter extends BaseAdapter {
 
@@ -46,20 +46,20 @@ public class ChatEventListAdapter extends BaseAdapter {
     }
 
     /**
-     * Adds a ChatEvent to this adapter by order of date. If addToEnd is true
+     * Adds a ParseChatEvent to this adapter by order of date. If addToEnd is true
      * then this method will attempt to add it to the end of the list (most recent) and
      * search for the proper state backwards.
      */
-    public void addOrUpdateMessageEvent(ChatEvent chatEvent, boolean addToEnd) {
-        switch (chatEvent.getType()) {
+    public void addOrUpdateMessageEvent(ChatEvent parseChatEvent, boolean addToEnd) {
+        switch (parseChatEvent.type()) {
             case MESSAGE:
-                addOrUpdateMessage(chatEvent, addToEnd);
+                addOrUpdateMessage(parseChatEvent, addToEnd);
                 break;
             case PRESENCE:
-                addPresence(chatEvent, addToEnd);
+                addPresence(parseChatEvent, addToEnd);
                 break;
             default:
-                Log.e(TAG, "Encountered unrecognized ChatEvent: " + chatEvent.toString());
+                Log.e(TAG, "Encountered unrecognized ParseChatEvent: " + parseChatEvent.toString());
         }
     }
 
@@ -76,7 +76,7 @@ public class ChatEventListAdapter extends BaseAdapter {
      * or by updating an existing placeholder message.
      */
     private void addOrUpdateMessage(ChatEvent message, boolean addToEnd) {
-        Direction direction = message.getAlias().getUserId().equals(currentUserId) ?
+        Direction direction = message.alias().userId().equals(currentUserId) ?
                 ChatEventViewInfo.Direction.OUTGOING : Direction.INCOMING;
         if (direction == Direction.OUTGOING) {
             updateOutgoingMessage(message, Status.SENT, addToEnd);
@@ -99,7 +99,7 @@ public class ChatEventListAdapter extends BaseAdapter {
      */
     private void updateOutgoingMessage(ChatEvent message, Status newStatus, boolean addToEnd) {
         // If we have a placeholder, update that, otherwise add as a new outgoing message.
-        int placeholderIndexIndex = findPlaceholderMessageIndexIndex(message.getBody());
+        int placeholderIndexIndex = findPlaceholderMessageIndexIndex(message.body());
         if (placeholderIndexIndex != -1) {
             int placeholderIndex = placeholderMessageIndexes.get(placeholderIndexIndex);
             placeholderMessageIndexes.remove(placeholderIndexIndex);
@@ -162,7 +162,7 @@ public class ChatEventListAdapter extends BaseAdapter {
     private int findPlaceholderMessageIndexIndex(String body) {
         for (int i = 0; i < placeholderMessageIndexes.size(); i++) {
             int index = placeholderMessageIndexes.get(i);
-            if (getItem(index).chatEvent.getBody().equals(body)) {
+            if (getItem(index).chatEvent.body().equals(body)) {
                 return i;
             }
         }
@@ -197,7 +197,7 @@ public class ChatEventListAdapter extends BaseAdapter {
     @Override
     public int getItemViewType(int position) {
         ChatEventViewInfo info = getItem(position);
-        if (info.chatEvent.getType().equals(ChatEvent.Type.MESSAGE)) {
+        if (info.chatEvent.type().equals(ChatEvent.ChatEventType.MESSAGE)) {
             return info.direction == Direction.INCOMING ? MESSAGE_LEFT : MESSAGE_RIGHT;
         } else {
             return PRESENCE;

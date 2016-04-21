@@ -2,8 +2,11 @@ package com.tonyjhuang.cheddar.api;
 
 import android.util.Log;
 
-import com.tonyjhuang.cheddar.api.models.ChatEvent;
-import com.tonyjhuang.cheddar.api.models.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.ParseToValueTranslator;
+import com.tonyjhuang.cheddar.api.models.parse.ParseAlias;
+import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
+import com.tonyjhuang.cheddar.api.models.parse.ParseChatRoom;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,16 +23,16 @@ public class CheddarParser {
     private static final String DATA_OBJECT = "object";
     private static final String DATA_OBJECT_TYPE = "objectType";
 
-    public static ChatEvent parseChatEvent(JSONObject object) throws UnparseableException {
+    public static ParseChatEvent parseChatEvent(JSONObject object) throws UnparseableException {
         try {
             JSONObject data = object.getJSONObject(DATA_OBJECT);
             try {
                 Type type = Type.valueOf(object.getString(DATA_OBJECT_TYPE));
                 switch (type) {
                     case ChatEvent:
-                        return ChatEvent.fromJson(data);
+                        return ParseChatEvent.fromJson(data);
                     default:
-                        Log.e(TAG, "Unhandled Type " + type);
+                        Log.e(TAG, "Unhandled ChatEventType " + type);
                         throw new UnparseableException("unrecognized objectType");
                 }
             } catch (IllegalArgumentException e) {
@@ -43,7 +46,7 @@ public class CheddarParser {
         }
     }
 
-    public static Observable<ChatEvent> parseChatEventRx(JSONObject object) {
+    public static Observable<ParseChatEvent> parseChatEventRx(JSONObject object) {
         return Observable.create((subscriber -> {
             try {
                 subscriber.onNext(parseChatEvent(object));
@@ -54,14 +57,20 @@ public class CheddarParser {
         }));
     }
 
-    public static Observable<ChatEvent> parseChatEventRxSkippable(JSONObject object) {
+    public static Observable<ParseChatEvent> parseChatEventRxSkippable(JSONObject object) {
         return parseChatEventRx(object).onExceptionResumeNext(Observable.empty());
     }
 
     public static Observable<ChatRoomInfo> parseChatRoomInfoRx(JSONObject object) {
         return Observable.create((subscriber -> {
             try {
-                subscriber.onNext(ChatRoomInfo.fromJson(object));
+                ParseChatRoom chatRoom = ParseChatRoom.fromJson(object.getJSONObject("chatRoom"));
+                ParseAlias alias = ParseAlias.fromJson(object.getJSONObject("alias"));
+                ParseChatEvent chatEvent = ParseChatEvent.fromJson(object.getJSONObject("chatEvent"));
+                subscriber.onNext(ChatRoomInfo.create(
+                        ParseToValueTranslator.toChatRoom(chatRoom),
+                        ParseToValueTranslator.toAlias(alias),
+                        ParseToValueTranslator.toChatEvent(chatEvent)));
                 subscriber.onCompleted();
             } catch (JSONException e) {
                 subscriber.onError(e);

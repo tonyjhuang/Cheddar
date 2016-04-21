@@ -29,7 +29,7 @@
                 android:id="@+id/image_backup"
                 android:scaleType="centerInside"
                 android:layout_width="@dimen/feedback_loading"
-                android:layout_height="@dimen/feedback_loading"/>
+                android:layout_height="@dimen/feedback_loading" />
         </FrameLayout>
 
         <TextView

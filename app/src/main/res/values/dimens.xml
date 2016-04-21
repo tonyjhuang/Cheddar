@@ -26,7 +26,7 @@
     <dimen name="notif_large_icon_dimen">64dp</dimen>
     <dimen name="notif_large_icon_corners">32dp</dimen> <!-- should be half of dimen -->
     <dimen name="notif_author_text_size">30sp</dimen>
-    
+
     <dimen name="ui_divider_height">2px</dimen>
 
     <dimen name="feedback_loading">72dp</dimen>

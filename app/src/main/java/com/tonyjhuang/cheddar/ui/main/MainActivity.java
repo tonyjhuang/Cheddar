@@ -12,7 +12,7 @@ import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
-import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
+import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.presenter.Scheduler;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager;
@@ -134,7 +134,7 @@ public class MainActivity extends CheddarActivity {
         loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
         api.joinNextAvailableChatRoom(5).compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
-                    CheddarMetricTracker.trackJoinChatRoom(alias.getChatRoomId());
+                    CheddarMetrics.trackJoinChatRoom(alias.getChatRoomId());
                     navigateToChatView(alias.getObjectId());
                 }, error -> {
                     showToast("Couldn't join chat.");

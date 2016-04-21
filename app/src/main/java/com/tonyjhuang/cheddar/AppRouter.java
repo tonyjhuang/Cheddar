@@ -20,7 +20,7 @@ public class AppRouter extends CheddarActivity {
 
     @AfterInject
     public void start() {
-        if(true) {
+        if (true) {
             ChatRoomListActivity_.intent(this).start();
             return;
         }

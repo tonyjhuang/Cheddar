@@ -1,12 +1,13 @@
 package com.tonyjhuang.cheddar.ui.chat.chatevent;
 
-import com.tonyjhuang.cheddar.api.models.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
+import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 
 import java.util.Date;
 
 /**
  * Holder for MessageEvents for our Chat Adapter.
- * Contains the ChatEvent and some metadata around it.
+ * Contains the ParseChatEvent and some metadata around it.
  * Has either a Message OR a Presence.
  */
 public class ChatEventViewInfo {
@@ -32,15 +33,15 @@ public class ChatEventViewInfo {
     }
 
     public Date getDate() {
-        return chatEvent.getCreatedAt();
+        return chatEvent.metaData().createdAt();
     }
 
     public boolean hasSameAuthor(ChatEventViewInfo otherInfo) {
-        return chatEvent.getAlias().getObjectId().equals(otherInfo.chatEvent.getAlias().getObjectId());
+        return chatEvent.alias().metaData().objectId().equals(otherInfo.chatEvent.alias().metaData().objectId());
     }
 
     public boolean isSameObject(ChatEventViewInfo otherInfo) {
-        return chatEvent.getObjectId().equals(otherInfo.chatEvent.getObjectId());
+        return chatEvent.equals(otherInfo.chatEvent);
     }
 
     public enum Status {

@@ -1,6 +1,6 @@
 package com.tonyjhuang.cheddar.ui.list;
 
-import com.tonyjhuang.cheddar.api.models.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 
 import java.util.List;
 

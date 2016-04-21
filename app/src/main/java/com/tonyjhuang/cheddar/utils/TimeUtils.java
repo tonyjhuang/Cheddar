@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.api;
+package com.tonyjhuang.cheddar.utils;
 
 import android.util.Log;
 
@@ -9,22 +9,24 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * Created by tonyjhuang on 2/25/16.
+ * Created by tonyjhuang on 1/23/16.
  */
-public class Time {
+public class TimeUtils {
+
+    public static final int SECOND = 1000;
+    public static final int MINUTE = SECOND * 60;
+    public static final int HOUR = MINUTE * 60;
+    public static final int DAY = HOUR * 24;
+
+    public static boolean isOlderThanBy(Date d1, Date d2, int diff) {
+        return d1.getTime() - d2.getTime() > diff;
+    }
+
 
     // 2016-02-25T22:39:24.435Z
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
     private static final SimpleDateFormat sdfUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
     static { sdfUTC.setTimeZone(TimeZone.getTimeZone("UTC")); }
-    public static Date getDate(String dateString) {
-        try {
-            return sdf.parse(dateString);
-        } catch (ParseException e){
-            Log.e("Time", e.toString());
-            return new Date();
-        }
-    }
     public static Date getDateAsUTC(String dateString) {
         try {
             return sdfUTC.parse(dateString);
@@ -36,4 +38,5 @@ public class Time {
     public static String toString(Date date) {
         return sdf.format(date);
     }
+
 }

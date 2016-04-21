@@ -4,19 +4,16 @@ import android.content.Context;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.ocpsoft.pretty.time.PrettyTime;
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.api.models.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
-
-import net.danlew.android.joda.DateUtils;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.ColorRes;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils;
 
 import java.util.Date;
 
@@ -27,8 +24,6 @@ import java.util.Date;
 
 @EViewGroup(R.layout.row_list_room)
 public class ChatRoomItemView extends RelativeLayout {
-
-    private static final PrettyTime prettyTime = new PrettyTime();
 
     @ViewById(R.id.alias_display)
     AliasDisplayView aliasDisplayView;
@@ -45,8 +40,6 @@ public class ChatRoomItemView extends RelativeLayout {
     @ColorRes(R.color.chat_author_background_incoming)
     int aliasDisplayColor;
 
-    private ChatRoomInfo info;
-
     public ChatRoomItemView(Context context) {
         super(context);
     }
@@ -57,10 +50,9 @@ public class ChatRoomItemView extends RelativeLayout {
     }
 
     public void setChatRoomInfo(ChatRoomInfo info) {
-        this.info = info;
-        recentMessageView.setText(info.chatEvent.getBody());
-        aliasDisplayView.setAliasName(info.alias.getName());
-        timestampView.setText(formatDate(info.chatEvent.getUpdatedAt()));
+        recentMessageView.setText(ChatEvent.displayBody(info.chatEvent()));
+        aliasDisplayView.setAliasName(info.alias().name());
+        timestampView.setText(formatDate(info.chatEvent().metaData().updatedAt()));
     }
 
     /**
@@ -69,15 +61,15 @@ public class ChatRoomItemView extends RelativeLayout {
      * - If a date is within 3 days of today, display the day of week.
      * - Otherwise, display month day
      */
-    private String formatDate(Date date)  {
+    private String formatDate(Date date) {
         DateTime dateTime = new DateTime(date);
         DateTime midnight = new DateTime().withTimeAtStartOfDay();
-        if(dateTime.isAfter(midnight)) {
+        if (dateTime.isAfter(midnight)) {
             // 4:30 PM
             return removeLeadingZero(dateTime.toString("hh:mm a"));
         } else {
             DateTime threeDaysAgo = midnight.minusDays(3);
-            if(dateTime.isAfter(threeDaysAgo)) {
+            if (dateTime.isAfter(threeDaysAgo)) {
                 // Wed
                 return dateTime.toString("EEE");
             } else {
@@ -88,7 +80,7 @@ public class ChatRoomItemView extends RelativeLayout {
     }
 
     private String removeLeadingZero(String string) {
-        if(string.substring(0, 1).equals("0")) {
+        if (string.substring(0, 1).equals("0")) {
             string = string.substring(1, string.length());
         }
         return string;

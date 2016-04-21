@@ -1,24 +1,20 @@
 package com.tonyjhuang.cheddar.ui.list;
 
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
-import com.tonyjhuang.cheddar.api.models.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
-import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
-import org.androidannotations.annotations.ItemLongClick;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
@@ -63,7 +59,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
 
     @ItemClick(R.id.room_list_view)
     public void onChatRoomItemLongClick(ChatRoomInfo info) {
-        navigateToChatView(info.alias.getObjectId());
+        navigateToChatView(info.alias().metaData().objectId());
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.crashlytics.android.answers.CustomEvent;
 /**
  * Tracks important app events.
  */
-public class CheddarMetricTracker {
+public class CheddarMetrics {
 
     private static final String TRUE = "true";
     private static final String FALSE = "false";
@@ -18,7 +18,7 @@ public class CheddarMetricTracker {
 
     public static void trackLeaveChatRoom(String chatRoomId, long lengthOfStay) {
         Answers.getInstance().logCustom(new CustomEvent("Left Chat")
-                .putCustomAttribute("ChatRoom ID", chatRoomId)
+                .putCustomAttribute("ParseChatRoom ID", chatRoomId)
                 .putCustomAttribute("Length Of Stay", lengthOfStay));
     }
 
@@ -48,9 +48,5 @@ public class CheddarMetricTracker {
 
     public enum ReportUserLifecycle {
         CLICKED
-    }
-
-    private static String getBool(boolean b) {
-        return b ? TRUE : FALSE;
     }
 }

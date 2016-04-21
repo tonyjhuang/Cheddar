@@ -2,7 +2,6 @@
 <resources>
 
 
-
     <color name="text_primary">@color/colorDark</color>
     <color name="text_secondary">#797979</color>
     <color name="text_tertiary">#a5a5a5</color>

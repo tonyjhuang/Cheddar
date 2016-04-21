@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
-import com.tonyjhuang.cheddar.utils.TimeHelper;
+import com.tonyjhuang.cheddar.utils.TimeUtils;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
@@ -14,12 +14,11 @@ import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 import org.apache.commons.lang3.text.WordUtils;
 
 /**
- * View representation of a Presence ChatEvent.
+ * View representation of a Presence ParseChatEvent.
  */
 @EViewGroup
 public abstract class MessageView extends RelativeLayout {
 
-    private static final String TAG = MessageView.class.getSimpleName();
     /**
      * The ChatEventViewInfos that this MessageView is bound to.
      */
@@ -53,10 +52,10 @@ public abstract class MessageView extends RelativeLayout {
     }
 
     public void updateViews() {
-        String aliasName = WordUtils.capitalizeFully(info.chatEvent.getAlias().getName());
+        String aliasName = WordUtils.capitalizeFully(info.chatEvent.alias().name());
         authorFullNameView.setText(aliasName);
         authorDisplayView.setAliasName(aliasName);
-        bodyView.setText(info.chatEvent.getBody());
+        bodyView.setText(info.chatEvent.body());
         setPosition(position);
     }
 
@@ -132,7 +131,7 @@ public abstract class MessageView extends RelativeLayout {
     }
 
     private int getTimeSensitiveTopPadding() {
-        if (TimeHelper.isOlderThanBy(info.getDate(), prevInfo.getDate(), 2 * TimeHelper.MINUTE)) {
+        if (TimeUtils.isOlderThanBy(info.getDate(), prevInfo.getDate(), 2 * TimeUtils.MINUTE)) {
             return containerPaddingExpanded;
         } else {
             return containerPaddingMinimized;

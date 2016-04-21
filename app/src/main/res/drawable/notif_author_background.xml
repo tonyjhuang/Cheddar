@@ -6,6 +6,5 @@
         android:bottomRightRadius="@dimen/notif_large_icon_corners"
         android:topLeftRadius="@dimen/notif_large_icon_corners"
         android:topRightRadius="@dimen/notif_large_icon_corners" />
-    <solid
-        android:color="@color/colorAccent" />
+    <solid android:color="@color/colorAccent" />
 </shape>

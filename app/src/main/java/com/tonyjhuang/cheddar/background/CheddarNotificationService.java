@@ -17,8 +17,8 @@ import android.view.View;
 import com.tonyjhuang.cheddar.AppRouter_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
-import com.tonyjhuang.cheddar.api.models.Alias;
-import com.tonyjhuang.cheddar.api.models.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.parse.ParseAlias;
+import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 import com.tonyjhuang.cheddar.utils.StringUtils;
 
@@ -27,7 +27,6 @@ import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.res.ColorRes;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
-import org.apache.commons.lang3.text.WordUtils;
 
 /**
  * Created by tonyjhuang on 3/15/16.
@@ -36,7 +35,6 @@ import org.apache.commons.lang3.text.WordUtils;
 @EBean
 public class CheddarNotificationService {
 
-    private static final String TAG = CheddarNotificationService.class.getSimpleName();
     private static final Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
     private static final long[] vibratePattern = new long[]{0, 250, 250, 500};
     private static Typeface typeface;
@@ -57,38 +55,24 @@ public class CheddarNotificationService {
     @Bean
     UnreadMessagesCounter unreadMessagesCounter;
 
-    public void createOrUpdatePresenceNotification(Context context, ChatEvent presence) {
-        String authorName = WordUtils.capitalizeFully(presence.getAlias().getName());
-        String chatRoomId = presence.getAlias().getChatRoomId();
+
+    public void createOrUpdateChatEventNotification(Context context, ParseChatEvent parseChatEvent) {
+        String chatRoomId = parseChatEvent.getAlias().getChatRoomId();
+        String contentText = parseChatEvent.getDisplayBody();
 
         NotificationCompat.Builder builder = getBuilder(context)
-                .setLargeIcon(getAuthorBitmap(context, presence.getAlias()))
-                .setContentText(StringUtils.boldSubstring(presence.getBody(), authorName))
-                .setTicker(presence.getBody())
+                .setLargeIcon(getAuthorBitmap(context, parseChatEvent.getAlias()))
+                .setContentText(StringUtils.boldSubstring(contentText, parseChatEvent.getAlias().getName()))
+                .setTicker(contentText)
                 .setNumber(unreadMessagesCounter.get(chatRoomId));
 
         notificationManager.notify(chatRoomId.hashCode(), builder.build());
     }
 
-    public void createOrUpdateMessageNotification(Context context, ChatEvent message) {
-        String authorName = WordUtils.capitalizeFully(message.getAlias().getName());
-        String contextText = authorName + ": " + message.getBody();
-
-        String chatRoomId = message.getAlias().getChatRoomId();
-
-        NotificationCompat.Builder builder = getBuilder(context)
-                .setLargeIcon(getAuthorBitmap(context, message.getAlias()))
-                .setContentText(StringUtils.boldSubstring(contextText, authorName))
-                .setTicker(contextText)
-                .setNumber(unreadMessagesCounter.get(message.getAlias().getChatRoomId()));
-
-        notificationManager.notify(chatRoomId.hashCode(), builder.build());
-    }
-
-    private Bitmap getAuthorBitmap(Context context, Alias alias) {
+    private Bitmap getAuthorBitmap(Context context, ParseAlias parseAlias) {
         AliasDisplayView aliasDisplayView = (AliasDisplayView)
                 View.inflate(context, R.layout.stub_notif_author_view, null);
-        aliasDisplayView.setAliasName(alias.getName());
+        aliasDisplayView.setAliasName(parseAlias.getName());
         aliasDisplayView.setTextColor(incomingAuthorTextColor);
         ((GradientDrawable) aliasDisplayView.getBackground()).setColor(incomingAuthorBackgroundColor);
 

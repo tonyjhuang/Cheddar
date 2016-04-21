@@ -3,16 +3,15 @@ package com.tonyjhuang.cheddar.background;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.MessageApi;
+import com.tonyjhuang.cheddar.api.simplepersist.GcmChannels;
+import com.tonyjhuang.cheddar.api.simplepersist.SimplePersistApi;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EIntentService;
@@ -24,14 +23,13 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import timber.log.Timber;
+
 /**
  * Created by tonyjhuang on 3/1/16.
  */
 @EIntentService
 public class PushRegistrationIntentService extends AbstractIntentService {
-
-    private static final String TAG = PushRegistrationIntentService.class.getSimpleName();
-    private static final Gson gson = new Gson();
 
     @Bean
     MessageApi messageApi;
@@ -39,8 +37,11 @@ public class PushRegistrationIntentService extends AbstractIntentService {
     @Pref
     CheddarPrefs_ prefs;
 
+    @Bean
+    SimplePersistApi persistApi;
+
     public PushRegistrationIntentService() {
-        super(TAG);
+        super(PushRegistrationIntentService.class.getSimpleName());
     }
 
     @ServiceAction
@@ -63,7 +64,7 @@ public class PushRegistrationIntentService extends AbstractIntentService {
     void unregisterForPush(String channel) {
         String token = getToken();
         if (token == null) {
-            Log.e(TAG, "COULDN'T RETRIEVE GCM TOKEN");
+            Timber.e("COULDN'T RETRIEVE GCM TOKEN");
             showUnregistrationFailedError();
         } else {
             removeRegisteredChannel(channel);
@@ -85,10 +86,8 @@ public class PushRegistrationIntentService extends AbstractIntentService {
     }
 
     private Set<String> getRegisteredChannels() {
-        Set<String> registeredChannels = gson.fromJson(prefs.pushChannels().getOr(null),
-                new TypeToken<Set<String>>() {
-                }.getType());
-        return registeredChannels == null ? new HashSet<>() : registeredChannels;
+        GcmChannels channels = persistApi.fetchGcmChannels();
+        return channels == null ? new HashSet<>() : channels.channels();
     }
 
     private void addRegisteredChannel(String channel) {
@@ -104,7 +103,7 @@ public class PushRegistrationIntentService extends AbstractIntentService {
     }
 
     private void saveRegisteredChannels(Set<String> registeredChannels) {
-        prefs.pushChannels().put(gson.toJson(registeredChannels));
+        persistApi.persist(GcmChannels.create(registeredChannels));
     }
 
     /**
@@ -117,7 +116,7 @@ public class PushRegistrationIntentService extends AbstractIntentService {
             token = fetchGcmRegistrationToken();
             prefs.gcmRegistrationToken().put(token);
         }
-        Log.v(TAG, "Token: " + token);
+        Timber.v("Token: " + token);
         return token;
     }
 
@@ -130,10 +129,11 @@ public class PushRegistrationIntentService extends AbstractIntentService {
             return instanceID.getToken(getString(R.string.gcm_defaultSenderId),
                     GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
         } catch (IOException e) {
-            Log.e(TAG, e.toString());
+            Timber.e(e.toString());
             return null;
         }
     }
+
 
     public class DisplayToast implements Runnable {
         private final Context context;

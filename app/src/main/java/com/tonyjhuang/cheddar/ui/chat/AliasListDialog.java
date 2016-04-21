@@ -9,7 +9,8 @@ import android.widget.TextView;
 
 import com.ocpsoft.pretty.time.PrettyTime;
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.api.models.Alias;
+import com.tonyjhuang.cheddar.api.models.parse.ParseAlias;
+import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 
 import java.util.List;
@@ -64,16 +65,16 @@ public class AliasListDialog extends AlertDialog {
             TextView aliasName = (TextView) aliasView.findViewById(R.id.alias_name);
             TextView joinedAt = (TextView) aliasView.findViewById(R.id.joined_at);
 
-            if(alias.getUserId().equals(currentUserId)) {
+            if(alias.userId().equals(currentUserId)) {
                 aliasDisplay.setColor(outgoingColor);
             } else {
                 aliasDisplay.setColor(incomingColor);
             }
 
-            aliasDisplay.setAliasName(alias.getName());
-            aliasName.setText(alias.getName());
+            aliasDisplay.setAliasName(alias.name());
+            aliasName.setText(alias.name());
             joinedAt.setText(getContext().getString(R.string.chat_alias_timestamp,
-                    prettyTime.format(alias.getCreatedAt())));
+                    prettyTime.format(alias.metaData().createdAt())));
 
             container.addView(aliasView);
         }

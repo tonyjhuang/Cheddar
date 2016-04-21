@@ -1,7 +1,7 @@
-package com.tonyjhuang.cheddar.api.models;
+package com.tonyjhuang.cheddar.api.models.parse;
 
 import com.parse.ParseObject;
-import com.tonyjhuang.cheddar.api.Time;
+import com.tonyjhuang.cheddar.utils.TimeUtils;
 
 import org.json.JSONObject;
 
@@ -23,14 +23,14 @@ public abstract class JSONParseObject extends ParseObject {
                 map.put(key, value);
             }
         }
-        map.put("createdAt", Time.toString(getCreatedAt()));
-        map.put("updatedAt", Time.toString(getUpdatedAt()));
+        map.put("createdAt", TimeUtils.toString(getCreatedAt()));
+        map.put("updatedAt", TimeUtils.toString(getUpdatedAt()));
         map.put("objectId", getObjectId());
         return new JSONObject(map);
     }
 
     /**
-     * We need to provide this override since we're creating Alias objects from
+     * We need to provide this override since we're creating ParseAlias objects from
      * JSONObjects using createWithoutData() and put("createdAt") does not
      * update the ParseObject's internal createdAt Date.
      */

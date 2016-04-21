@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.tonyjhuang.cheddar.api.CheddarParser;
-import com.tonyjhuang.cheddar.api.models.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,15 +27,15 @@ public class ChatPushBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.e(TAG, "activity on receive!");
         try {
-            ChatEvent chatEvent = CheddarParser.parseChatEvent(
+            ParseChatEvent parseChatEvent = CheddarParser.parseChatEvent(
                     new JSONObject(intent.getStringExtra("payload")));
-            if (chatEvent.getChatRoomId().equals(chatRoomId)) {
+            if (parseChatEvent.getChatRoomId().equals(chatRoomId)) {
                 Log.d(TAG, "aborting push broadcast.");
                 abortBroadcast();
             }
 
         } catch (JSONException | CheddarParser.UnparseableException e) {
-            Log.e(TAG, "couldn't parse gcm payload into ChatEvent: " + intent.getStringExtra("payload"));
+            Log.e(TAG, "couldn't parse gcm payload into ParseChatEvent: " + intent.getStringExtra("payload"));
             abortBroadcast();
         }
     }

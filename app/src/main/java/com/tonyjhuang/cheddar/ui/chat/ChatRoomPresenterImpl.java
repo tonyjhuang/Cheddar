@@ -4,13 +4,12 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Handler;
-import android.util.Log;
 
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
-import com.tonyjhuang.cheddar.api.CheddarMetricTracker;
-import com.tonyjhuang.cheddar.api.models.Alias;
-import com.tonyjhuang.cheddar.api.models.ChatEvent;
+import com.tonyjhuang.cheddar.api.CheddarMetrics;
+import com.tonyjhuang.cheddar.api.models.value.Alias;
+import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.background.CheddarNotificationService;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
@@ -26,7 +25,10 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import rx.Observable;
 import rx.Subscription;
@@ -36,9 +38,6 @@ import rx.subjects.BehaviorSubject;
 import rx.subjects.ReplaySubject;
 import timber.log.Timber;
 
-/**
- * Created by tonyjhuang on 3/17/16.
- */
 @EBean
 public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
@@ -123,7 +122,17 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private boolean reachedEndOfMessages = false;
     private boolean firstLoad = true;
 
+    /**
+     * Time that the user's client lost internet connection. When
+     * connection is regained, get all messages from the moment
+     * of reconnection to this date.
+     */
     private Date lostConnection;
+
+    /**
+     * Map of MessageIds to Messages that are in the process of being sent.
+     */
+    private Map<String, ChatEvent> pendingMessages = new HashMap<>();
 
     @Override
     public void setAliasId(String aliasId) {
@@ -189,15 +198,15 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     private void init(Context context) {
         aliasSubject.compose(Scheduler.backgroundSchedulers())
-                .doOnNext(alias -> prefs.lastOpenedAlias().put(alias.getObjectId()))
+                .doOnNext(alias -> prefs.lastOpenedAlias().put(alias.metaData().objectId()))
                 .subscribe(alias -> {
-                    if (!alias.isActive()) {
+                    if (!alias.active()) {
                         // Respect server switches to active status.
                         leaveChatRoom();
                         return;
                     }
 
-                    String chatRoomId = alias.getChatRoomId();
+                    String chatRoomId = alias.chatRoomId();
                     unreadMessagesCounter.clear(chatRoomId);
                     notificationService.removeNotification(chatRoomId);
 
@@ -208,7 +217,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                         // Listen to ChatEvent stream for Presence events and get
                         // the updated list of active Aliases.
                         Observable<List<Alias>> aliasUpdates = chatEventObservable
-                                .filter(chatEvent -> chatEvent.getType().equals(ChatEvent.Type.PRESENCE))
+                                .filter(chatEvent -> chatEvent.type().equals(ChatEvent.ChatEventType.PRESENCE))
                                 .flatMap(chatEvent -> api.getActiveAliases(chatRoomId));
 
                         activeAliasSubject = BehaviorSubject.create(new ArrayList<>());
@@ -223,7 +232,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                             .compose(Scheduler.defaultSchedulers())
                             .subscribe(aliases -> {
                                 if (view != null)
-                                    view.displayActiveAliases(aliases, alias.getUserId());
+                                    view.displayActiveAliases(aliases, alias.metaData().objectId());
                             }, error -> Timber.e("error? " + error.toString()));
                 }, error -> {
                     Timber.e("couldn't find current alias in onResume! " + error.toString());
@@ -270,7 +279,8 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     private void displayViewNewChatEvents(List<ChatEvent> chatEvents) {
         aliasSubject.compose(Scheduler.defaultSchedulers()).subscribe(alias -> {
-            if (view != null) view.displayNewChatEvents(alias.getUserId(), chatEvents);
+            if (view != null)
+                view.displayNewChatEvents(alias.metaData().objectId(), chatEvents);
         });
     }
 
@@ -324,7 +334,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         // Subscribe AsyncSubject so the result is cached in case
         // the View calls onPause.
         cacheHistoryChatEventSubject = AsyncSubject.create();
-        cacheHistoryChatEventSubscription = aliasSubject.map(Alias::getObjectId)
+        cacheHistoryChatEventSubscription = aliasSubject.map(a -> a.metaData().objectId())
                 .flatMap(aliasId -> api.replayChatEvents(aliasId, REPLAY_COUNT))
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(cacheHistoryChatEventSubject);
@@ -352,59 +362,58 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     private void sendViewOldChatEvents(List<ChatEvent> chatEvents) {
         aliasSubject.compose(Scheduler.defaultSchedulers()).subscribe(alias -> {
-            if (view != null) view.displayOldChatEvents(alias.getUserId(), chatEvents);
+            if (view != null) view.displayOldChatEvents(alias.userId(), chatEvents);
         });
+    }
+
+    private String generateMessageId() {
+        return UUID.randomUUID().toString();
     }
 
     @Override
-    public void sendMessage(String message) {
-        /**
-         * TODO: Need synchronous network requests. Sometimes, user tries to chat_send a message before
-         * TODO: we're subscribed to the message stream
-         */
-        aliasSubject.compose(Scheduler.defaultSchedulers())
-                .subscribe(alias -> {
-                    ChatEvent placeholder = ChatEvent.createPlaceholderMessage(alias, message);
-                    view.displayPlaceholderMessage(placeholder);
-                    CheddarMetricTracker.trackSendMessage(alias.getChatRoomId(), CheddarMetricTracker.MessageLifecycle.SENT);
-                });
-
-        aliasSubject.map(Alias::getObjectId)
-                .flatMap(aliasId -> api.sendMessage(aliasId, message))
+    public void sendMessage(String body) {
+        String messageId = generateMessageId();
+        aliasSubject.compose(Scheduler.backgroundSchedulers())
+                .flatMap(alias -> api.sendMessage(messageId, alias.metaData().objectId(), body))
                 .compose(Scheduler.defaultSchedulers())
-                .subscribe(aVoid -> trackSentMessage(),
-                        throwable -> handleFailedMessage(message));
-    }
-
-    private void trackSentMessage() {
-        aliasSubject.compose(Scheduler.backgroundSchedulers()).subscribe(alias ->
-                CheddarMetricTracker.trackSendMessage(alias.getChatRoomId(),
-                        CheddarMetricTracker.MessageLifecycle.DELIVERED));
-    }
-
-    private void handleFailedMessage(String message) {
-        aliasSubject.compose(Scheduler.defaultSchedulers()).subscribe(alias -> {
-            CheddarMetricTracker.trackSendMessage(alias.getChatRoomId(), CheddarMetricTracker.MessageLifecycle.FAILED);
-            ChatEvent placeholder = ChatEvent.createPlaceholderMessage(alias, message);
-            if (view != null) {
-                view.notifyPlaceholderMessageFailed(placeholder);
-            }
-        });
+                .subscribe(message -> {
+                    if (pendingMessages.get(messageId) == null) {
+                        // Keep track of sending messages so that we can update the UI
+                        // if they fail.
+                        pendingMessages.put(messageId, message);
+                        CheddarMetrics.trackSendMessage(message.alias().chatRoomId(),
+                                CheddarMetrics.MessageLifecycle.SENT);
+                        view.displayPlaceholderMessage(message);
+                    } else {
+                        // Drop references to delivered messages, since we'll get them
+                        // from pubnub.
+                        pendingMessages.remove(messageId);
+                        CheddarMetrics.trackSendMessage(message.alias().chatRoomId(),
+                                CheddarMetrics.MessageLifecycle.DELIVERED);
+                    }
+                }, error -> {
+                    ChatEvent placeholder = pendingMessages.get(messageId);
+                    if (placeholder != null) {
+                        CheddarMetrics.trackSendMessage(placeholder.alias().chatRoomId(),
+                                CheddarMetrics.MessageLifecycle.FAILED);
+                        if (view != null) view.notifyPlaceholderMessageFailed(placeholder);
+                    }
+                });
     }
 
     @Override
     public void leaveChatRoom() {
         api.resetReplayMessageEvents();
         aliasSubject.compose(Scheduler.backgroundSchedulers())
-                .doOnNext(alias -> unregisterForPush(context, alias.getChatRoomId()))
-                .map(Alias::getObjectId)
+                .doOnNext(alias -> unregisterForPush(context, alias.chatRoomId()))
+                .map(a -> a.metaData().objectId())
                 .flatMap(api::leaveChatRoom)
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
                     prefs.lastOpenedAlias().put(null);
                     api.endMessageStream(alias.getObjectId()).publish().connect();
                     long lengthOfStay = new Date().getTime() - alias.getCreatedAt().getTime();
-                    CheddarMetricTracker.trackLeaveChatRoom(alias.getChatRoomId(), lengthOfStay);
+                    CheddarMetrics.trackLeaveChatRoom(alias.getChatRoomId(), lengthOfStay);
                     view.navigateToListView();
                 }, error -> {
                     Timber.e("couldn't find current alias to leave chatroom! " + error.toString());
@@ -424,7 +433,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
             String versionName = context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), 0).versionName;
             aliasSubject.flatMap(alias -> api.sendFeedback(versionName, alias, name, feedback))
-                    .doOnNext(result -> CheddarMetricTracker.trackFeedback(CheddarMetricTracker.FeedbackLifecycle.SENT))
+                    .doOnNext(result -> CheddarMetrics.trackFeedback(CheddarMetrics.FeedbackLifecycle.SENT))
                     .compose(Scheduler.backgroundSchedulers())
                     .publish().connect();
         } catch (PackageManager.NameNotFoundException e) {
