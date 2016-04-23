@@ -1,6 +1,10 @@
 package com.tonyjhuang.cheddar.api.models.value;
 
 import com.google.auto.value.AutoValue;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
+
+import java.util.Date;
 
 /**
  * A 'room' that Users can join using Aliases, has
@@ -12,10 +16,21 @@ public abstract class ChatRoom {
     public static ChatRoom create(MetaData metaData,
                                   int maxOccupancy,
                                   int numOccupants) {
-        return new AutoValue_ChatRoom(metaData, maxOccupancy, numOccupants);
+        return new AutoValue_ChatRoom(metaData.objectId(),
+                metaData.createdAt(),
+                metaData.updatedAt(),
+                maxOccupancy, numOccupants);
     }
 
-    public abstract MetaData metaData();
+    public static TypeAdapter<ChatRoom> typeAdapter(Gson gson) {
+        return new AutoValue_ChatRoom.GsonTypeAdapter(gson);
+    }
+
+    public abstract String objectId();
+
+    public abstract Date createdAt();
+
+    public abstract Date updatedAt();
 
     public abstract int maxOccupancy();
 
@@ -26,10 +41,10 @@ public abstract class ChatRoom {
         if (o == null || getClass() != o.getClass()) return false;
 
         ChatRoom that = (ChatRoom) o;
-        return metaData().equals(that.metaData());
+        return objectId().equals(that.objectId());
     }
 
     public int hashCode() {
-        return metaData().hashCode();
+        return objectId().hashCode();
     }
 }

@@ -1,15 +1,14 @@
 package com.tonyjhuang.cheddar.api;
 
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
-import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.ParseToValueTranslator;
 import com.tonyjhuang.cheddar.api.models.parse.JSONParseObject;
 import com.tonyjhuang.cheddar.api.models.parse.ParseAlias;
 import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
 
 import org.androidannotations.annotations.Bean;
@@ -46,7 +45,7 @@ public class CheddarApi {
     ParseApi parseApi;
 
     // Keeps track of where we are while paging through the message history.
-    private long replayPagerToken = -1;
+    private Date replayPagerToken = null;
 
     public CheddarApi() {
     }
@@ -75,8 +74,7 @@ public class CheddarApi {
     }
 
     public Observable<Alias> getAlias(String aliasId) {
-        return ParseObservable.get(ParseAlias.class, aliasId)
-                .map(ParseToValueTranslator::toAlias);
+        return parseApi.findAlias(aliasId).doOnNext(alias -> Timber.d(alias.toString()));
     }
 
     public Observable<ParseUser> registerNewUser() {
@@ -156,9 +154,9 @@ public class CheddarApi {
         return getCurrentUser()
                 .flatMap(this::getDefaultParams)
                 .doOnNext((params) -> {
-                    params.put("aliasId", message.alias().metaData().objectId());
+                    params.put("aliasId", message.alias().objectId());
                     params.put("body", message.body());
-                    params.put("messageId", message.metaData().objectId());
+                    params.put("messageId", message.objectId());
                     Timber.e("Calling with " + params);
                 })
                 .flatMap(params -> ParseObservable.callFunction("sendMessage", params))
@@ -184,45 +182,21 @@ public class CheddarApi {
 
     // Resets our replayPagerToken. Should be called if you'd like to start replaying messages
     // from the beginning.
-    public void resetReplayMessageEvents() {
-        replayPagerToken = -1;
+    public void resetReplayChatEvents() {
+        replayPagerToken = null;
     }
 
     /**
      * Retrieve past ChatEvents, sorted from newest to oldest.
      */
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, int count) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("aliasId", aliasId);
-        params.put("count", count);
-        params.put("subkey", SUBKEY);
-
-        if (replayPagerToken != -1) {
-            params.put("startTimeToken", replayPagerToken);
-        }
-
-        return ParseObservable.callFunction("replayEvents", params).cast(HashMap.class)
-                .doOnNext(response -> replayPagerToken = Long.valueOf((String) response.get("startTimeToken")))
-                .compose(parseChatEvents())
-                .flatMap(Observable::from)
-                .map(ParseToValueTranslator::toChatEvent)
-                .toList();
+        return parseApi.pageChatEvents(aliasId, count, replayPagerToken)
+                .doOnNext(response -> replayPagerToken = response.startTimeToken)
+                .map(response -> response.chatEvents);
     }
 
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, Date start, Date end) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("aliasId", aliasId);
-        params.put("count", 999);
-        params.put("subkey", SUBKEY);
-        params.put("startTimeToken", start.getTime() * 10000);
-        params.put("endTimeToken", end.getTime() * 10000);
-
-        return ParseObservable.callFunction("replayEvents", params)
-                .cast(HashMap.class)
-                .compose(parseChatEvents())
-                .flatMap(Observable::from)
-                .map(ParseToValueTranslator::toChatEvent)
-                .toList();
+        return parseApi.getChatEventsInRange(aliasId, start, end);
     }
 
     private Observable.Transformer<HashMap, List<ParseChatEvent>> parseChatEvents() {

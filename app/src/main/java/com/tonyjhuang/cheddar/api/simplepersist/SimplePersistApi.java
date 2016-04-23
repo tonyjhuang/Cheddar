@@ -2,6 +2,7 @@ package com.tonyjhuang.cheddar.api.simplepersist;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -9,6 +10,9 @@ import com.tonyjhuang.cheddar.CheddarPrefs_;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.sharedpreferences.Pref;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by tonyjhuang on 4/20/16.
@@ -31,11 +35,23 @@ public class SimplePersistApi {
     }
 
     public UnreadMessages fetchUnreadMessages() {
-        return gson.fromJson(prefs.unreadMessages().get(), UnreadMessages.class);
+        try {
+            UnreadMessages messages = gson.fromJson(prefs.unreadMessages().getOr(""), UnreadMessages.class);
+            return messages != null ? messages : UnreadMessages.create(new HashMap<>());
+        } catch (NullPointerException | JsonSyntaxException e) {
+            prefs.unreadMessages().put("");
+            return fetchUnreadMessages();
+        }
     }
 
     public GcmChannels fetchGcmChannels() {
-        return gson.fromJson(prefs.pushChannels().get(), GcmChannels.class);
+        try {
+            GcmChannels channels = gson.fromJson(prefs.pushChannels().getOr(""), GcmChannels.class);
+            return channels != null ? channels : GcmChannels.create(new HashSet<>());
+        } catch (NullPointerException | JsonSyntaxException | IllegalStateException e) {
+            prefs.pushChannels().put("");
+            return fetchGcmChannels();
+        }
     }
 
     private static class AutoValueTypeAdapterFactory implements TypeAdapterFactory {

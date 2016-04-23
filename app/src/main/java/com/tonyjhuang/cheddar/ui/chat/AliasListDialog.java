@@ -74,7 +74,7 @@ public class AliasListDialog extends AlertDialog {
             aliasDisplay.setAliasName(alias.name());
             aliasName.setText(alias.name());
             joinedAt.setText(getContext().getString(R.string.chat_alias_timestamp,
-                    prettyTime.format(alias.metaData().createdAt())));
+                    prettyTime.format(alias.createdAt())));
 
             container.addView(aliasView);
         }

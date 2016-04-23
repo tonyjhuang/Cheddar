@@ -10,7 +10,7 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.MetaData;
 
 /**
- * Created by tonyjhuang on 4/16/16.
+ * TODO: remove this once we kill parse objects.
  */
 public class ParseToValueTranslator {
 

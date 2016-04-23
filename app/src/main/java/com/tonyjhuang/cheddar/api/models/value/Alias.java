@@ -1,8 +1,12 @@
 package com.tonyjhuang.cheddar.api.models.value;
 
 import com.google.auto.value.AutoValue;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 
 import org.apache.commons.lang3.text.WordUtils;
+
+import java.util.Date;
 
 /**
  * Maps a User to a ParseChatRoom and contains additional information
@@ -16,10 +20,21 @@ public abstract class Alias {
                                boolean active,
                                String chatRoomId,
                                String userId) {
-        return new AutoValue_Alias(metaData, name, active, chatRoomId, userId);
+        return new AutoValue_Alias(metaData.objectId(),
+                metaData.createdAt(),
+                metaData.updatedAt(),
+                name, active, chatRoomId, userId);
     }
 
-    public abstract MetaData metaData();
+    public static TypeAdapter<Alias> typeAdapter(Gson gson) {
+        return new AutoValue_Alias.GsonTypeAdapter(gson);
+    }
+
+    public abstract String objectId();
+
+    public abstract Date createdAt();
+
+    public abstract Date updatedAt();
 
     public abstract String name();
 
@@ -38,10 +53,10 @@ public abstract class Alias {
         if (o == null || getClass() != o.getClass()) return false;
 
         Alias that = (Alias) o;
-        return metaData().equals(that.metaData());
+        return objectId().equals(that.objectId());
     }
 
     public int hashCode() {
-        return metaData().hashCode();
+        return objectId().hashCode();
     }
 }

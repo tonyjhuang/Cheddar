@@ -52,7 +52,7 @@ public class ChatRoomItemView extends RelativeLayout {
     public void setChatRoomInfo(ChatRoomInfo info) {
         recentMessageView.setText(ChatEvent.displayBody(info.chatEvent()));
         aliasDisplayView.setAliasName(info.alias().name());
-        timestampView.setText(formatDate(info.chatEvent().metaData().updatedAt()));
+        timestampView.setText(formatDate(info.chatEvent().updatedAt()));
     }
 
     /**

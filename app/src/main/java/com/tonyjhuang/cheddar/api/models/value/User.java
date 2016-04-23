@@ -2,6 +2,8 @@ package com.tonyjhuang.cheddar.api.models.value;
 
 import com.google.auto.value.AutoValue;
 
+import java.util.Date;
+
 /**
  * A single Cheddar user.
  */
@@ -11,10 +13,17 @@ public abstract class User {
     public static User create(MetaData metaData,
                               String userName,
                               String password) {
-        return new AutoValue_User(metaData, userName, password);
+        return new AutoValue_User(metaData.objectId(),
+                metaData.createdAt(),
+                metaData.updatedAt(),
+                userName, password);
     }
 
-    public abstract MetaData metaData();
+    public abstract String objectId();
+
+    public abstract Date createdAt();
+
+    public abstract Date updatedAt();
 
     public abstract String userName();
 
@@ -25,10 +34,10 @@ public abstract class User {
         if (o == null || getClass() != o.getClass()) return false;
 
         User that = (User) o;
-        return metaData().equals(that.metaData());
+        return objectId().equals(that.objectId());
     }
 
     public int hashCode() {
-        return metaData().hashCode();
+        return objectId().hashCode();
     }
 }

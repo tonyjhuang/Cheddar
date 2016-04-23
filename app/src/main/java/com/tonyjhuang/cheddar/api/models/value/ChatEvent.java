@@ -1,6 +1,8 @@
 package com.tonyjhuang.cheddar.api.models.value;
 
 import com.google.auto.value.AutoValue;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 
 import java.util.Date;
 import java.util.Locale;
@@ -20,8 +22,8 @@ public abstract class ChatEvent {
                                                      Alias alias,
                                                      String body) {
         Date now = new Date();
-        MetaData metaData = MetaData.create(id, now, now);
-        return create(metaData, ChatEventType.MESSAGE, alias, body);
+        MetaData objectId = MetaData.create(id, now, now);
+        return create(objectId, ChatEventType.MESSAGE, alias, body);
     }
 
 
@@ -29,7 +31,16 @@ public abstract class ChatEvent {
                                    ChatEventType type,
                                    Alias alias,
                                    String body) {
-        return new AutoValue_ChatEvent(metaData, type, alias, body);
+        return new AutoValue_ChatEvent(metaData.objectId(),
+                metaData.createdAt(),
+                metaData.updatedAt(),
+                type,
+                alias,
+                body);
+    }
+
+    public static TypeAdapter<ChatEvent> typeAdapter(Gson gson) {
+        return new AutoValue_ChatEvent.GsonTypeAdapter(gson);
     }
 
     public static String displayBody(ChatEvent chatEvent) {
@@ -43,7 +54,11 @@ public abstract class ChatEvent {
         }
     }
 
-    public abstract MetaData metaData();
+    public abstract String objectId();
+
+    public abstract Date createdAt();
+
+    public abstract Date updatedAt();
 
     public abstract ChatEventType type();
 
@@ -56,11 +71,11 @@ public abstract class ChatEvent {
         if (o == null || getClass() != o.getClass()) return false;
 
         ChatEvent that = (ChatEvent) o;
-        return metaData().equals(that.metaData());
+        return objectId().equals(that.objectId());
     }
 
     public int hashCode() {
-        return metaData().hashCode();
+        return objectId().hashCode();
     }
 
     public enum ChatEventType {

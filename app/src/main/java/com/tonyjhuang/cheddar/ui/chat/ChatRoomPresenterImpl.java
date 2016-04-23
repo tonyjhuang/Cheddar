@@ -136,7 +136,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void setAliasId(String aliasId) {
-        api.resetReplayMessageEvents();
+        api.resetReplayChatEvents();
         chatEventObservable = api.getMessageStream(aliasId).publish();
         chatEventObservable.connect();
 
@@ -198,7 +198,9 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     private void init(Context context) {
         aliasSubject.compose(Scheduler.backgroundSchedulers())
-                .doOnNext(alias -> prefs.lastOpenedAlias().put(alias.metaData().objectId()))
+                .doOnNext(alias -> Timber.d("got alias? o" + alias.toString()))
+                .compose(Scheduler.defaultSchedulers())
+                //.doOnNext(alias -> prefs.lastOpenedAlias().put(alias.objectId()))
                 .subscribe(alias -> {
                     if (!alias.active()) {
                         // Respect server switches to active status.
@@ -232,9 +234,10 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                             .compose(Scheduler.defaultSchedulers())
                             .subscribe(aliases -> {
                                 if (view != null)
-                                    view.displayActiveAliases(aliases, alias.metaData().objectId());
+                                    view.displayActiveAliases(aliases, alias.objectId());
                             }, error -> Timber.e("error? " + error.toString()));
                 }, error -> {
+                    Timber.e("uhh");
                     Timber.e("couldn't find current alias in onResume! " + error.toString());
                     // This generally happens if the alias was deleted on the backend.
                     if (view != null) {
@@ -280,7 +283,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private void displayViewNewChatEvents(List<ChatEvent> chatEvents) {
         aliasSubject.compose(Scheduler.defaultSchedulers()).subscribe(alias -> {
             if (view != null)
-                view.displayNewChatEvents(alias.metaData().objectId(), chatEvents);
+                view.displayNewChatEvents(alias.objectId(), chatEvents);
         });
     }
 
@@ -334,7 +337,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         // Subscribe AsyncSubject so the result is cached in case
         // the View calls onPause.
         cacheHistoryChatEventSubject = AsyncSubject.create();
-        cacheHistoryChatEventSubscription = aliasSubject.map(a -> a.metaData().objectId())
+        cacheHistoryChatEventSubscription = aliasSubject.map(Alias::objectId)
                 .flatMap(aliasId -> api.replayChatEvents(aliasId, REPLAY_COUNT))
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(cacheHistoryChatEventSubject);
@@ -374,7 +377,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     public void sendMessage(String body) {
         String messageId = generateMessageId();
         aliasSubject.compose(Scheduler.backgroundSchedulers())
-                .flatMap(alias -> api.sendMessage(messageId, alias.metaData().objectId(), body))
+                .flatMap(alias -> api.sendMessage(messageId, alias.objectId(), body))
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(message -> {
                     if (pendingMessages.get(messageId) == null) {
@@ -403,10 +406,10 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void leaveChatRoom() {
-        api.resetReplayMessageEvents();
+        api.resetReplayChatEvents();
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .doOnNext(alias -> unregisterForPush(context, alias.chatRoomId()))
-                .map(a -> a.metaData().objectId())
+                .map(Alias::objectId)
                 .flatMap(api::leaveChatRoom)
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
@@ -416,6 +419,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     CheddarMetrics.trackLeaveChatRoom(alias.getChatRoomId(), lengthOfStay);
                     view.navigateToListView();
                 }, error -> {
+                    Timber.e("uhh");
                     Timber.e("couldn't find current alias to leave chatroom! " + error.toString());
                     prefs.lastOpenedAlias().put(null);
                     view.navigateToListView();

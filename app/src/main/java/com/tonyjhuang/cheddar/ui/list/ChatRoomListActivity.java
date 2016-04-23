@@ -59,7 +59,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
 
     @ItemClick(R.id.room_list_view)
     public void onChatRoomItemLongClick(ChatRoomInfo info) {
-        navigateToChatView(info.alias().metaData().objectId());
+        navigateToChatView(info.alias().objectId());
     }
 
     @Override

@@ -33,11 +33,11 @@ public class ChatEventViewInfo {
     }
 
     public Date getDate() {
-        return chatEvent.metaData().createdAt();
+        return chatEvent.createdAt();
     }
 
     public boolean hasSameAuthor(ChatEventViewInfo otherInfo) {
-        return chatEvent.alias().metaData().objectId().equals(otherInfo.chatEvent.alias().metaData().objectId());
+        return chatEvent.alias().equals(otherInfo.chatEvent.alias());
     }
 
     public boolean isSameObject(ChatEventViewInfo otherInfo) {

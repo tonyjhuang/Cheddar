@@ -18,7 +18,7 @@ public class ParseChatEvent extends JSONParseObject {
         ParseChatEvent parseChatEvent = new ParseChatEvent();
         parseChatEvent.put("createdAt", now);
         parseChatEvent.put("updatedAt", now);
-        parseChatEvent.put("parseAlias", parseAlias);
+        parseChatEvent.put("alias", parseAlias);
         parseChatEvent.put("body", body);
         parseChatEvent.setType(Type.MESSAGE);
         return parseChatEvent;
@@ -28,7 +28,7 @@ public class ParseChatEvent extends JSONParseObject {
         ParseChatEvent parseChatEvent = createWithoutData(ParseChatEvent.class, object.getString("objectId"));
         parseChatEvent.put("createdAt", TimeUtils.getDateAsUTC(object.getString("createdAt")));
         parseChatEvent.put("updatedAt", TimeUtils.getDateAsUTC(object.getString("updatedAt")));
-        parseChatEvent.put("parseAlias", ParseAlias.fromJson(object.getJSONObject("parseAlias")));
+        parseChatEvent.put("alias", ParseAlias.fromJson(object.getJSONObject("alias")));
         parseChatEvent.put("body", object.getString("body"));
         parseChatEvent.setType(Type.fromString(object.getString("type")));
         return parseChatEvent;
@@ -43,7 +43,7 @@ public class ParseChatEvent extends JSONParseObject {
     }
 
     public ParseAlias getAlias() {
-        return (ParseAlias) getParseObject("parseAlias");
+        return (ParseAlias) getParseObject("alias");
     }
 
     public String getBody() {

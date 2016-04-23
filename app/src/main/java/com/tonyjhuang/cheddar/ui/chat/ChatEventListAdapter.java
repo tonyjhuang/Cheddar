@@ -67,7 +67,6 @@ public class ChatEventListAdapter extends BaseAdapter {
      * Adds |presence| to the adapter by creating a new ChatEventViewInfo.
      */
     private void addPresence(ChatEvent presence, boolean addToEnd) {
-        Log.e(TAG, presence.toString());
         addNewChatItemViewInfo(new ChatEventViewInfo(presence), addToEnd);
     }
 

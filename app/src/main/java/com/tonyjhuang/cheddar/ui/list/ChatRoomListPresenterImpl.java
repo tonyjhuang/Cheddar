@@ -59,7 +59,7 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
             cachedChatRoomSubscription = api.getChatRooms()
                     .compose(Scheduler.backgroundSchedulers())
                     .flatMap(Observable::from)
-                    .toSortedList((i1, i2) -> i2.chatEvent().metaData().updatedAt().compareTo(i1.chatEvent().metaData().updatedAt()))
+                    .toSortedList((i1, i2) -> i2.chatEvent().updatedAt().compareTo(i1.chatEvent().updatedAt()))
                     .compose(Scheduler.backgroundSchedulers())
                     .doOnNext(i -> Timber.i(i.toString()))
                     .doOnError(error -> Timber.e(error.toString()))
