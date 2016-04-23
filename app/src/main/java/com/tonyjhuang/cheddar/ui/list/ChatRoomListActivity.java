@@ -9,6 +9,7 @@ import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
+import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -34,6 +35,8 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     @Bean(ChatRoomListPresenterImpl.class)
     ChatRoomListPresenter presenter;
 
+    private LoadingDialog loadingDialog;
+
     private ChatRoomListAdapter adapter;
 
     @AfterInject
@@ -55,6 +58,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
             adapter = new ChatRoomListAdapter(infoList);
             listView.setAdapter(adapter);
         }
+
     }
 
     @ItemClick(R.id.room_list_view)
@@ -64,12 +68,24 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
 
     @Override
     public void navigateToChatView(String aliasId) {
+        if(loadingDialog != null) loadingDialog.dismiss();
         ChatActivity_.intent(this).aliasId(aliasId).start();
     }
 
     @Override
     public void showJoinChatError() {
+        if(loadingDialog != null) loadingDialog.dismiss();
         showToast(R.string.list_error_join_chat);
+    }
+
+    @Override
+    public void showGetListError() {
+        showToast(R.string.list_error_get_list);
+    }
+
+    @Override
+    public void removeChatRoom(String chatRoomId) {
+        adapter.removeChatRoom(chatRoomId);
     }
 
     @Override
@@ -105,6 +121,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
         int id = item.getItemId();
         switch (id) {
             case R.id.action_join:
+                loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
                 presenter.onJoinChatRoomClicked();
                 return true;
 

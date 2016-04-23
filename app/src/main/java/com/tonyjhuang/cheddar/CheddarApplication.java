@@ -24,7 +24,15 @@ public class CheddarApplication extends MultiDexApplication {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
 
-        Timber.plant(new Timber.DebugTree());
+        Timber.plant(new Timber.DebugTree() {
+            @Override
+            protected String createStackElementTag(StackTraceElement element) {
+                return "^" + super.createStackElementTag(element) + "." +
+                        element.getMethodName() + "(" +
+                        element.getFileName() + ":" +
+                        element.getLineNumber() + ")";
+            }
+        });
 
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
                 .setDefaultFontPath("Effra-Regular.ttf")

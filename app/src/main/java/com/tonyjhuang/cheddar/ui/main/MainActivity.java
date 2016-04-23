@@ -26,8 +26,7 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
-
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by tonyjhuang on 3/23/16.
@@ -132,10 +131,10 @@ public class MainActivity extends CheddarActivity {
 
     public void onEvent(AlphaWarningFragment.JoinChatEvent event) {
         loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
-        api.joinNextAvailableChatRoom(5).compose(Scheduler.defaultSchedulers())
+        api.joinGroupChatRoom().compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
-                    CheddarMetrics.trackJoinChatRoom(alias.getChatRoomId());
-                    navigateToChatView(alias.getObjectId());
+                    CheddarMetrics.trackJoinChatRoom(alias.chatRoomId());
+                    navigateToChatView(alias.objectId());
                 }, error -> {
                     showToast("Couldn't join chat.");
                     loadingDialog.dismiss();

@@ -139,7 +139,7 @@ dependencies {
 
     compile 'com.jakewharton.timber:timber:4.1.2'
 
-    compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'org.greenrobot:eventbus:3.0.0'
 
     compile 'com.ocpsoft:ocpsoft-pretty-time:1.0.6'
 

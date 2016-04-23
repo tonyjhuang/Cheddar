@@ -1,6 +1,5 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
-import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 

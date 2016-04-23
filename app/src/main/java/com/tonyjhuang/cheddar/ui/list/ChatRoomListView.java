@@ -14,4 +14,8 @@ public interface ChatRoomListView {
     void navigateToChatView(String aliasId);
 
     void showJoinChatError();
+
+    void showGetListError();
+
+    void removeChatRoom(String chatRoomId);
 }

@@ -1,11 +1,9 @@
 package com.tonyjhuang.cheddar.api;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
-import com.tonyjhuang.cheddar.api.models.ParseToValueTranslator;
-import com.tonyjhuang.cheddar.api.models.parse.JSONParseObject;
-import com.tonyjhuang.cheddar.api.models.parse.ParseAlias;
-import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
@@ -19,35 +17,35 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import rx.Observable;
 import rx.parse.ParseObservable;
 import timber.log.Timber;
 
-import static com.tonyjhuang.cheddar.api.MessageApi.PUBKEY;
-import static com.tonyjhuang.cheddar.api.MessageApi.SUBKEY;
 
-
+/**
+ * Data abstraction layer. Handles getting data from the network and
+ * manages the cache.
+ */
 @EBean(scope = EBean.Scope.Singleton)
 public class CheddarApi {
 
     private static final String PASSWORD = "password";
-    private static final int GROUP_CHAT_SIZE = 5;
-
+    private final Gson gson = createGson();
     @Bean
     MessageApi messageApi;
-
     @Bean
     FeedbackApi feedbackApi;
-
     @Bean
     ParseApi parseApi;
-
     // Keeps track of where we are while paging through the message history.
     private Date replayPagerToken = null;
 
     public CheddarApi() {
+    }
+
+    private static Gson createGson() {
+        return new GsonBuilder().create();
     }
 
     //******************************************************
@@ -74,7 +72,7 @@ public class CheddarApi {
     }
 
     public Observable<Alias> getAlias(String aliasId) {
-        return parseApi.findAlias(aliasId).doOnNext(alias -> Timber.d(alias.toString()));
+        return parseApi.findAlias(aliasId);
     }
 
     public Observable<ParseUser> registerNewUser() {
@@ -85,48 +83,18 @@ public class CheddarApi {
     //                Chat Rooms
     //******************************************************
 
-    public Observable<Map<String, Object>> getDefaultParams(ParseUser user) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("userId", user.getObjectId());
-        params.put("subkey", SUBKEY);
-        params.put("pubkey", PUBKEY);
-        return Observable.just(params);
+    public Observable<Alias> joinGroupChatRoom() {
+        return getCurrentUser().map(ParseUser::getObjectId)
+                .flatMap(parseApi::joinGroupChatRoom);
     }
 
-    public Observable<ParseAlias> joinNextAvailableGroupChatRoom() {
-        return getCurrentUser()
-                .flatMap(this::getDefaultParams)
-                .doOnNext((params) -> params.put("maxOccupancy", GROUP_CHAT_SIZE))
-                .flatMap(params -> ParseObservable.callFunction("joinNextAvailableChatRoom", params));
-    }
 
-    public Observable<ParseAlias> joinNextAvailableChatRoom(int maxOccupancy) {
-        return getCurrentUser()
-                .flatMap(this::getDefaultParams)
-                .doOnNext((params) -> params.put("maxOccupancy", maxOccupancy))
-                .flatMap(params -> ParseObservable.callFunction("joinNextAvailableChatRoom", params));
-    }
-
-    public Observable<ParseAlias> leaveChatRoom(String aliasId) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("aliasId", aliasId);
-        params.put("subkey", SUBKEY);
-        params.put("pubkey", PUBKEY);
-        return ParseObservable.callFunction("leaveChatRoom", params);
+    public Observable<Alias> leaveChatRoom(String aliasId) {
+        return parseApi.leaveChatRoom(aliasId);
     }
 
     public Observable<List<Alias>> getActiveAliases(String chatRoomId) {
-        return getActiveAliasesHelper(chatRoomId)
-                .flatMap(Observable::from)
-                .map(ParseToValueTranslator::toAlias)
-                .toList();
-    }
-
-    //TODO: change to return json
-    private Observable<List<ParseAlias>> getActiveAliasesHelper(String chatRoomId) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("chatRoomId", chatRoomId);
-        return ParseObservable.callFunction("getActiveAliases", params);
+        return parseApi.getActiveAliases(chatRoomId);
     }
 
     public Observable<List<ChatRoomInfo>> getChatRooms() {
@@ -139,39 +107,35 @@ public class CheddarApi {
     //******************************************************
 
     /**
-     * Returns two ChatEvent Messages. The first is a placeholder
-     * Message that can be displayed in the UI until the real Message
-     * is confirmed sent. The second is the same as the first that can
-     * be treated as a 'sent confirmation'.
+     * Sends a ChatEvent to the network. Create new Messages
+     * using ChatEvent.createPlaceholderMessage.
      */
-    public Observable<ChatEvent> sendMessage(String messageId, String aliasId, String body) {
-        return getAlias(aliasId)
-                .map(alias -> ChatEvent.createPlaceholderMessage(messageId, alias, body))
-                .flatMap(message -> Observable.just(message).concatWith(sendMessageHelper(message)));
-    }
-
-    private Observable<ChatEvent> sendMessageHelper(ChatEvent message) {
-        return getCurrentUser()
-                .flatMap(this::getDefaultParams)
-                .doOnNext((params) -> {
-                    params.put("aliasId", message.alias().objectId());
-                    params.put("body", message.body());
-                    params.put("messageId", message.objectId());
-                    Timber.e("Calling with " + params);
-                })
-                .flatMap(params -> ParseObservable.callFunction("sendMessage", params))
-                .doOnError(error -> Timber.e("failed to send message: " + error))
-                .map(result -> message);
+    public Observable<ChatEvent> sendMessage(ChatEvent chatEvent) {
+        return parseApi.sendMessage(chatEvent.alias().objectId(),
+                chatEvent.body(), chatEvent.objectId());
     }
 
     public Observable<ChatEvent> getMessageStream(String aliasId) {
         return getAlias(aliasId)
                 .map(Alias::chatRoomId)
                 .flatMap(messageApi::subscribe)
+                .doOnNext(o -> Timber.i(o.toString()))
                 .cast(JSONObject.class)
                 // Continue past any Exceptions thrown in parseChatEventRx.
-                .flatMap(CheddarParser::parseChatEventRxSkippable)
-                .map(ParseToValueTranslator::toChatEvent);
+                .flatMap(this::parseChatEventOrSkip);
+    }
+
+    /**
+     * Turns a JSONObject into a ChatEvent or emits nothing if
+     * the json is unparseable.
+     */
+    private Observable<ChatEvent> parseChatEventOrSkip(JSONObject o) {
+        return Observable.just(gson.fromJson(o.toString(), ChatEvent.class))
+                .doOnError(error -> {
+                    Timber.e("uh oh, couldn't parse: " + o);
+                    Timber.e(error.toString());
+                })
+                .onExceptionResumeNext(Observable.empty());
     }
 
     public Observable<Void> endMessageStream(String aliasId) {
@@ -192,41 +156,13 @@ public class CheddarApi {
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, int count) {
         return parseApi.pageChatEvents(aliasId, count, replayPagerToken)
                 .doOnNext(response -> replayPagerToken = response.startTimeToken)
-                .map(response -> response.chatEvents);
+                .map(response -> response.chatEvents)
+                .doOnNext(Collections::reverse)
+                .doOnNext(r -> Timber.d("chatEvents: " + r));
     }
 
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, Date start, Date end) {
         return parseApi.getChatEventsInRange(aliasId, start, end);
-    }
-
-    private Observable.Transformer<HashMap, List<ParseChatEvent>> parseChatEvents() {
-        // Returns:
-        // {"events":[{event}, {event}],
-        //   "startTimeToken": "00000",
-        //   "endTimeToken": "00000"}
-        return o -> o
-                .doOnNext(response -> Timber.i(response.toString()))
-                .map(map -> (List<Object>) map.get("events"))
-                .flatMap(Observable::from)
-                .cast(HashMap.class)
-                .flatMap((HashMap map) -> CheddarParser.parseChatEventRxSkippable(sanitize(map)))
-                .toList()
-                .doOnNext(Collections::reverse);
-    }
-
-    /**
-     * Turns all ParseObjects in |map| into json objects
-     */
-    public JSONObject sanitize(HashMap map) {
-        for (Object key : map.keySet()) {
-            Object o = map.get(key);
-            if (o instanceof HashMap) {
-                sanitize((HashMap) o);
-            } else if (o instanceof JSONParseObject) {
-                map.put(key, ((JSONParseObject) o).toJson());
-            }
-        }
-        return new JSONObject(map);
     }
 
     //******************************************************

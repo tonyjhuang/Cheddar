@@ -6,6 +6,7 @@ import com.google.gson.TypeAdapter;
 
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * A single event that can be sent to through a ParseChatRoom,
@@ -18,12 +19,12 @@ public abstract class ChatEvent {
      * Create a local (unpersisted) Message, should be replaced
      * by whatever Message is returned by the network.
      */
-    public static ChatEvent createPlaceholderMessage(String id,
-                                                     Alias alias,
+    public static ChatEvent createPlaceholderMessage(Alias alias,
                                                      String body) {
+        String objectId = UUID.randomUUID().toString();
         Date now = new Date();
-        MetaData objectId = MetaData.create(id, now, now);
-        return create(objectId, ChatEventType.MESSAGE, alias, body);
+        MetaData metaData = MetaData.create(objectId, now, now);
+        return create(metaData, ChatEventType.MESSAGE, alias, body);
     }
 
 

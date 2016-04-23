@@ -6,8 +6,6 @@ import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
-
 /**
  * Created by tonyjhuang on 4/22/16.
  */
@@ -26,7 +24,6 @@ public class ReplayChatEventsResponse {
     public List<ChatEvent> getChatEvents() {
         List<ChatEvent> chatEvents = new ArrayList<>();
         for (ReplayChatEventObjectHolder o : objects) {
-            Timber.d("object: " + o);
             if (o instanceof ReplayChatEventChatEventHolder) {
                 chatEvents.add(((ReplayChatEventChatEventHolder) o).object);
             }

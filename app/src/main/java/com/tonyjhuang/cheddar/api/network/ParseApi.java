@@ -9,8 +9,12 @@ import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.network.request.FindAliasRequest;
+import com.tonyjhuang.cheddar.api.network.request.GetActiveAliasesRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetChatRoomsRequest;
+import com.tonyjhuang.cheddar.api.network.request.JoinChatRoomRequest;
+import com.tonyjhuang.cheddar.api.network.request.LeaveChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.ReplayChatEventsRequest;
+import com.tonyjhuang.cheddar.api.network.request.SendMessageRequest;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventDeserializer;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventObjectHolder;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventsResponse;
@@ -29,6 +33,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
+import static com.tonyjhuang.cheddar.api.MessageApi.PUBKEY;
 import static com.tonyjhuang.cheddar.api.MessageApi.SUBKEY;
 
 @EBean(scope = EBean.Scope.Singleton)
@@ -37,6 +42,10 @@ public class ParseApi {
      * Endpoints.
      */
     private static final String BASE_URL = "https://api.parse.com/1/functions/";
+    /**
+     * Number of users for a typical group chat.
+     */
+    private static final int GROUP_OCCUPANCY = 5;
     /**
      * Retrofit service.
      */
@@ -93,6 +102,28 @@ public class ParseApi {
     }
 
     /**
+     * Gets the active Aliases for the ChatRoom with the given id.
+     */
+    public Observable<List<Alias>> getActiveAliases(String chatRoomId) {
+        return service.getActiveAliases(new GetActiveAliasesRequest(chatRoomId));
+    }
+
+    /**
+     * Places the User into a new group ChatRoom.
+     */
+    public Observable<Alias> joinGroupChatRoom(String userId) {
+        JoinChatRoomRequest request =
+                new JoinChatRoomRequest(userId, GROUP_OCCUPANCY, SUBKEY, PUBKEY);
+        return service.joinChatRoom(request);
+    }
+
+    public Observable<Alias> leaveChatRoom(String aliasId) {
+        LeaveChatRoomRequest request =
+                new LeaveChatRoomRequest(aliasId, SUBKEY, PUBKEY);
+        return service.leaveChatRoom(request);
+    }
+
+    /**
      * Get the list of ChatRooms, Aliases, and their most recent ChatEvents
      * for this user.
      */
@@ -139,5 +170,12 @@ public class ParseApi {
 
         return service.replayChatEvents(request)
                 .map(ReplayChatEventsResponse::getChatEvents);
+    }
+
+    public Observable<ChatEvent> sendMessage(String aliasId, String body, @Nullable String messageId) {
+        SendMessageRequest request =
+                new SendMessageRequest(aliasId, messageId, body, SUBKEY, PUBKEY);
+
+        return service.sendMessage(request);
     }
 }

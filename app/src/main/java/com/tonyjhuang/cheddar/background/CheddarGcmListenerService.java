@@ -21,11 +21,12 @@ public class CheddarGcmListenerService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        Timber.e(">>>>>>>>>>>>>>>>>PUSHHHHHH<<<<<<<<<<<<<<<<<<<");
+        Timber.i(">>>>>>>>>>>>>>>>>PUSHHHHHH<<<<<<<<<<<<<<<<<<<");
         String payload = data.getString("payload");
         if (payload != null) {
             try {
                 JSONObject json = new JSONObject(payload);
+                // TODO: switch action based on payload.
                 Intent intent = new Intent(MESSAGE_EVENT_ACTION);
                 intent.putExtra("payload", payload);
                 sendOrderedBroadcast(intent, null);

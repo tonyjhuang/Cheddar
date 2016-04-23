@@ -1,7 +1,5 @@
 package com.tonyjhuang.cheddar.api;
 
-import android.util.Log;
-
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
@@ -16,13 +14,13 @@ import java.util.Map;
 
 import rx.Observable;
 import rx.Subscriber;
+import timber.log.Timber;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class MessageApi {
 
     public static final String PUBKEY = BuildConfig.PUBNUB_PUBKEY;
     public static final String SUBKEY = BuildConfig.PUBNUB_SUBKEY;
-    private static final String TAG = MessageApi.class.getSimpleName();
     private Pubnub pubnub = new Pubnub(PUBKEY, SUBKEY);
 
     private Map<String, PubnubObservableCallback> channelObservables = new HashMap<>();
@@ -47,7 +45,7 @@ public class MessageApi {
                 pubnub.subscribe(channel, callback);
                 channelObservables.put(channel, callback);
             } catch (PubnubException e) {
-                Log.e(TAG, "Error subscribing to channel: " + e.toString());
+                Timber.e("Error subscribing to channel: " + e.toString());
                 callback.onError(e);
             }
 
@@ -57,12 +55,10 @@ public class MessageApi {
 
     public Observable<Void> unsubscribe(String channel) {
         return Observable.create(subscriber -> {
-            Log.e(TAG, "unsubscribing from " + channel);
             channelObservables.remove(channel);
             pubnub.unsubscribe(channel, new Callback() {
                 @Override
                 public void successCallback(String channel, Object message) {
-                    Log.e(TAG, "unsubscribed!");
                     subscriber.onNext(null);
                     subscriber.onCompleted();
                 }
@@ -74,7 +70,6 @@ public class MessageApi {
 
                 @Override
                 public void disconnectCallback(String channel, Object message) {
-                    Log.e(TAG, "Disconnected..");
                     subscriber.onNext(null);
                     subscriber.onCompleted();
                 }
@@ -84,18 +79,15 @@ public class MessageApi {
 
     public Observable<Object> registerForPushNotifications(String channel, String registrationToken) {
         return Observable.create(subscriber -> {
-                    Log.d(TAG, "register..");
                     pubnub.enablePushNotificationsOnChannel(channel, registrationToken, new Callback() {
                         @Override
                         public void successCallback(String channel, Object message) {
-                            Log.d(TAG, "registered for push: " + message);
                             subscriber.onNext(message);
                             subscriber.onCompleted();
                         }
 
                         @Override
                         public void errorCallback(String channel, PubnubError error) {
-                            Log.d(TAG, "failed to register for push: " + error.toString());
                             subscriber.onError(new PubnubException(error));
                         }
                     });
@@ -105,18 +97,17 @@ public class MessageApi {
 
     public Observable<Object> unregisterForPushNotifications(String channel, String registrationToken) {
         return Observable.create(subscriber -> {
-                    Log.d(TAG, "unregister..");
+                    Timber.i("unregister..");
                     pubnub.disablePushNotificationsOnChannel(channel, registrationToken, new Callback() {
                         @Override
                         public void successCallback(String channel, Object message) {
-                            Log.d(TAG, "unregistered for push: " + message);
                             subscriber.onNext(message);
                             subscriber.onCompleted();
                         }
 
                         @Override
                         public void errorCallback(String channel, PubnubError error) {
-                            Log.d(TAG, "failed to unregister for push: " + error.toString());
+                            Timber.i("failed to unregister for push: " + error.toString());
                             subscriber.onError(new PubnubException(error));
                         }
                     });
@@ -146,12 +137,12 @@ public class MessageApi {
 
         @Override
         public void connectCallback(String channel, Object message) {
-            Log.e(TAG, "Connected! " + message);
+            Timber.i("Connected! " + message);
         }
 
         @Override
         public void successCallback(String channel, Object message) {
-            Log.d(TAG, "got object: " + message.toString());
+            Timber.i("got object: " + message.toString());
             if (subscriber != null && !subscriber.isUnsubscribed()) {
                 subscriber.onNext(message);
             }
@@ -160,17 +151,17 @@ public class MessageApi {
 
         @Override
         public void reconnectCallback(String channel, Object message) {
-            Log.d(TAG, "reconnected.. ");
+            Timber.i("reconnected.. ");
         }
 
         @Override
         public void errorCallback(String channel, PubnubError error) {
-            Log.e(TAG, "error.. " + error.toString());
+            Timber.i("error.. " + error.toString());
         }
 
         @Override
         public void disconnectCallback(String channel, Object message) {
-            Log.e(TAG, "Disconnected..");
+            Timber.i("Disconnected..");
         }
 
         public Observable<Object> getObservable() {

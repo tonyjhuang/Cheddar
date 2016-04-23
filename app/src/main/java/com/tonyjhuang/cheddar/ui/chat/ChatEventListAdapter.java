@@ -115,7 +115,7 @@ public class ChatEventListAdapter extends BaseAdapter {
      * placeholder message indexes.
      */
     private void addNewChatItemViewInfo(ChatEventViewInfo viewInfo, boolean addToEnd) {
-        int indexOfNewViewInfo = 0;
+        int indexOfNewViewInfo = -1;
 
         if (addToEnd) {
             for (int i = itemViewInfos.size() - 1; i >= 0; i--) {
@@ -127,6 +127,8 @@ public class ChatEventListAdapter extends BaseAdapter {
                     break;
                 }
             }
+            if(indexOfNewViewInfo == -1)
+                indexOfNewViewInfo = 0; // Fell out of loop without assigning.
         } else {
             for (int i = 0; i < itemViewInfos.size(); i++) {
                 ChatEventViewInfo otherInfo = getItem(i);
@@ -137,6 +139,8 @@ public class ChatEventListAdapter extends BaseAdapter {
                     break;
                 }
             }
+            if(indexOfNewViewInfo == -1)
+                indexOfNewViewInfo = itemViewInfos.size(); // Fell out of loop.
         }
 
         itemViewInfos.add(indexOfNewViewInfo, viewInfo);

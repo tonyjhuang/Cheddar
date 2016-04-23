@@ -1,6 +1,5 @@
 package com.tonyjhuang.cheddar.ui.chat.chatevent;
 
-import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 
 import java.util.Date;
@@ -42,6 +41,15 @@ public class ChatEventViewInfo {
 
     public boolean isSameObject(ChatEventViewInfo otherInfo) {
         return chatEvent.equals(otherInfo.chatEvent);
+    }
+
+    @Override
+    public String toString() {
+        return "ChatEventViewInfo{" +
+                "chatEvent=" + chatEvent +
+                ", direction=" + direction +
+                ", status=" + status +
+                '}';
     }
 
     public enum Status {
