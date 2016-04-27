@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.api.network;
+package com.tonyjhuang.cheddar.api.network.response.replaychatevent;
 
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 

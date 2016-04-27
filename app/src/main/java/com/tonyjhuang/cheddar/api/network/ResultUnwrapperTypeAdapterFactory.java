@@ -8,39 +8,33 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.tonyjhuang.cheddar.api.models.value.Alias;
-import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
-import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
-import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
-import com.tonyjhuang.cheddar.api.models.value.User;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
-/**
- * Unwraps network responses which are typically shaped like {"result": ...}
- */
+import timber.log.Timber;
+
 public class ResultUnwrapperTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
 
         Class<? super T> rawType = type.getRawType();
-        if (rawType.equals(ChatRoomInfo.class)) {
-            return (TypeAdapter<T>) new TypeAdapterWrapper<>(ChatRoomInfo.typeAdapter(gson), gson);
-        } else if (rawType.equals(Alias.class)) {
-            return (TypeAdapter<T>) new TypeAdapterWrapper<>(Alias.typeAdapter(gson), gson);
-        } else if (rawType.equals(ChatEvent.class)) {
-            return (TypeAdapter<T>) new TypeAdapterWrapper<>(ChatEvent.typeAdapter(gson), gson);
-        } else if (rawType.equals(ChatRoom.class)) {
-            return (TypeAdapter<T>) new TypeAdapterWrapper<>(ChatRoom.typeAdapter(gson), gson);
-        } else if (rawType.equals(User.class)) {
-            return (TypeAdapter<T>) new TypeAdapterWrapper<>(User.typeAdapter(gson), gson);
+        try {
+            // Call static typeAdapter method on class if it exists, otherwise
+            // return the default type adapter.
+            Method typeAdapterMethod = rawType.getDeclaredMethod("typeAdapter", Gson.class);
+            TypeAdapter<T> typeAdapter = (TypeAdapter<T>) typeAdapterMethod.invoke(null, gson);
+            return new TypeAdapterWrapper<>(typeAdapter, gson);
+        } catch (Exception e) {
+            Timber.e("couldn't invoke static typeAdapter method on " + rawType + ": " + e);
+            return new TypeAdapterWrapper<>(gson.getDelegateAdapter(this, type), gson).nullSafe();
         }
-
-        // Default
-        return new TypeAdapterWrapper<>(gson.getDelegateAdapter(this, type), gson).nullSafe();
     }
 
+    /**
+     * Unwraps network responses which are typically shaped like {"result": ...}
+     */
     private static class TypeAdapterWrapper<T> extends TypeAdapter<T> {
         final Gson gson;
         final TypeAdapter<T> delegate;

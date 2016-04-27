@@ -16,6 +16,7 @@ import com.tonyjhuang.cheddar.api.network.request.JoinChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.LeaveChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.ReplayChatEventsRequest;
 import com.tonyjhuang.cheddar.api.network.request.SendMessageRequest;
+import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ChatEventPage;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventDeserializer;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventObjectHolder;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventsResponse;
