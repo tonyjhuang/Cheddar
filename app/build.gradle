@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
         classpath 'me.tatarka:gradle-retrolambda:3.2.4'
-        classpath 'com.android.tools.build:gradle:2.0.0'
+        classpath 'com.android.tools.build:gradle:2.1.0'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath 'io.fabric.tools:gradle:1.+'
     }
@@ -173,6 +173,7 @@ dependencies {
     compile "com.google.auto.value:auto-value:1.2"
     apt "com.google.auto.value:auto-value:1.2"
     apt 'com.ryanharter.auto.value:auto-value-gson:0.2.5'
+    apt 'com.ryanharter.auto.value:auto-value-parcel:0.2.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

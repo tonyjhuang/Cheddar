@@ -38,7 +38,7 @@ public abstract class CheddarActivity extends AppCompatActivity {
 
     protected void checkCurrentUser(CheddarApi api) {
         if (ConnectivityBroadcastReceiver.getLastKnownConnected()) {
-            api.fetchCurrentUser().compose(Scheduler.defaultSchedulers())
+            api.getCurrentUser().compose(Scheduler.defaultSchedulers())
                     .doOnError(error -> {
                         api.logout().publish().connect();
                         navigateToMainView();

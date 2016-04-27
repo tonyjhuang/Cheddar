@@ -5,7 +5,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 
@@ -50,7 +49,7 @@ public class ChatRoomItemView extends RelativeLayout {
     }
 
     public void setChatRoomInfo(ChatRoomInfo info) {
-        recentMessageView.setText(ChatEvent.displayBody(info.chatEvent()));
+        recentMessageView.setText(info.chatEvent().displayBody());
         aliasDisplayView.setAliasName(info.alias().name());
         timestampView.setText(formatDate(info.chatEvent().updatedAt()));
     }

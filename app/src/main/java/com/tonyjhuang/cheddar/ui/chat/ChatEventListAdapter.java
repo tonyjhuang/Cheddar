@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the displaying of ParseChatEvent objects in a list.
+ * Handles the displaying of ChatEvent objects in a list.
  */
 public class ChatEventListAdapter extends BaseAdapter {
 
@@ -46,20 +46,20 @@ public class ChatEventListAdapter extends BaseAdapter {
     }
 
     /**
-     * Adds a ParseChatEvent to this adapter by order of date. If addToEnd is true
+     * Adds a ChatEvent to this adapter by order of date. If addToEnd is true
      * then this method will attempt to add it to the end of the list (most recent) and
      * search for the proper state backwards.
      */
-    public void addOrUpdateMessageEvent(ChatEvent parseChatEvent, boolean addToEnd) {
-        switch (parseChatEvent.type()) {
+    public void addOrUpdateMessageEvent(ChatEvent chatEvent, boolean addToEnd) {
+        switch (chatEvent.type()) {
             case MESSAGE:
-                addOrUpdateMessage(parseChatEvent, addToEnd);
+                addOrUpdateMessage(chatEvent, addToEnd);
                 break;
             case PRESENCE:
-                addPresence(parseChatEvent, addToEnd);
+                addPresence(chatEvent, addToEnd);
                 break;
             default:
-                Log.e(TAG, "Encountered unrecognized ParseChatEvent: " + parseChatEvent.toString());
+                Log.e(TAG, "Encountered unrecognized ChatEvent: " + chatEvent.toString());
         }
     }
 

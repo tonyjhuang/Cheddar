@@ -249,7 +249,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     }
 
     /**
-     * Basic set up for our ParseChatEvent views.
+     * Basic set up for our ChatEvent views.
      */
     private void setUpChatEventListView(String currentUserId) {
         if (adapter != null) return;
@@ -393,7 +393,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     }
 
     /**
-     * Removes the user from this ParseChatRoom.
+     * Removes the user from this ChatRoom.
      */
     private void leaveChatRoom() {
         presenter.leaveChatRoom();

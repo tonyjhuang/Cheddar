@@ -1,6 +1,8 @@
 package com.tonyjhuang.cheddar.api.models.value;
 
 import com.google.auto.value.AutoValue;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 
 import java.util.Date;
 
@@ -19,13 +21,17 @@ public abstract class User {
                 userName, password);
     }
 
+    public static TypeAdapter<User> typeAdapter(Gson gson) {
+        return new AutoValue_User.GsonTypeAdapter(gson);
+    }
+
     public abstract String objectId();
 
     public abstract Date createdAt();
 
     public abstract Date updatedAt();
 
-    public abstract String userName();
+    public abstract String username();
 
     public abstract String password();
 

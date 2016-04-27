@@ -2,11 +2,11 @@ package com.tonyjhuang.cheddar.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
 
 import org.androidannotations.annotations.Bean;
@@ -15,7 +15,6 @@ import org.json.JSONObject;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import rx.Observable;
@@ -41,6 +40,8 @@ public class CheddarApi {
     // Keeps track of where we are while paging through the message history.
     private Date replayPagerToken = null;
 
+    private User currentUser = null;
+
     public CheddarApi() {
     }
 
@@ -52,19 +53,14 @@ public class CheddarApi {
     //                Users
     //******************************************************
 
-    public Observable<ParseUser> getCurrentUser() {
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser == null) {
-            return registerNewUser()
-                    .flatMap((user) -> ParseObservable.logIn(user.getUsername(), PASSWORD));
-        } else {
-            return Observable.just(currentUser);
-        }
-    }
-
-    public Observable<ParseUser> fetchCurrentUser() {
-        return getCurrentUser().map(ParseUser::getObjectId)
-                .flatMap(userId -> ParseObservable.get(ParseUser.class, userId));
+    public Observable<User> getCurrentUser() {
+        return Observable.defer(() -> {
+            if(currentUser != null) {
+                return Observable.just(currentUser);
+            } else {
+                return registerNewUser().doOnNext(user -> Timber.d("user: " + user));
+            }
+        });
     }
 
     public Observable<Void> logout() {
@@ -75,8 +71,8 @@ public class CheddarApi {
         return parseApi.findAlias(aliasId);
     }
 
-    public Observable<ParseUser> registerNewUser() {
-        return ParseObservable.callFunction("registerNewUser", new HashMap<>());
+    public Observable<User> registerNewUser() {
+        return parseApi.registerNewUser().doOnNext(user -> currentUser = user);
     }
 
     //******************************************************
@@ -84,7 +80,7 @@ public class CheddarApi {
     //******************************************************
 
     public Observable<Alias> joinGroupChatRoom() {
-        return getCurrentUser().map(ParseUser::getObjectId)
+        return getCurrentUser().map(User::objectId)
                 .flatMap(parseApi::joinGroupChatRoom);
     }
 
@@ -98,7 +94,7 @@ public class CheddarApi {
     }
 
     public Observable<List<ChatRoomInfo>> getChatRooms() {
-        return getCurrentUser().map(ParseUser::getObjectId)
+        return getCurrentUser().map(User::objectId)
                 .flatMap(parseApi::getChatRooms);
     }
 

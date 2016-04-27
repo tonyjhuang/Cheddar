@@ -68,7 +68,7 @@
 
         <!-- gcm -->
         <receiver
-            android:name=".background.GcmBroadcastReceiver_"
+            android:name=".background.notif.GcmBroadcastReceiver_"
             android:exported="false">
             <intent-filter android:priority="0">
                 <action android:name="com.tonyjhuang.cheddar.MESSAGE_EVENT" />
@@ -88,7 +88,7 @@
         </receiver>
 
         <service
-            android:name="com.tonyjhuang.cheddar.background.CheddarGcmListenerService"
+            android:name=".background.notif.CheddarGcmListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -96,14 +96,14 @@
             </intent-filter>
         </service>
         <service
-            android:name="com.tonyjhuang.cheddar.background.CheddarInstanceIDListenerService"
+            android:name=".background.notif.CheddarInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
         <service
-            android:name="com.tonyjhuang.cheddar.background.PushRegistrationIntentService_"
+            android:name="com.tonyjhuang.cheddar.background.notif.PushRegistrationIntentService_"
             android:exported="false" />
 
         <!-- parse -->

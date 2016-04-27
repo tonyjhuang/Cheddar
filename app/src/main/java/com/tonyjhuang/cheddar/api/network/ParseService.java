@@ -3,6 +3,7 @@ package com.tonyjhuang.cheddar.api.network;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.request.FindAliasRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetActiveAliasesRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetChatRoomsRequest;
@@ -25,6 +26,9 @@ public interface ParseService {
 
     @POST("hello")
     Observable<String> test();
+
+    @POST("registerNewUser")
+    Observable<User> registerNewUser();
 
     @POST("getChatRooms")
     Observable<List<ChatRoomInfo>> getChatRooms(@Body GetChatRoomsRequest body);

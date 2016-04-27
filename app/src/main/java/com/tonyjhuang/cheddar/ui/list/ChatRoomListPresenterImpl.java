@@ -81,6 +81,7 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
         // Only subscribe if the list hasn't been loaded yet.
         return chatRoomSubject.compose(Scheduler.defaultSchedulers())
                 .doOnNext(infos -> firstLoad = false)
+                .doOnNext(infos -> Timber.i(infos.toString()))
                 .doOnError(error -> Timber.e(error.toString()));
     }
 

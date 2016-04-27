@@ -25,7 +25,7 @@ public class ReplayChatEventsResponse {
         List<ChatEvent> chatEvents = new ArrayList<>();
         for (ReplayChatEventObjectHolder o : objects) {
             if (o instanceof ReplayChatEventChatEventHolder) {
-                chatEvents.add(((ReplayChatEventChatEventHolder) o).object);
+                chatEvents.add(((ReplayChatEventChatEventHolder) o).chatEvent);
             }
         }
         return chatEvents;

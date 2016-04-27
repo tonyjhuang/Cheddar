@@ -10,11 +10,11 @@ import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
-import com.tonyjhuang.cheddar.background.CheddarGcmListenerService;
-import com.tonyjhuang.cheddar.background.CheddarNotificationService;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
-import com.tonyjhuang.cheddar.background.PushRegistrationIntentService_;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
+import com.tonyjhuang.cheddar.background.notif.CheddarGcmListenerService;
+import com.tonyjhuang.cheddar.background.notif.CheddarNotificationService;
+import com.tonyjhuang.cheddar.background.notif.PushRegistrationIntentService_;
 import com.tonyjhuang.cheddar.presenter.Scheduler;
 
 import org.androidannotations.annotations.Bean;

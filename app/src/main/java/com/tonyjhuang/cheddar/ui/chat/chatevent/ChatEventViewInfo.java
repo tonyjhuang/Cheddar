@@ -6,7 +6,7 @@ import java.util.Date;
 
 /**
  * Holder for MessageEvents for our Chat Adapter.
- * Contains the ParseChatEvent and some metadata around it.
+ * Contains the ChatEvent and some metadata around it.
  * Has either a Message OR a Presence.
  */
 public class ChatEventViewInfo {

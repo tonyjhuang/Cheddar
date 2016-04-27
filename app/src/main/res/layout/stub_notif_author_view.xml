@@ -1,4 +1,4 @@
-<com.tonyjhuang.cheddar.ui.chat.AliasDisplayView_ xmlns:android="http://schemas.android.com/apk/res/android"
+<com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_ xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/AliasDisplay"
     android:background="@drawable/notif_author_background"

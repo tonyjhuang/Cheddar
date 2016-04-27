@@ -1,5 +1,7 @@
 package com.tonyjhuang.cheddar.api.models.value;
 
+import android.os.Parcelable;
+
 import com.google.auto.value.AutoValue;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
@@ -9,11 +11,11 @@ import java.util.Locale;
 import java.util.UUID;
 
 /**
- * A single event that can be sent to through a ParseChatRoom,
- * originates from a single ParseAlias.
+ * A single event that can be sent to through a ChatRoom,
+ * originates from a single Alias.
  */
 @AutoValue
-public abstract class ChatEvent {
+public abstract class ChatEvent implements Parcelable {
 
     /**
      * Create a local (unpersisted) Message, should be replaced
@@ -44,12 +46,12 @@ public abstract class ChatEvent {
         return new AutoValue_ChatEvent.GsonTypeAdapter(gson);
     }
 
-    public static String displayBody(ChatEvent chatEvent) {
-        switch (chatEvent.type()) {
+    public String displayBody() {
+        switch (type()) {
             case MESSAGE:
-                return chatEvent.alias().displayName() + ": " + chatEvent.body();
+                return alias().displayName() + ": " + body();
             case PRESENCE:
-                return chatEvent.body();
+                return body();
             default:
                 return "";
         }

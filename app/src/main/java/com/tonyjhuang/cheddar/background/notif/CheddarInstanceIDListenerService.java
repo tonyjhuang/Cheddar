@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.background;
+package com.tonyjhuang.cheddar.background.notif;
 
 import com.google.android.gms.iid.InstanceIDListenerService;
 

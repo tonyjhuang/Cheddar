@@ -5,10 +5,6 @@ import android.support.multidex.MultiDexApplication;
 import com.crashlytics.android.Crashlytics;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
-import com.parse.ParseObject;
-import com.tonyjhuang.cheddar.api.models.parse.ParseAlias;
-import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
-import com.tonyjhuang.cheddar.api.models.parse.ParseChatRoom;
 
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
@@ -30,7 +26,7 @@ public class CheddarApplication extends MultiDexApplication {
                 return "^" + super.createStackElementTag(element) + "." +
                         element.getMethodName() + "(" +
                         element.getFileName() + ":" +
-                        element.getLineNumber() + ")";
+                        element.getLineNumber() + ")\n";
             }
         });
 
@@ -40,9 +36,6 @@ public class CheddarApplication extends MultiDexApplication {
                 .build()
         );
 
-        ParseObject.registerSubclass(ParseChatEvent.class);
-        ParseObject.registerSubclass(ParseChatRoom.class);
-        ParseObject.registerSubclass(ParseAlias.class);
         Parse.initialize(this);
         ParseInstallation.getCurrentInstallation().saveInBackground();
     }

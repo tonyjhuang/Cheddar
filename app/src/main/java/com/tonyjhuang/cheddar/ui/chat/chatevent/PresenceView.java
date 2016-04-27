@@ -11,7 +11,7 @@ import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 
 /**
- * View representation of a Presence ParseChatEvent.
+ * View representation of a Presence ChatEvent.
  */
 @EViewGroup(R.layout.row_chat_presence)
 public class PresenceView extends FrameLayout {

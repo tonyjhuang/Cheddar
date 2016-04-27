@@ -12,10 +12,9 @@ import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.User;
 
 import java.io.IOException;
-
-import timber.log.Timber;
 
 /**
  * Unwraps network responses which are typically shaped like {"result": ...}
@@ -34,6 +33,8 @@ public class ResultUnwrapperTypeAdapterFactory implements TypeAdapterFactory {
             return (TypeAdapter<T>) new TypeAdapterWrapper<>(ChatEvent.typeAdapter(gson), gson);
         } else if (rawType.equals(ChatRoom.class)) {
             return (TypeAdapter<T>) new TypeAdapterWrapper<>(ChatRoom.typeAdapter(gson), gson);
+        } else if (rawType.equals(User.class)) {
+            return (TypeAdapter<T>) new TypeAdapterWrapper<>(User.typeAdapter(gson), gson);
         }
 
         // Default

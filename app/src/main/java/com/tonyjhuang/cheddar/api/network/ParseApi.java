@@ -8,6 +8,7 @@ import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.request.FindAliasRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetActiveAliasesRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetChatRoomsRequest;
@@ -92,6 +93,13 @@ public class ParseApi {
 
     public Observable<String> test() {
         return service.test().compose(Scheduler.backgroundSchedulers());
+    }
+
+    /**
+     * Registers a new user with the server.
+     */
+    public Observable<User> registerNewUser() {
+        return service.registerNewUser();
     }
 
     /**

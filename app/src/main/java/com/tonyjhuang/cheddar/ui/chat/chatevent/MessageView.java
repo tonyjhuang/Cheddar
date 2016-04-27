@@ -14,7 +14,7 @@ import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 import org.apache.commons.lang3.text.WordUtils;
 
 /**
- * View representation of a Presence ParseChatEvent.
+ * View representation of a Presence ChatEvent.
  */
 @EViewGroup
 public abstract class MessageView extends RelativeLayout {

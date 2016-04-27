@@ -1,9 +1,8 @@
-package com.tonyjhuang.cheddar.background;
+package com.tonyjhuang.cheddar.background.notif;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
@@ -14,12 +13,13 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.view.View;
 
-import com.tonyjhuang.cheddar.AppRouter_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
-import com.tonyjhuang.cheddar.api.models.parse.ParseAlias;
-import com.tonyjhuang.cheddar.api.models.parse.ParseChatEvent;
-import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
+import com.tonyjhuang.cheddar.api.models.value.Alias;
+import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
+import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
+import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
+import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_;
 import com.tonyjhuang.cheddar.utils.StringUtils;
 
 import org.androidannotations.annotations.Bean;
@@ -56,23 +56,23 @@ public class CheddarNotificationService {
     UnreadMessagesCounter unreadMessagesCounter;
 
 
-    public void createOrUpdateChatEventNotification(Context context, ParseChatEvent parseChatEvent) {
-        String chatRoomId = parseChatEvent.getAlias().getChatRoomId();
-        String contentText = parseChatEvent.getDisplayBody();
+    public void createOrUpdateChatEventNotification(Context context, ChatEvent chatEvent) {
+        String chatRoomId = chatEvent.alias().chatRoomId();
+        String contentText = chatEvent.displayBody();
 
-        NotificationCompat.Builder builder = getBuilder(context)
-                .setLargeIcon(getAuthorBitmap(context, parseChatEvent.getAlias()))
-                .setContentText(StringUtils.boldSubstring(contentText, parseChatEvent.getAlias().getName()))
+        NotificationCompat.Builder builder = getBuilder(context, chatEvent.alias().objectId())
+                .setLargeIcon(getAuthorBitmap(context, chatEvent.alias()))
+                .setContentText(StringUtils.boldSubstring(contentText, chatEvent.alias().displayName()))
                 .setTicker(contentText)
                 .setNumber(unreadMessagesCounter.get(chatRoomId));
 
         notificationManager.notify(chatRoomId.hashCode(), builder.build());
     }
 
-    private Bitmap getAuthorBitmap(Context context, ParseAlias parseAlias) {
-        AliasDisplayView aliasDisplayView = (AliasDisplayView)
+    private Bitmap getAuthorBitmap(Context context, Alias alias) {
+        AliasDisplayView_ aliasDisplayView = (AliasDisplayView_)
                 View.inflate(context, R.layout.stub_notif_author_view, null);
-        aliasDisplayView.setAliasName(parseAlias.getName());
+        aliasDisplayView.setAliasName(alias.name());
         aliasDisplayView.setTextColor(incomingAuthorTextColor);
         ((GradientDrawable) aliasDisplayView.getBackground()).setColor(incomingAuthorBackgroundColor);
 
@@ -98,21 +98,20 @@ public class CheddarNotificationService {
         return returnedBitmap;
     }
 
-    private PendingIntent getContentPendingIntent(Context context) {
-        Intent resultIntent = new Intent(context, AppRouter_.class);
+    private PendingIntent getContentPendingIntent(Context context, String aliasId) {
         return PendingIntent.getActivity(
                 context,
                 0,
-                resultIntent,
+                ChatActivity_.intent(context).aliasId(aliasId).get(),
                 PendingIntent.FLAG_UPDATE_CURRENT
         );
     }
 
-    private NotificationCompat.Builder getBuilder(Context context) {
+    private NotificationCompat.Builder getBuilder(Context context, String aliasId) {
         return new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.notif_icon)
                 .setColor(smallIconColor)
-                .setContentIntent(getContentPendingIntent(context))
+                .setContentIntent(getContentPendingIntent(context, aliasId))
                 .setVibrate(vibratePattern)
                 .setSound(sound)
                 .setAutoCancel(true)

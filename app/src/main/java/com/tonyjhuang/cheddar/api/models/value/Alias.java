@@ -1,5 +1,7 @@
 package com.tonyjhuang.cheddar.api.models.value;
 
+import android.os.Parcelable;
+
 import com.google.auto.value.AutoValue;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
@@ -9,11 +11,11 @@ import org.apache.commons.lang3.text.WordUtils;
 import java.util.Date;
 
 /**
- * Maps a User to a ParseChatRoom and contains additional information
+ * Maps a User to a ChatRoom and contains additional information
  * this relationship (i.e. the name to represent the user with)
  */
 @AutoValue
-public abstract class Alias {
+public abstract class Alias implements Parcelable{
 
     public static Alias create(MetaData metaData,
                                String name,
