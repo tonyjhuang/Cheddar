@@ -105,7 +105,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
      * onPause.
      */
     private Subscription cacheHistoryChatEventSubscription;
-    private AsyncSubject<List<ChatEvent>> cacheHistoryChatEventSubject;
+    private BehaviorSubject<List<ChatEvent>> cacheHistoryChatEventSubject;
     private ChatRoomView view;
 
     /**
@@ -331,9 +331,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         loadingMessages = true;
         firstLoad = false;
 
-        // Subscribe AsyncSubject so the result is cached in case
-        // the View calls onPause.
-        cacheHistoryChatEventSubject = AsyncSubject.create();
+        cacheHistoryChatEventSubject = BehaviorSubject.create(new ArrayList<>());
         cacheHistoryChatEventSubscription = aliasSubject.map(Alias::objectId)
                 .flatMap(aliasId -> api.replayChatEvents(aliasId, REPLAY_COUNT))
                 .compose(Scheduler.backgroundSchedulers())
@@ -348,6 +346,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private Subscription subscribeToCacheHistoryChatEventSubject() {
         return cacheHistoryChatEventSubject
                 .compose(Scheduler.defaultSchedulers())
+                .doOnNext(chatEvents -> Timber.d("old chat events: %d", chatEvents.size()))
                 .subscribe(chatEvents -> {
                     sendViewOldChatEvents(chatEvents);
                     reachedEndOfMessages = chatEvents.size() < REPLAY_COUNT;

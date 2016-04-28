@@ -223,7 +223,6 @@ public class ParseApi {
         @Override
         public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             try {
-                Timber.d("deserializing %s into %s", json.toString(), utcDateFormat.parse(json.getAsString()).toString());
                 return utcDateFormat.parse(json.getAsString());
             } catch (ParseException e) {
                 throw new JsonParseException(e);

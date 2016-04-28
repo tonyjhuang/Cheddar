@@ -11,6 +11,8 @@ public interface CheddarPrefs {
 
     String currentUserId();
 
+    boolean onboardShown();
+
     String lastOpenedAlias();
 
     String unreadMessages();

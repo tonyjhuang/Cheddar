@@ -185,12 +185,17 @@ public class CheddarApi {
     /**
      * Retrieve past ChatEvents, sorted from newest to oldest.
      */
-    public Observable<List<ChatEvent>> replayChatEvents(String aliasId, int count) {
-        return parseApi.pageChatEvents(aliasId, count, replayPagerToken)
-                .doOnNext(response -> replayPagerToken = response.startTimeToken)
-                .map(response -> response.chatEvents)
-                .doOnNext(Collections::reverse)
-                .flatMap(cacheApi::persistChatEvents);
+    public Observable<List<ChatEvent>> replayChatEvents(String aliasId, int limit) {
+        return Observable.concat(
+                getAlias(aliasId).map(Alias::chatRoomId)
+                        .flatMap(chatRoomId -> cacheApi.getMostRecentChatEventsForChatRoom(chatRoomId, limit))
+                        .doOnNext(chatEvents -> Timber.i("cached chatEvents: %d", chatEvents.size())),
+                parseApi.pageChatEvents(aliasId, limit, replayPagerToken)
+                        .doOnNext(response -> replayPagerToken = response.startTimeToken)
+                        .map(response -> response.chatEvents)
+                        .doOnNext(Collections::reverse)
+                        .flatMap(cacheApi::persistChatEvents))
+                .doOnNext(o -> Timber.d("emit!"));
     }
 
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, Date start, Date end) {

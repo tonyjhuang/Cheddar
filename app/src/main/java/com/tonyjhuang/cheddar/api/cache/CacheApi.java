@@ -80,6 +80,9 @@ public class CacheApi {
      * ChatEvent
      ****************/
 
+    /**
+     * Returns the most recent ChatEvent for the ChatRoom with the given id.
+     */
     public Observable<ChatEvent> getMostRecentChatEventForChatRoom(String chatRoomId) {
         return Observable.defer(() -> {
             Realm realm = Realm.getDefaultInstance();
@@ -89,6 +92,24 @@ public class CacheApi {
                     .first()))
                     .doAfterTerminate(realm::close)
                     .compose(toValue(ChatEvent.class));
+        });
+    }
+
+    /**
+     * Returns a list of at most |limit| ChatEvents that are the most recent
+     * ChatEvents for the ChatRoom with the given id.
+     */
+    public Observable<List<ChatEvent>> getMostRecentChatEventsForChatRoom(String chatRoomId, int limit) {
+        return Observable.defer(() -> {
+            Realm realm = Realm.getDefaultInstance();
+            return Observable.just(realm.copyFromRealm(realm.where(RealmChatEvent.class)
+                    .equalTo("alias.chatRoomId", chatRoomId)
+                    .findAllSorted("updatedAt", Sort.DESCENDING)))
+                    .doAfterTerminate(realm::close)
+                    .map(results -> results.subList(0, Math.min(results.size(), limit)))
+                    .flatMap(Observable::from)
+                    .map(RealmChatEvent::toValue)
+                    .toList();
         });
     }
 

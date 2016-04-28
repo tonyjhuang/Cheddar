@@ -1,7 +1,5 @@
 package com.tonyjhuang.cheddar;
 
-import android.util.Log;
-
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.list.ChatRoomListActivity_;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
@@ -20,17 +18,16 @@ public class AppRouter extends CheddarActivity {
 
     @AfterInject
     public void start() {
-        if (true) {
-            ChatRoomListActivity_.intent(this).start();
-            return;
-        }
-
-        String lastOpenedAlias = prefs.lastOpenedAlias().get();
-        Log.e("AppRouter", "lastOpened: " + lastOpenedAlias);
-        if (lastOpenedAlias == null || lastOpenedAlias.isEmpty()) {
+        boolean onboardShown = prefs.onboardShown().getOr(false);
+        if (!onboardShown) {
             MainActivity_.intent(this).start();
         } else {
-            ChatActivity_.intent(this).aliasId(lastOpenedAlias).start();
+            String lastOpenedAlias = prefs.lastOpenedAlias().getOr("");
+            if (!lastOpenedAlias.isEmpty()) {
+                ChatActivity_.intent(this).aliasId(lastOpenedAlias).start();
+            } else {
+                ChatRoomListActivity_.intent(this).start();
+            }
         }
     }
 }
