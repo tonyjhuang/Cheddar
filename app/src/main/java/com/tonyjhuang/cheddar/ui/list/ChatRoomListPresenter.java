@@ -1,6 +1,6 @@
 package com.tonyjhuang.cheddar.ui.list;
 
-import com.tonyjhuang.cheddar.presenter.Presenter;
+import com.tonyjhuang.cheddar.ui.presenter.Presenter;
 
 /**
  * Supplies data to and handles events from

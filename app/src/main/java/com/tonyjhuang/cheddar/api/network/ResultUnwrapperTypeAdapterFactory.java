@@ -15,10 +15,10 @@ import java.lang.reflect.Method;
 import timber.log.Timber;
 
 public class ResultUnwrapperTypeAdapterFactory implements TypeAdapterFactory {
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
-
         Class<? super T> rawType = type.getRawType();
         try {
             // Call static typeAdapter method on class if it exists, otherwise
@@ -27,7 +27,7 @@ public class ResultUnwrapperTypeAdapterFactory implements TypeAdapterFactory {
             TypeAdapter<T> typeAdapter = (TypeAdapter<T>) typeAdapterMethod.invoke(null, gson);
             return new TypeAdapterWrapper<>(typeAdapter, gson);
         } catch (Exception e) {
-            Timber.e("couldn't invoke static typeAdapter method on " + rawType + ": " + e);
+            Timber.v("couldn't invoke static typeAdapter method on " + rawType + ": " + e);
             return new TypeAdapterWrapper<>(gson.getDelegateAdapter(this, type), gson).nullSafe();
         }
     }

@@ -3,8 +3,8 @@ package com.tonyjhuang.cheddar.ui.list;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
-import com.tonyjhuang.cheddar.presenter.Scheduler;
 import com.tonyjhuang.cheddar.ui.chat.ChatRoomPresenterImpl;
+import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -15,7 +15,6 @@ import java.util.List;
 
 import rx.Observable;
 import rx.Subscription;
-import rx.subjects.AsyncSubject;
 import timber.log.Timber;
 
 /**
@@ -31,12 +30,6 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     ParseApi pApi;
 
     /**
-     * Caches the result of the getChatRooms api call.
-     */
-    private Subscription cachedChatRoomSubscription;
-    private AsyncSubject<List<ChatRoomInfo>> chatRoomSubject = AsyncSubject.create();
-
-    /**
      * The view's subscription to chatRoomSubject.
      */
     private Subscription chatRoomSubscription;
@@ -45,11 +38,6 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
      * That view that this presenter is presenting with.
      */
     private ChatRoomListView view;
-
-    /**
-     * Has the list of chat rooms not been loaded yet?
-     */
-    private boolean firstLoad = true;
 
     public ChatRoomListPresenterImpl() {
         EventBus.getDefault().register(this);
@@ -62,72 +50,48 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
 
     @Override
     public void onResume() {
-        subscribeCachedChatRoomSubject();
-
-        if (firstLoad) {
-            // Only subscribe if the list hasn't been loaded yet.
-            chatRoomSubscription = fetchChatRoomInfoList().subscribe(infos -> {
-                if (view != null) view.displayList(infos);
-            }, error -> {
-                if (view != null) view.showGetListError();
-            });
-        }
+        unsubscribe(chatRoomSubscription);
+        chatRoomSubscription = refreshChatList().publish().connect();
     }
 
     /**
      * Fetch the list of ChatRoomInfos.
      */
-    private Observable<List<ChatRoomInfo>> fetchChatRoomInfoList() {
+    private Observable<List<ChatRoomInfo>> refreshChatList() {
         // Only subscribe if the list hasn't been loaded yet.
-        return chatRoomSubject.compose(Scheduler.defaultSchedulers())
-                .doOnNext(infos -> firstLoad = false)
-                .doOnNext(infos -> Timber.i(infos.toString()))
-                .doOnError(error -> Timber.e(error.toString()));
-    }
-
-    /**
-     * Subscribe chatRoomSubject to fetch a new list of ChatRoomInfos if it's not
-     * subscribed already.
-     */
-    private void subscribeCachedChatRoomSubject() {
-        if (cachedChatRoomSubscription == null || cachedChatRoomSubscription.isUnsubscribed()) {
-            chatRoomSubject = AsyncSubject.create();
-            cachedChatRoomSubscription = api.getChatRooms()
-                    .compose(Scheduler.backgroundSchedulers())
-                    .flatMap(Observable::from)
-                    .toSortedList((i1, i2) -> i2.chatEvent().updatedAt().compareTo(i1.chatEvent().updatedAt()))
-                    .compose(Scheduler.backgroundSchedulers())
-                    .doOnError(error -> Timber.e(error.toString()))
-                    .subscribe(chatRoomSubject);
-        }
+        return api.getChatRooms().compose(Scheduler.backgroundSchedulers())
+                .flatMap(Observable::from)
+                .toSortedList((i1, i2) -> i2.chatEvent().updatedAt().compareTo(i1.chatEvent().updatedAt()))
+                .compose(Scheduler.defaultSchedulers())
+                .doOnNext(infos -> {
+                    Timber.i(infos.toString());
+                    if (view != null) view.displayList(infos);
+                }).doOnError(error -> {
+                    Timber.e("couldn't get list: " + error);
+                    if (view != null) view.showGetListError();
+                });
     }
 
     @Subscribe
     public void onLeaveChatRoomEvent(ChatRoomPresenterImpl.LeaveChatRoomEvent event) {
-        Timber.d("onleave");
-        if (view != null) view.removeChatRoom(event.chatRoomId);
+        unsubscribe(chatRoomSubscription);
+        chatRoomSubscription = refreshChatList().publish().connect();
     }
 
     @Override
     public void onJoinChatRoomClicked() {
         api.joinGroupChatRoom().compose(Scheduler.defaultSchedulers())
+                .doOnError(error -> Timber.e("uhoh: " + error))
                 .subscribe(alias -> {
-                    unsubscribe(cachedChatRoomSubscription);
-                    firstLoad = false;
-                    subscribeCachedChatRoomSubject();
-                    chatRoomSubscription = fetchChatRoomInfoList()
-                            .doOnNext(infos -> Timber.i("new infos: " + infos))
-                            .subscribe(infos -> {
-                                if (view != null) {
-                                    view.displayList(infos);
-                                    view.navigateToChatView(alias.objectId());
-                                }
-                            }, error -> {
-                                if (view != null) view.showJoinChatError();
-                            });
-                }, error -> {
-                    if (view != null) view.showJoinChatError();
-                    Timber.e(error.toString());
+                    unsubscribe(chatRoomSubscription);
+                    chatRoomSubscription = refreshChatList().subscribe(infos -> {
+                        if (view != null) {
+                            view.displayList(infos);
+                            view.navigateToChatView(alias.objectId());
+                        }
+                    }, error -> {
+                        if (view != null) view.showJoinChatError();
+                    });
                 });
     }
 
@@ -139,9 +103,8 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     @Override
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
-        view = null;
-        unsubscribe(cachedChatRoomSubscription);
         unsubscribe(chatRoomSubscription);
+        view = null;
     }
 
 

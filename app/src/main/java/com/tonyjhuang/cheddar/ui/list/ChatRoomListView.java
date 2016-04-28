@@ -16,6 +16,4 @@ public interface ChatRoomListView {
     void showJoinChatError();
 
     void showGetListError();
-
-    void removeChatRoom(String chatRoomId);
 }

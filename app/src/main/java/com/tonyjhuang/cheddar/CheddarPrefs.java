@@ -9,7 +9,7 @@ public interface CheddarPrefs {
 
     String activeAlias();
 
-    String currentUser();
+    String currentUserId();
 
     String lastOpenedAlias();
 

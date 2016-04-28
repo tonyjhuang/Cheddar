@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.presenter;
+package com.tonyjhuang.cheddar.utils;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;

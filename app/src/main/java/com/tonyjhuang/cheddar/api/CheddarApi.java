@@ -2,6 +2,8 @@ package com.tonyjhuang.cheddar.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.tonyjhuang.cheddar.CheddarPrefs_;
+import com.tonyjhuang.cheddar.api.cache.CacheApi;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
@@ -11,6 +13,7 @@ import com.tonyjhuang.cheddar.api.network.ParseApi;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.json.JSONObject;
 
 import java.util.Collections;
@@ -37,6 +40,11 @@ public class CheddarApi {
     FeedbackApi feedbackApi;
     @Bean
     ParseApi parseApi;
+    @Bean
+    CacheApi cacheApi;
+    @Pref
+    CheddarPrefs_ prefs;
+
     // Keeps track of where we are while paging through the message history.
     private Date replayPagerToken = null;
 
@@ -55,10 +63,19 @@ public class CheddarApi {
 
     public Observable<User> getCurrentUser() {
         return Observable.defer(() -> {
-            if(currentUser != null) {
-                return Observable.just(currentUser);
+            if (!prefs.currentUserId().getOr("").isEmpty()) {
+                Timber.d("cached current user");
+                return cacheApi.getUser(prefs.currentUserId().get())
+                        .doOnNext(user -> Timber.d("cached user: " + user))
+                        .doOnError(error -> Timber.e(error.toString()))
+                        .doOnError(error -> prefs.currentUserId().remove())
+                        .onExceptionResumeNext(getCurrentUser());
             } else {
-                return registerNewUser().doOnNext(user -> Timber.d("user: " + user));
+                Timber.d("registering new user");
+                return registerNewUser()
+                        .doOnNext(user -> prefs.currentUserId().put(user.objectId()))
+                        .doOnNext(user -> Timber.d("user: " + user))
+                        .flatMap(user -> cacheApi.persist(user));
             }
         });
     }
@@ -94,6 +111,7 @@ public class CheddarApi {
     }
 
     public Observable<List<ChatRoomInfo>> getChatRooms() {
+        Timber.d("getChatRooms");
         return getCurrentUser().map(User::objectId)
                 .flatMap(parseApi::getChatRooms);
     }

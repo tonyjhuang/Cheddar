@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.presenter.Scheduler;
+import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import java.io.IOException;
 

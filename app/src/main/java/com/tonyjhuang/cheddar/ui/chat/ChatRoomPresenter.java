@@ -1,6 +1,6 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
-import com.tonyjhuang.cheddar.presenter.Presenter;
+import com.tonyjhuang.cheddar.ui.presenter.Presenter;
 
 /**
  * Created by tonyjhuang on 3/17/16.

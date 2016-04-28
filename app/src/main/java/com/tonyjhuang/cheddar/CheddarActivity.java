@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
-import com.tonyjhuang.cheddar.presenter.Scheduler;
+import com.tonyjhuang.cheddar.utils.Scheduler;
 import com.tonyjhuang.cheddar.ui.dialog.ChangelogDialog;
 import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 

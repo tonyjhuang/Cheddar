@@ -19,6 +19,7 @@ plugins {
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'realm-android'
 
 def AAVersion = '4.0.0'
 

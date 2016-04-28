@@ -6,7 +6,7 @@ import android.widget.BaseAdapter;
 
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,21 +14,11 @@ import java.util.List;
  */
 public class ChatRoomListAdapter extends BaseAdapter {
 
-    List<ChatRoomInfo> infoList;
+    private List<ChatRoomInfo> infoList = new ArrayList<>();
 
-    public ChatRoomListAdapter(List<ChatRoomInfo> infoList) {
+    public void setInfoList(List<ChatRoomInfo> infoList) {
         this.infoList = infoList;
-    }
-
-    public void removeChatRoom(String chatRoomId) {
-        for(Iterator<ChatRoomInfo> iter = infoList.listIterator(); iter.hasNext();) {
-            ChatRoomInfo info = iter.next();
-            if(info.chatRoom().objectId().equals(chatRoomId)) {
-                iter.remove();
-                notifyDataSetChanged();
-                return;
-            }
-        }
+        notifyDataSetChanged();
     }
 
     @Override

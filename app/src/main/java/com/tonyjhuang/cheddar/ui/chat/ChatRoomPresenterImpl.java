@@ -15,7 +15,7 @@ import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.background.notif.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.background.notif.CheddarNotificationService;
 import com.tonyjhuang.cheddar.background.notif.PushRegistrationIntentService_;
-import com.tonyjhuang.cheddar.presenter.Scheduler;
+import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -184,8 +184,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void onResume() {
-        Timber.d("onResume");
-
         if (!ConnectivityBroadcastReceiver.isConnected(context)) return;
         init(context);
     }

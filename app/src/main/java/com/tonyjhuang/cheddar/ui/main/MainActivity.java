@@ -13,7 +13,7 @@ import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetrics;
-import com.tonyjhuang.cheddar.presenter.Scheduler;
+import com.tonyjhuang.cheddar.utils.Scheduler;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager;
 import com.tonyjhuang.cheddar.ui.customviews.ParalloidImageView;

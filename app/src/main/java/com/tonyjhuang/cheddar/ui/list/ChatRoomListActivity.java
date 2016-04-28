@@ -55,9 +55,10 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     @Override
     public void displayList(List<ChatRoomInfo> infoList) {
         if (adapter == null) {
-            adapter = new ChatRoomListAdapter(infoList);
+            adapter = new ChatRoomListAdapter();
             listView.setAdapter(adapter);
         }
+        adapter.setInfoList(infoList);
 
     }
 
@@ -81,11 +82,6 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     @Override
     public void showGetListError() {
         showToast(R.string.list_error_get_list);
-    }
-
-    @Override
-    public void removeChatRoom(String chatRoomId) {
-        adapter.removeChatRoom(chatRoomId);
     }
 
     @Override

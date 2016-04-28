@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.presenter;
+package com.tonyjhuang.cheddar.ui.presenter;
 
 /**
  * Created by tonyjhuang on 3/17/16.

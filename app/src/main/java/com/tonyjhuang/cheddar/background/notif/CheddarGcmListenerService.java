@@ -36,9 +36,8 @@ public class CheddarGcmListenerService extends GcmListenerService {
         String payloadString = data.getString("payload");
         if (payloadString != null) {
             GcmPayload payload = gson.fromJson(payloadString, GcmPayload.class);
-            Timber.d("payload: " + payload.toString());
             if (payload instanceof GcmChatEventPayload) {
-                Timber.d("sending broadcast with chatevent: " + ((GcmChatEventPayload) payload).chatEvent);
+                Timber.v("sending broadcast with chatevent: " + ((GcmChatEventPayload) payload).chatEvent);
                 Intent intent = new Intent(MESSAGE_EVENT_ACTION);
                 intent.putExtra("chatEvent", ((GcmChatEventPayload) payload).chatEvent);
                 sendOrderedBroadcast(intent, null);

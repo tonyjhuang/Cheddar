@@ -20,7 +20,7 @@ import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ChatEventPage
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventDeserializer;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventObjectHolder;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventsResponse;
-import com.tonyjhuang.cheddar.presenter.Scheduler;
+import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.EBean;
 
@@ -34,6 +34,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
+import timber.log.Timber;
 
 import static com.tonyjhuang.cheddar.api.MessageApi.PUBKEY;
 import static com.tonyjhuang.cheddar.api.MessageApi.SUBKEY;
@@ -100,7 +101,8 @@ public class ParseApi {
      * Registers a new user with the server.
      */
     public Observable<User> registerNewUser() {
-        return service.registerNewUser();
+        return service.registerNewUser()
+                .doOnNext(user -> Timber.d(user.toString()));
     }
 
     /**
