@@ -127,7 +127,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         presenter.loadMoreMessages();
         version.setText(getVersionName());
-        messageLoadingView.postDelayed(() -> messageLoadingView.animate().alpha(1).setDuration(250), 250);
+        messageLoadingView.postDelayed(() -> messageLoadingView.animate().alpha(1).setDuration(250), 500);
     }
 
     private void displayActiveAliasesDialog() {
