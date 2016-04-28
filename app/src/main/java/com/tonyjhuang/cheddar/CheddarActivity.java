@@ -9,9 +9,9 @@ import android.widget.Toast;
 
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
+import com.tonyjhuang.cheddar.ui.onboard.OnboardActivity_;
 import com.tonyjhuang.cheddar.utils.Scheduler;
 import com.tonyjhuang.cheddar.ui.dialog.ChangelogDialog;
-import com.tonyjhuang.cheddar.ui.main.MainActivity_;
 
 import org.androidannotations.annotations.EActivity;
 
@@ -41,14 +41,14 @@ public abstract class CheddarActivity extends AppCompatActivity {
             api.getCurrentUser().compose(Scheduler.defaultSchedulers())
                     .doOnError(error -> {
                         api.logout().publish().connect();
-                        navigateToMainView();
+                        navigateToOnboardView();
                     })
                     .publish().connect();
         }
     }
 
-    protected void navigateToMainView() {
-        MainActivity_.intent(this).start();
+    protected void navigateToOnboardView() {
+        OnboardActivity_.intent(this).start();
         finish();
     }
 

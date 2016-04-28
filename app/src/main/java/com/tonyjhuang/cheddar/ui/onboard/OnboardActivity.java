@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.main;
+package com.tonyjhuang.cheddar.ui.onboard;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -12,13 +12,12 @@ import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
-import com.tonyjhuang.cheddar.api.CheddarMetrics;
-import com.tonyjhuang.cheddar.utils.Scheduler;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager;
 import com.tonyjhuang.cheddar.ui.customviews.ParalloidImageView;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 
+import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
@@ -28,13 +27,8 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 
-/**
- * Created by tonyjhuang on 3/23/16.
- */
 @EActivity(R.layout.activity_main)
-public class MainActivity extends CheddarActivity {
-
-    private static final String TAG = MainActivity.class.getSimpleName();
+public class OnboardActivity extends CheddarActivity implements OnboardView {
 
     @ViewById(R.id.view_pager)
     ParallaxorViewPager viewPager;
@@ -60,24 +54,29 @@ public class MainActivity extends CheddarActivity {
     @ViewById
     TextView version;
 
-    @Bean
-    CheddarApi api;
+    @Bean(OnboardPresenterImpl.class)
+    OnboardPresenter presenter;
 
-    @Pref
-    CheddarPrefs_ prefs;
-
-    // ViewPager adapter.
-    private MainPagerAdapter onboardAdapter;
+    /**
+     * ViewPager adapter.
+     */
+    private OnboardPagerAdapter onboardAdapter;
 
     private LoadingDialog loadingDialog;
+
+    @AfterInject
+    void afterInject() {
+        presenter.setView(this);
+    }
 
     @AfterViews
     void afterViews() {
         if (BuildConfig.DEBUG) {
             debugLabel.setVisibility(View.VISIBLE);
+            version.setText(getVersionName());
         }
 
-        onboardAdapter = new MainPagerAdapter(getSupportFragmentManager());
+        onboardAdapter = new OnboardPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(onboardAdapter);
         viewPager.setOffscreenPageLimit(1);
         indicator.setSelectAnimClass(ZoomInEnter.class).setViewPager(viewPager);
@@ -114,8 +113,6 @@ public class MainActivity extends CheddarActivity {
                 prevPosition = position;
             }
         });
-
-        version.setText(getVersionName());
     }
 
     @Click(R.id.pager_left)
@@ -129,42 +126,38 @@ public class MainActivity extends CheddarActivity {
                 viewPager.getCurrentItem() + 1));
     }
 
-    public void onEvent(AlphaWarningFragment.JoinChatEvent event) {
+    @Override
+    public void showJoinChatLoadingDialog() {
         loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
-        api.joinGroupChatRoom().compose(Scheduler.defaultSchedulers())
-                .subscribe(alias -> {
-                    CheddarMetrics.trackJoinChatRoom(alias.chatRoomId());
-                    navigateToChatView(alias.objectId());
-                }, error -> {
-                    showToast("Couldn't join chat.");
-                    loadingDialog.dismiss();
-                });
     }
 
-    private void navigateToChatView(String aliasId) {
-        if (loadingDialog != null) {
-            loadingDialog.dismiss();
-        }
+    @Override
+    public void showJoinChatFailed() {
+        if (loadingDialog != null) loadingDialog.dismiss();
+        showToast(R.string.onboard_error_join_chat);
+    }
+
+    @Override
+    public void navigateToChatView(String aliasId) {
+        if (loadingDialog != null) loadingDialog.dismiss();
         ChatActivity_.intent(this).aliasId(aliasId).start();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        EventBus.getDefault().register(this);
-        showChangeLog(prefs);
-        checkCurrentUser(api);
+        presenter.onResume();
     }
 
     @Override
-    protected void navigateToMainView() {
+    protected void navigateToOnboardView() {
         // Override to no-op.
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        EventBus.getDefault().unregister(this);
+        presenter.onPause();
     }
 
     @EFragment(R.layout.fragment_alpha_warning)

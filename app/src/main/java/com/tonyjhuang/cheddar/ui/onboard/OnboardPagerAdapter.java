@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.main;
+package com.tonyjhuang.cheddar.ui.onboard;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -7,16 +7,16 @@ import android.support.v4.app.FragmentPagerAdapter;
 /**
  * Created by tonyjhuang on 2/9/16.
  */
-public class MainPagerAdapter extends FragmentPagerAdapter {
+public class OnboardPagerAdapter extends FragmentPagerAdapter {
 
     private Fragment[] fragments = {
-            new MainActivity_.OnboardCheddarFragment_(),
-            new MainActivity_.OnboardMatchFragment_(),
-            new MainActivity_.OnboardGroupFragment_(),
-            new MainActivity_.AlphaWarningFragment_()
+            new OnboardActivity_.OnboardCheddarFragment_(),
+            new OnboardActivity_.OnboardMatchFragment_(),
+            new OnboardActivity_.OnboardGroupFragment_(),
+            new OnboardActivity_.AlphaWarningFragment_()
     };
 
-    public MainPagerAdapter(FragmentManager fm) {
+    public OnboardPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 

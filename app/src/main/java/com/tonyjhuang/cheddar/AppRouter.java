@@ -2,7 +2,7 @@ package com.tonyjhuang.cheddar;
 
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.list.ChatRoomListActivity_;
-import com.tonyjhuang.cheddar.ui.main.MainActivity_;
+import com.tonyjhuang.cheddar.ui.onboard.OnboardActivity_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EActivity;
@@ -20,7 +20,7 @@ public class AppRouter extends CheddarActivity {
     public void start() {
         boolean onboardShown = prefs.onboardShown().getOr(false);
         if (!onboardShown) {
-            MainActivity_.intent(this).start();
+            OnboardActivity_.intent(this).start();
         } else {
             String lastOpenedAlias = prefs.lastOpenedAlias().getOr("");
             if (!lastOpenedAlias.isEmpty()) {

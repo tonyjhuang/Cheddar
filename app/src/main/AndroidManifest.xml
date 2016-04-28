@@ -39,7 +39,7 @@
         </activity>
 
         <activity
-            android:name="com.tonyjhuang.cheddar.ui.main.MainActivity_"
+            android:name=".ui.onboard.OnboardActivity_"
             android:noHistory="true"
             android:screenOrientation="portrait" />
 
