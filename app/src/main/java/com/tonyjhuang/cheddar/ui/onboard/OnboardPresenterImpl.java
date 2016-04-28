@@ -1,11 +1,13 @@
 package com.tonyjhuang.cheddar.ui.onboard;
 
+import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -17,6 +19,9 @@ public class OnboardPresenterImpl implements OnboardPresenter {
 
     @Bean
     CheddarApi api;
+
+    @Pref
+    CheddarPrefs_ prefs;
 
     /**
      * The view we're presenting to.
@@ -34,6 +39,7 @@ public class OnboardPresenterImpl implements OnboardPresenter {
         api.joinGroupChatRoom().compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
                     CheddarMetrics.trackJoinChatRoom(alias.chatRoomId());
+                    prefs.onboardShown().put(true);
                     if(view != null) view.navigateToChatView(alias.objectId());
                 }, error -> {
                     if(view != null) view.showJoinChatFailed();

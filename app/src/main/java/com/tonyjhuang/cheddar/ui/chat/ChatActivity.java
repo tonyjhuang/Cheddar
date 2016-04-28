@@ -15,6 +15,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.CheddarActivity;
@@ -55,6 +56,9 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     private static final String TAG = ChatActivity.class.getSimpleName();
     @ViewById(R.id.toolbar)
     ClickableTitleToolbar toolbar;
+
+    @ViewById(R.id.message_loading)
+    ProgressBar messageLoadingView;
 
     @ViewById(R.id.message_list_view)
     PreserveScrollStateListView chatEventListView;
@@ -123,6 +127,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         presenter.loadMoreMessages();
         version.setText(getVersionName());
+        messageLoadingView.postDelayed(() -> messageLoadingView.animate().alpha(1).setDuration(250), 250);
     }
 
     private void displayActiveAliasesDialog() {
@@ -246,6 +251,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     private void showListView(boolean show) {
         chatEventListView.animate().alpha(show ? 1 : 0).setDuration(150);
+        messageLoadingView.animate().alpha(0).setDuration(50);
     }
 
     /**
