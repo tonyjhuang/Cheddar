@@ -87,4 +87,7 @@
 
     <!-- notif -->
     <string name="notif_title">Cheddar</string>
+
+    <!-- debug -->
+    <string name="debug_action_clear">Clear realm</string>
 </resources>

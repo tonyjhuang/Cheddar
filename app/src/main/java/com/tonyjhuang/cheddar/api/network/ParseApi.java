@@ -4,6 +4,13 @@ import android.support.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
@@ -24,8 +31,14 @@ import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.EBean;
 
+import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -42,6 +55,13 @@ import static com.tonyjhuang.cheddar.api.MessageApi.SUBKEY;
 @EBean(scope = EBean.Scope.Singleton)
 public class ParseApi {
     /**
+     * The objects from the network are in UTC time. We need to parse
+     * incoming dates respecting that, otherwise they'll be parsed
+     * as whatever the local timezone is, which is WRONG!!!
+     */
+    private static final DateFormat utcDateFormat =
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+    /**
      * Endpoints.
      */
     private static final String BASE_URL = "https://api.parse.com/1/functions/";
@@ -49,6 +69,11 @@ public class ParseApi {
      * Number of users for a typical group chat.
      */
     private static final int GROUP_OCCUPANCY = 5;
+
+    static {
+        utcDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+
     /**
      * Retrofit service.
      */
@@ -69,6 +94,7 @@ public class ParseApi {
         return new GsonBuilder()
                 .registerTypeAdapterFactory(new ResultUnwrapperTypeAdapterFactory())
                 .registerTypeAdapter(ReplayChatEventObjectHolder.class, new ReplayChatEventDeserializer())
+                .registerTypeAdapter(Date.class, new UtcDateAdapter())
                 .create();
     }
 
@@ -154,7 +180,7 @@ public class ParseApi {
      * See #tokenToDate.
      */
     private String dateToToken(@Nullable Date date) {
-        if(date == null) return null;
+        if (date == null) return null;
         return date.getTime() * 10000 + "";
     }
 
@@ -188,5 +214,25 @@ public class ParseApi {
                 new SendMessageRequest(aliasId, messageId, body, SUBKEY, PUBKEY);
 
         return service.sendMessage(request);
+    }
+
+    /**
+     * Parse Dates as Utc (respect local timezone offset).
+     */
+    private static class UtcDateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+        @Override
+        public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            try {
+                Timber.d("deserializing %s into %s", json.toString(), utcDateFormat.parse(json.getAsString()).toString());
+                return utcDateFormat.parse(json.getAsString());
+            } catch (ParseException e) {
+                throw new JsonParseException(e);
+            }
+        }
+
+        @Override
+        public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(utcDateFormat.format(src));
+        }
     }
 }

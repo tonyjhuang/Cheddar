@@ -4,20 +4,31 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
+import com.tonyjhuang.cheddar.api.models.realm.RealmAlias;
 import com.tonyjhuang.cheddar.api.models.realm.RealmChatEvent;
+import com.tonyjhuang.cheddar.api.models.realm.RealmChatRoom;
 import com.tonyjhuang.cheddar.api.models.realm.RealmUser;
 import com.tonyjhuang.cheddar.api.models.realm.ValueSource;
+import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.models.value.ValueTypeAdapterFactory;
 
 import org.androidannotations.annotations.EBean;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmObject;
+import io.realm.Sort;
 import rx.Observable;
 import rx.functions.Action1;
+import rx.functions.Func0;
+import timber.log.Timber;
 
 /**
  * Simple on-device persistent store for our Value objects.
@@ -37,39 +48,157 @@ public class CacheApi {
             .registerTypeAdapter(Date.class, dateJsonSerializer)
             .create();
 
-    /****************
-     * User
-     ****************/
+    /**
+     * Maps from Realm to Value types.
+     */
+    private HashMap<Class, Class> realmToValue = new HashMap<>();
 
-    public Observable<User> getUser(String userId) {
-        return Observable.defer(() -> {
-            Realm realm = Realm.getDefaultInstance();
-            return Observable.just(realm.copyFromRealm(realm.where(RealmUser.class)
-                    .equalTo("objectId", userId)
-                    .findFirst()))
-                    .compose(toValue(User.class));
-        });
+    public CacheApi() {
+        realmToValue.put(RealmAlias.class, Alias.class);
+        realmToValue.put(RealmChatEvent.class, ChatEvent.class);
+        realmToValue.put(RealmChatRoom.class, ChatRoom.class);
+        realmToValue.put(RealmUser.class, User.class);
     }
 
-    public Observable<User> persist(User user) {
-        return toJson(user)
-                .doOnNext(saveToDisk(RealmUser.class))
-                .map(string -> user);
+    /****************
+     * Alias
+     ****************/
+
+    public Observable<Alias> getAlias(String aliasId) {
+        return Observable.defer(getFirst(aliasId, RealmAlias.class));
+    }
+
+    public Observable<List<Alias>> persistAliases(List<Alias> aliases) {
+        return Observable.from(aliases).flatMap(this::persist).toList();
+    }
+
+    public Observable<Alias> persist(Alias alias) {
+        return toJson(alias).compose(persistJson(RealmAlias.class, alias));
     }
 
     /****************
      * ChatEvent
      ****************/
 
+    public Observable<ChatEvent> getMostRecentChatEventForChatRoom(String chatRoomId) {
+        return Observable.defer(() -> {
+            Realm realm = Realm.getDefaultInstance();
+            return Observable.just(realm.copyFromRealm(realm.where(RealmChatEvent.class)
+                    .equalTo("alias.chatRoomId", chatRoomId)
+                    .findAllSorted("updatedAt", Sort.DESCENDING)
+                    .first()))
+                    .doAfterTerminate(realm::close)
+                    .compose(toValue(ChatEvent.class));
+        });
+    }
+
+    public Observable<ChatEvent> getChatEvent(String chatEventId) {
+        return Observable.defer(getFirst(chatEventId, RealmChatEvent.class));
+    }
+
+    public Observable<List<ChatEvent>> persistChatEvents(List<ChatEvent> chatEvents) {
+        return Observable.from(chatEvents).flatMap(this::persist).toList();
+    }
+
     public Observable<ChatEvent> persist(ChatEvent chatEvent) {
-        return toJson(chatEvent)
-                .doOnNext(saveToDisk(RealmChatEvent.class))
-                .map(string -> chatEvent);
+        return toJson(chatEvent).compose(persistJson(RealmChatEvent.class, chatEvent));
+    }
+
+    /****************
+     * ChatRoom
+     ****************/
+
+    public Observable<ChatRoom> getChatRoom(String chatRoomId) {
+        return Observable.defer(getFirst(chatRoomId, RealmChatRoom.class));
+    }
+
+    public Observable<ChatRoom> persist(ChatRoom chatRoom) {
+        return toJson(chatRoom).compose(persistJson(RealmChatRoom.class, chatRoom));
+    }
+
+    /****************
+     * User
+     ****************/
+
+    public Observable<User> getUser(String userId) {
+        return Observable.defer(getFirst(userId, RealmUser.class));
+    }
+
+    public Observable<User> persist(User user) {
+        return toJson(user).compose(persistJson(RealmUser.class, user));
+    }
+
+    /****************
+     * ChatRoomInfo
+     ****************/
+
+    public Observable<List<ChatRoomInfo>> getChatRoomInfos(String userId) {
+        return Observable.defer(() -> {
+            Realm realm = Realm.getDefaultInstance();
+            List<RealmAlias> aliases = realm.copyFromRealm(
+                    realm.where(RealmAlias.class)
+                            .equalTo("userId", userId)
+                            .equalTo("active", true)
+                            .findAll());
+
+            return Observable.from(aliases).map(RealmAlias::toValue).flatMap(a ->
+                    Observable.zip(getChatRoom(a.chatRoomId()),
+                            Observable.just(a),
+                            getMostRecentChatEventForChatRoom(a.chatRoomId()),
+                            ChatRoomInfo::create))
+                    .toList()
+                    .doOnNext(infos -> Timber.d("cached infos: " + infos))
+                    .doAfterTerminate(realm::close);
+        });
+    }
+
+    public Observable<List<ChatRoomInfo>> persistChatRoomInfos(List<ChatRoomInfo> infoList) {
+        return Observable.from(infoList).flatMap(this::persist).toList();
+    }
+
+    public Observable<ChatRoomInfo> persist(ChatRoomInfo chatRoomInfo) {
+        return Observable.zip(persist(chatRoomInfo.alias()),
+                persist(chatRoomInfo.chatEvent()),
+                persist(chatRoomInfo.chatRoom()),
+                (a, ce, cr) -> chatRoomInfo);
     }
 
     /****************
      * Misc
      ****************/
+
+    /**
+     * Get the first object of type |clazz| with id |objectId| as
+     * its Value representation.
+     */
+    @SuppressWarnings("unchecked")
+    private <T> Func0<Observable<T>> getFirst(String objectId,
+                                              Class<? extends RealmObject> clazz) {
+        return () -> {
+            try {
+                Realm realm = Realm.getDefaultInstance();
+                return Observable.just(realm.copyFromRealm(realm.where(clazz)
+                        .equalTo("objectId", objectId)
+                        .findFirst()))
+                        .doAfterTerminate(realm::close)
+                        .compose(toValue((Class<T>) realmToValue.get(clazz)));
+            } catch (Exception e) {
+                Timber.e("couldn't grab first " + clazz + " for " + objectId + ": " + e);
+                return Observable.error(e);
+            }
+        };
+    }
+
+    /**
+     * Takes an Observable, saves the string that it outputs to disk
+     * as type |clazz| and emits |returnValue|.
+     */
+    private <T> Observable.Transformer<String, T> persistJson(Class clazz, T returnValue) {
+        return o -> o
+                .doOnNext(s -> Timber.i("persisting: " + s))
+                .doOnNext(saveToDisk(clazz))
+                .map(s -> returnValue);
+    }
 
     /**
      * Returns an Action1 that saves a JSON string to Realm.
@@ -80,6 +209,7 @@ public class CacheApi {
             realm.beginTransaction();
             realm.createOrUpdateObjectFromJson(clazz, json);
             realm.commitTransaction();
+            realm.close();
         };
     }
 

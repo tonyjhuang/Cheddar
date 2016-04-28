@@ -1,6 +1,6 @@
 package com.tonyjhuang.cheddar.api.models.realm;
 
-import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.MetaData;
 
 import java.util.Date;
@@ -8,20 +8,19 @@ import java.util.Date;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class RealmChatEvent extends RealmObject implements ValueSource {
+public class RealmChatRoom extends RealmObject implements ValueSource {
 
     @PrimaryKey
     private String objectId;
     private Date createdAt;
     private Date updatedAt;
-    private String type;
-    private RealmAlias alias;
-    private String body;
+    private int maxOccupancy;
+    private int numOccupants;
 
     @Override
-    public ChatEvent toValue() {
+    public Object toValue() {
         MetaData metaData = MetaData.create(objectId, createdAt, updatedAt);
-        return ChatEvent.create(metaData, ChatEvent.ChatEventType.fromString(type), alias.toValue(), body);
+        return ChatRoom.create(metaData, maxOccupancy, numOccupants);
     }
 
     public String getObjectId() {
@@ -48,27 +47,19 @@ public class RealmChatEvent extends RealmObject implements ValueSource {
         this.updatedAt = updatedAt;
     }
 
-    public String getType() {
-        return type;
+    public int getMaxOccupancy() {
+        return maxOccupancy;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setMaxOccupancy(int maxOccupancy) {
+        this.maxOccupancy = maxOccupancy;
     }
 
-    public RealmAlias getAlias() {
-        return alias;
+    public int getNumOccupants() {
+        return numOccupants;
     }
 
-    public void setAlias(RealmAlias alias) {
-        this.alias = alias;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
+    public void setNumOccupants(int numOccupants) {
+        this.numOccupants = numOccupants;
     }
 }

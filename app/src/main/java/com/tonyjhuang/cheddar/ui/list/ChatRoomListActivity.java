@@ -20,6 +20,8 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
 
+import io.realm.Realm;
+
 /**
  * Displays the list of chatrooms the user is currently in.
  */
@@ -120,7 +122,12 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
                 loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
                 presenter.onJoinChatRoomClicked();
                 return true;
-
+            case R.id.action_clear:
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                realm.deleteAll();
+                realm.commitTransaction();
+                realm.close();
         }
         return super.onOptionsItemSelected(item);
     }

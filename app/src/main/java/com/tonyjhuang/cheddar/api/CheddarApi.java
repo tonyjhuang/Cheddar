@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import rx.Observable;
-import rx.parse.ParseObservable;
 import timber.log.Timber;
 
 
@@ -32,7 +31,6 @@ import timber.log.Timber;
 @EBean(scope = EBean.Scope.Singleton)
 public class CheddarApi {
 
-    private static final String PASSWORD = "password";
     private final Gson gson = createGson();
     @Bean
     MessageApi messageApi;
@@ -48,8 +46,6 @@ public class CheddarApi {
     // Keeps track of where we are while paging through the message history.
     private Date replayPagerToken = null;
 
-    private User currentUser = null;
-
     public CheddarApi() {
     }
 
@@ -64,15 +60,15 @@ public class CheddarApi {
     public Observable<User> getCurrentUser() {
         return Observable.defer(() -> {
             if (!prefs.currentUserId().getOr("").isEmpty()) {
-                Timber.d("cached current user");
+                Timber.v("cached current user");
                 return cacheApi.getUser(prefs.currentUserId().get())
                         .doOnNext(user -> Timber.d("cached user: " + user))
                         .doOnError(error -> Timber.e(error.toString()))
                         .doOnError(error -> prefs.currentUserId().remove())
                         .onExceptionResumeNext(getCurrentUser());
             } else {
-                Timber.d("registering new user");
-                return registerNewUser()
+                Timber.v("registering new user");
+                return parseApi.registerNewUser()
                         .doOnNext(user -> prefs.currentUserId().put(user.objectId()))
                         .doOnNext(user -> Timber.d("user: " + user))
                         .flatMap(user -> cacheApi.persist(user));
@@ -81,19 +77,23 @@ public class CheddarApi {
     }
 
     public Observable<Void> logout() {
-        return ParseObservable.logOut();
-    }
-
-    public Observable<Alias> getAlias(String aliasId) {
-        return parseApi.findAlias(aliasId);
-    }
-
-    public Observable<User> registerNewUser() {
-        return parseApi.registerNewUser().doOnNext(user -> currentUser = user);
+        return Observable.defer(() -> {
+            prefs.currentUserId().remove();
+            return Observable.just(null);
+        });
     }
 
     //******************************************************
-    //                Chat Rooms
+    //                Aliases
+    //******************************************************
+
+    public Observable<Alias> getAlias(String aliasId) {
+        return parseApi.findAlias(aliasId)
+                .flatMap(cacheApi::persist);
+    }
+
+    //******************************************************
+    //                ChatRooms
     //******************************************************
 
     public Observable<Alias> joinGroupChatRoom() {
@@ -103,17 +103,33 @@ public class CheddarApi {
 
 
     public Observable<Alias> leaveChatRoom(String aliasId) {
-        return parseApi.leaveChatRoom(aliasId);
+        return parseApi.leaveChatRoom(aliasId)
+                .flatMap(cacheApi::persist);
     }
 
     public Observable<List<Alias>> getActiveAliases(String chatRoomId) {
-        return parseApi.getActiveAliases(chatRoomId);
+        return parseApi.getActiveAliases(chatRoomId)
+                .flatMap(cacheApi::persistAliases);
     }
 
     public Observable<List<ChatRoomInfo>> getChatRooms() {
-        Timber.d("getChatRooms");
         return getCurrentUser().map(User::objectId)
-                .flatMap(parseApi::getChatRooms);
+                .flatMap(userId -> Observable.concat(
+                        Observable.empty(),
+                        cacheApi.getChatRoomInfos(userId)
+                                .compose(sortChatRoomInfoList())
+                                .doOnError(error -> Timber.e("couldn't get ChatRoomInfos from cache"))
+                                .onExceptionResumeNext(Observable.empty())
+                                .doOnNext(infos -> Timber.d("got persisted infos: %d", infos.size())),
+                        parseApi.getChatRooms(userId).flatMap(cacheApi::persistChatRoomInfos)
+                                .compose(sortChatRoomInfoList())
+                                .doOnNext(infos -> Timber.d("got network infos: %d", infos.size()))))
+                .doOnNext(infos -> Timber.d("combined: %d", infos.size()));
+    }
+
+    private Observable.Transformer<List<ChatRoomInfo>, List<ChatRoomInfo>> sortChatRoomInfoList() {
+        return o -> o.flatMap(Observable::from)
+                .toSortedList((i1, i2) -> i2.chatEvent().updatedAt().compareTo(i1.chatEvent().updatedAt()));
     }
 
     //******************************************************
@@ -126,7 +142,8 @@ public class CheddarApi {
      */
     public Observable<ChatEvent> sendMessage(ChatEvent chatEvent) {
         return parseApi.sendMessage(chatEvent.alias().objectId(),
-                chatEvent.body(), chatEvent.objectId());
+                chatEvent.body(), chatEvent.objectId())
+                .flatMap(cacheApi::persist);
     }
 
     public Observable<ChatEvent> getMessageStream(String aliasId) {
@@ -136,7 +153,8 @@ public class CheddarApi {
                 .doOnNext(o -> Timber.i(o.toString()))
                 .cast(JSONObject.class)
                 // Continue past any Exceptions thrown in parseChatEventRx.
-                .flatMap(this::parseChatEventOrSkip);
+                .flatMap(this::parseChatEventOrSkip)
+                .flatMap(cacheApi::persist);
     }
 
     /**
@@ -172,11 +190,12 @@ public class CheddarApi {
                 .doOnNext(response -> replayPagerToken = response.startTimeToken)
                 .map(response -> response.chatEvents)
                 .doOnNext(Collections::reverse)
-                .doOnNext(r -> Timber.d("chatEvents: " + r));
+                .flatMap(cacheApi::persistChatEvents);
     }
 
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, Date start, Date end) {
-        return parseApi.getChatEventsInRange(aliasId, start, end);
+        return parseApi.getChatEventsInRange(aliasId, start, end)
+                .flatMap(cacheApi::persistChatEvents);
     }
 
     //******************************************************

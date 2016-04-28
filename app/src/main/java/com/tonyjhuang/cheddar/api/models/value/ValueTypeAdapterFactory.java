@@ -17,7 +17,6 @@ public class ValueTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings("unchecked")
     public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
         Class<? super T> rawType = type.getRawType();
-        Timber.d("rawType: " + rawType);
         try {
             if(rawType.equals(AutoValue_User.class)) {
                 return (TypeAdapter<T>) AutoValue_User.typeAdapter(gson);

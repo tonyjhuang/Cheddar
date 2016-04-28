@@ -57,7 +57,10 @@ public class CheddarApplication extends MultiDexApplication {
         Parse.initialize(this);
         ParseInstallation.getCurrentInstallation().saveInBackground();
 
-        RealmConfiguration config = new RealmConfiguration.Builder(this).build();
+        RealmConfiguration config = new RealmConfiguration.Builder(this)
+                // TODO: Possibly supply migration strategy here.
+                .deleteRealmIfMigrationNeeded()
+                .build();
         Realm.setDefaultConfiguration(config);
     }
 }

@@ -59,9 +59,7 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
      */
     private Observable<List<ChatRoomInfo>> refreshChatList() {
         // Only subscribe if the list hasn't been loaded yet.
-        return api.getChatRooms().compose(Scheduler.backgroundSchedulers())
-                .flatMap(Observable::from)
-                .toSortedList((i1, i2) -> i2.chatEvent().updatedAt().compareTo(i1.chatEvent().updatedAt()))
+        return api.getChatRooms()
                 .compose(Scheduler.defaultSchedulers())
                 .doOnNext(infos -> {
                     Timber.i(infos.toString());

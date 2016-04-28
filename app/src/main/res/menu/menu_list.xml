@@ -8,4 +8,9 @@
         android:title="@string/list_action_join"
         android:icon="@drawable/action_join"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_clear"
+        android:orderInCategory="500"
+        android:title="@string/debug_action_clear"
+        app:showAsAction="never" />
 </menu>
