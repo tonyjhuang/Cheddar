@@ -1,6 +1,5 @@
 package com.tonyjhuang.cheddar;
 
-import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.list.ChatRoomListActivity_;
 import com.tonyjhuang.cheddar.ui.onboard.OnboardActivity_;
 
@@ -22,12 +21,7 @@ public class AppRouter extends CheddarActivity {
         if (!onboardShown) {
             OnboardActivity_.intent(this).start();
         } else {
-            String lastOpenedAlias = prefs.lastOpenedAlias().getOr("");
-            if (!lastOpenedAlias.isEmpty()) {
-                ChatActivity_.intent(this).aliasId(lastOpenedAlias).start();
-            } else {
-                ChatRoomListActivity_.intent(this).start();
-            }
+            ChatRoomListActivity_.intent(this).start();
         }
     }
 }

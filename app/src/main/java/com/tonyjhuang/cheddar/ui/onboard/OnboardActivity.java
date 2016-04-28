@@ -1,6 +1,8 @@
 package com.tonyjhuang.cheddar.ui.onboard;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.TextView;
@@ -9,9 +11,7 @@ import com.flyco.pageindicator.anim.select.ZoomInEnter;
 import com.flyco.pageindicator.indicator.FlycoPageIndicaor;
 import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarActivity;
-import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager;
 import com.tonyjhuang.cheddar.ui.customviews.ParalloidImageView;
@@ -24,7 +24,6 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 
 @EActivity(R.layout.activity_main)
@@ -140,7 +139,10 @@ public class OnboardActivity extends CheddarActivity implements OnboardView {
     @Override
     public void navigateToChatView(String aliasId) {
         if (loadingDialog != null) loadingDialog.dismiss();
-        ChatActivity_.intent(this).aliasId(aliasId).start();
+        Intent chatIntent = ChatActivity_.intent(this).aliasId(aliasId).get();
+        TaskStackBuilder.create(this)
+                .addNextIntentWithParentStack(chatIntent)
+                .startActivities();
     }
 
     @Override

@@ -191,7 +191,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private void init(Context context) {
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .compose(Scheduler.defaultSchedulers())
-                .doOnNext(alias -> prefs.lastOpenedAlias().put(alias.objectId()))
                 .subscribe(alias -> {
                     if (!alias.active()) {
                         // Respect server switches to active status.
@@ -261,7 +260,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
      */
     private void onFailedToRetrieveAlias() {
         if (view != null) {
-            prefs.lastOpenedAlias().put(null);
             view.navigateToListView();
             // TODO:How do we unregister for push notifications here?
             //unregisterForPush(context, alias.getChatRoomId())
@@ -398,7 +396,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .flatMap(api::leaveChatRoom)
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
-                    prefs.lastOpenedAlias().put(null);
                     api.endMessageStream(alias.objectId()).publish().connect();
                     long lengthOfStay = new Date().getTime() - alias.createdAt().getTime();
                     CheddarMetrics.trackLeaveChatRoom(alias.chatRoomId(), lengthOfStay);

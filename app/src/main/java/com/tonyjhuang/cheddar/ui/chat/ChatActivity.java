@@ -245,7 +245,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     }
 
     private void showListView(boolean show) {
-        chatEventListView.animate().alpha(show ? 1 : 0).setDuration(50);
+        chatEventListView.animate().alpha(show ? 1 : 0).setDuration(150);
     }
 
     /**

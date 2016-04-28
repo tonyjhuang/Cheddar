@@ -13,8 +13,6 @@ public interface CheddarPrefs {
 
     boolean onboardShown();
 
-    String lastOpenedAlias();
-
     String unreadMessages();
 
     String pushChannels();
