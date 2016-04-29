@@ -34,12 +34,16 @@ public class ChatEventListAdapter extends BaseAdapter {
 
     List<ChatEventViewInfo> itemViewInfos = new ArrayList<>();
 
-    // Holds indices to all of the placeholder messages in itemViewInfos.
-    // INVARIANT: These indices MUST point to MessageChatItemViewInfos.
+    /**
+     * Holds indices to all of the placeholder messages in itemViewInfos.
+     * INVARIANT: These indices MUST point to MessageChatItemViewInfos.
+     */
     List<Integer> placeholderMessageIndexes = new ArrayList<>();
 
-    // Used for determining the direction of new Messages.
-    private String currentUserId;
+    /**
+     * Used for determining the direction of new Messages.
+     */
+    private final String currentUserId;
 
     public ChatEventListAdapter(String currentUserId) {
         this.currentUserId = currentUserId;

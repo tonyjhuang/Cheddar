@@ -45,12 +45,13 @@ public class ChatRoomItemView extends RelativeLayout {
 
     @AfterViews
     public void afterViews() {
-        aliasDisplayView.setColor(aliasDisplayColor);
+        aliasDisplayView.setBgColor(aliasDisplayColor);
     }
 
-    public void setChatRoomInfo(ChatRoomInfo info) {
+    public void setChatRoomInfo(ChatRoomInfo info, String currentUserId) {
         recentMessageView.setText(info.chatEvent().displayBody());
-        aliasDisplayView.setAliasName(info.alias().name());
+        aliasDisplayView.setAlias(info.chatEvent().alias(),
+                currentUserId.equals(info.chatEvent().alias().userId()));
         timestampView.setText(formatDate(info.chatEvent().updatedAt()));
     }
 

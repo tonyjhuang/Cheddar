@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface ChatRoomListView {
 
-    void displayList(List<ChatRoomInfo> infoList);
+    void displayList(List<ChatRoomInfo> infoList, String currentUserId);
 
     void navigateToChatView(String aliasId);
 

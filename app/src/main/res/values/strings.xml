@@ -90,5 +90,5 @@
     <string name="notif_title">Cheddar</string>
 
     <!-- debug -->
-    <string name="debug_action_clear">Clear realm</string>
+    <string name="debug_action_clear">Reset</string>
 </resources>

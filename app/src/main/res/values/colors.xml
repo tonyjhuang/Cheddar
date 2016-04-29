@@ -19,6 +19,14 @@
     <color name="chat_text_error_bg">@color/colorPrimaryDark</color>
     <color name="chat_text_error_text">@color/chat_author_text_incoming</color>
 
+    <color name="chat_author_background_0">#ffe327</color>
+    <color name="chat_author_background_1">#ffc827</color>
+    <color name="chat_author_background_2">#ffad27</color>
+    <color name="chat_author_background_3">#ff9227</color>
+    <color name="chat_author_background_4">#ff7727</color>
+
+    <color name="chat_author_text">@color/text_primary_light</color>
+
     <!-- incoming -->
     <color name="chat_author_text_incoming">@color/text_primary_light</color>
     <color name="chat_author_background_incoming">@color/colorPrimary</color>

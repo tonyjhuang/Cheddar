@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.tonyjhuang.cheddar.CheddarActivity;
+import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
@@ -17,6 +18,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.List;
 
@@ -37,6 +39,9 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     @Bean(ChatRoomListPresenterImpl.class)
     ChatRoomListPresenter presenter;
 
+    @Pref
+    CheddarPrefs_ prefs;
+
     private LoadingDialog loadingDialog;
 
     private ChatRoomListAdapter adapter;
@@ -55,9 +60,9 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     }
 
     @Override
-    public void displayList(List<ChatRoomInfo> infoList) {
+    public void displayList(List<ChatRoomInfo> infoList, String currentUserId) {
         if (adapter == null) {
-            adapter = new ChatRoomListAdapter();
+            adapter = new ChatRoomListAdapter(currentUserId);
             listView.setAdapter(adapter);
         }
         adapter.setInfoList(infoList);
@@ -128,6 +133,9 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
                 realm.deleteAll();
                 realm.commitTransaction();
                 realm.close();
+                prefs.onboardShown().put(false);
+                prefs.currentUserId().put("");
+                finish();
         }
         return super.onOptionsItemSelected(item);
     }

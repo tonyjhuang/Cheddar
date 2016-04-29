@@ -22,10 +22,6 @@ public class OutgoingMessageView extends MessageView {
     int outgoingFailedTextBackgroundColor;
     @ColorRes(R.color.chat_text_outgoing)
     int outgoingTextColor;
-    @ColorRes(R.color.chat_author_text_outgoing)
-    int outgoingAuthorTextColor;
-    @ColorRes(R.color.chat_author_background_outgoing)
-    int outgoingAuthorBackgroundColor;
 
     public OutgoingMessageView(Context context) {
         super(context);
@@ -34,6 +30,7 @@ public class OutgoingMessageView extends MessageView {
     @Override
     public void updateViews() {
         super.updateViews();
+        authorDisplayView.setAlias(info.chatEvent.alias(), true);
 
         int textBackgroundColor;
         switch (info.status) {
@@ -49,9 +46,6 @@ public class OutgoingMessageView extends MessageView {
             default:
                 textBackgroundColor = outgoingSendingTextBackgroundColor;
         }
-
-        authorDisplayView.setColor(outgoingAuthorBackgroundColor);
-        authorDisplayView.setTextColor(outgoingAuthorTextColor);
 
         ((GradientDrawable) bodyView.getBackground()).setColor(textBackgroundColor);
         bodyView.setTextColor(outgoingTextColor);

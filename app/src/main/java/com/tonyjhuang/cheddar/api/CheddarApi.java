@@ -118,13 +118,9 @@ public class CheddarApi {
                         Observable.empty(),
                         cacheApi.getChatRoomInfos(userId)
                                 .compose(sortChatRoomInfoList())
-                                .doOnError(error -> Timber.e("couldn't get ChatRoomInfos from cache"))
-                                .onExceptionResumeNext(Observable.empty())
-                                .doOnNext(infos -> Timber.d("got persisted infos: %d", infos.size())),
+                                .onExceptionResumeNext(Observable.empty()),
                         parseApi.getChatRooms(userId).flatMap(cacheApi::persistChatRoomInfos)
-                                .compose(sortChatRoomInfoList())
-                                .doOnNext(infos -> Timber.d("got network infos: %d", infos.size()))))
-                .doOnNext(infos -> Timber.d("combined: %d", infos.size()));
+                                .compose(sortChatRoomInfoList())));
     }
 
     private Observable.Transformer<List<ChatRoomInfo>, List<ChatRoomInfo>> sortChatRoomInfoList() {
@@ -194,8 +190,7 @@ public class CheddarApi {
                         .doOnNext(response -> replayPagerToken = response.startTimeToken)
                         .map(response -> response.chatEvents)
                         .doOnNext(Collections::reverse)
-                        .flatMap(cacheApi::persistChatEvents))
-                .doOnNext(o -> Timber.d("emit!"));
+                        .flatMap(cacheApi::persistChatEvents));
     }
 
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, Date start, Date end) {

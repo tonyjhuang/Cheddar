@@ -15,6 +15,11 @@ import java.util.List;
 public class ChatRoomListAdapter extends BaseAdapter {
 
     private List<ChatRoomInfo> infoList = new ArrayList<>();
+    private final String currentUserId;
+
+    public ChatRoomListAdapter(String currentUserId) {
+        this.currentUserId = currentUserId;
+    }
 
     public void setInfoList(List<ChatRoomInfo> infoList) {
         this.infoList = infoList;
@@ -42,7 +47,7 @@ public class ChatRoomListAdapter extends BaseAdapter {
             convertView = ChatRoomItemView_.build(parent.getContext());
         }
         ChatRoomItemView view = (ChatRoomItemView) convertView;
-        view.setChatRoomInfo(getItem(position));
+        view.setChatRoomInfo(getItem(position), currentUserId);
         return view;
     }
 }

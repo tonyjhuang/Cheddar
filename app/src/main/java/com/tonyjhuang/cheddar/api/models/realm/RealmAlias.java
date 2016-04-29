@@ -18,11 +18,12 @@ public class RealmAlias extends RealmObject implements ValueSource{
     private boolean active;
     private String chatRoomId;
     private String userId;
+    private int colorId;
 
     @Override
     public Alias toValue() {
         MetaData metaData = MetaData.create(objectId, createdAt, updatedAt);
-        return Alias.create(metaData, name, active, chatRoomId, userId);
+        return Alias.create(metaData, name, active, chatRoomId, userId, colorId);
     }
 
     public String getObjectId() {
@@ -79,5 +80,13 @@ public class RealmAlias extends RealmObject implements ValueSource{
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public int getColorId() {
+        return colorId;
+    }
+
+    public void setColorId(int colorId) {
+        this.colorId = colorId;
     }
 }

@@ -19,7 +19,6 @@ import java.util.List;
  */
 public class AliasListDialog extends AlertDialog {
 
-    private LinearLayout container;
     private List<Alias> aliases;
     private String currentUserId;
 
@@ -51,12 +50,10 @@ public class AliasListDialog extends AlertDialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_alias_list);
-        container = (LinearLayout) findViewById(R.id.alias_container);
+        LinearLayout container = (LinearLayout) findViewById(R.id.alias_container);
+        assert container != null;
 
         PrettyTime prettyTime = new PrettyTime();
-
-        int incomingColor = getContext().getResources().getColor(R.color.chat_author_background_incoming);
-        int outgoingColor = getContext().getResources().getColor(R.color.chat_author_background_outgoing);
 
         for (Alias alias : aliases) {
             View aliasView = View.inflate(getContext(), R.layout.row_alias_alias, null);
@@ -64,13 +61,7 @@ public class AliasListDialog extends AlertDialog {
             TextView aliasName = (TextView) aliasView.findViewById(R.id.alias_name);
             TextView joinedAt = (TextView) aliasView.findViewById(R.id.joined_at);
 
-            if(alias.userId().equals(currentUserId)) {
-                aliasDisplay.setColor(outgoingColor);
-            } else {
-                aliasDisplay.setColor(incomingColor);
-            }
-
-            aliasDisplay.setAliasName(alias.name());
+            aliasDisplay.setAlias(alias, alias.userId().equals(currentUserId));
             aliasName.setText(alias.name());
             joinedAt.setText(getContext().getString(R.string.chat_alias_timestamp,
                     prettyTime.format(alias.createdAt())));

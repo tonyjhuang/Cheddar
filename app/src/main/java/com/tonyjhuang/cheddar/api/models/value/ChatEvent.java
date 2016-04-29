@@ -1,6 +1,7 @@
 package com.tonyjhuang.cheddar.api.models.value;
 
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import com.google.auto.value.AutoValue;
 import com.google.gson.Gson;
@@ -26,17 +27,19 @@ public abstract class ChatEvent implements Parcelable {
         String objectId = UUID.randomUUID().toString();
         Date now = new Date();
         MetaData metaData = MetaData.create(objectId, now, now);
-        return create(metaData, ChatEventType.MESSAGE, alias, body);
+        return create(metaData, objectId, ChatEventType.MESSAGE, alias, body);
     }
 
 
     public static ChatEvent create(MetaData metaData,
+                                   String messageId,
                                    ChatEventType type,
                                    Alias alias,
                                    String body) {
         return new AutoValue_ChatEvent(metaData.objectId(),
                 metaData.createdAt(),
                 metaData.updatedAt(),
+                messageId,
                 type,
                 alias,
                 body);
@@ -63,6 +66,9 @@ public abstract class ChatEvent implements Parcelable {
 
     public abstract Date updatedAt();
 
+    @Nullable
+    public abstract String messageId();
+
     public abstract ChatEventType type();
 
     public abstract Alias alias();
@@ -74,7 +80,12 @@ public abstract class ChatEvent implements Parcelable {
         if (o == null || getClass() != o.getClass()) return false;
 
         ChatEvent that = (ChatEvent) o;
-        return objectId().equals(that.objectId());
+        if(type() == ChatEventType.MESSAGE) {
+            String messageId = messageId();
+            return messageId != null && messageId.equals(that.messageId());
+        } else {
+            return objectId().equals(that.objectId());
+        }
     }
 
     public int hashCode() {

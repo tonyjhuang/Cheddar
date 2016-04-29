@@ -18,10 +18,6 @@ public class IncomingMessageView extends MessageView {
     int incomingTextBackgroundColor;
     @ColorRes(R.color.chat_text_incoming)
     int incomingTextColor;
-    @ColorRes(R.color.chat_author_text_incoming)
-    int incomingAuthorTextColor;
-    @ColorRes(R.color.chat_author_background_incoming)
-    int incomingAuthorBackgroundColor;
 
     public IncomingMessageView(Context context) {
         super(context);
@@ -30,10 +26,7 @@ public class IncomingMessageView extends MessageView {
     @Override
     public void updateViews() {
         super.updateViews();
-
-        authorDisplayView.setColor(incomingAuthorBackgroundColor);
-        authorDisplayView.setTextColor(incomingAuthorTextColor);
-
+        authorDisplayView.setAlias(info.chatEvent.alias(), false);
         ((GradientDrawable) bodyView.getBackground()).setColor(incomingTextBackgroundColor);
         bodyView.setTextColor(incomingTextColor);
     }

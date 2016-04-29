@@ -14,6 +14,7 @@ public class RealmChatEvent extends RealmObject implements ValueSource {
     private String objectId;
     private Date createdAt;
     private Date updatedAt;
+    private String messageId;
     private String type;
     private RealmAlias alias;
     private String body;
@@ -21,7 +22,11 @@ public class RealmChatEvent extends RealmObject implements ValueSource {
     @Override
     public ChatEvent toValue() {
         MetaData metaData = MetaData.create(objectId, createdAt, updatedAt);
-        return ChatEvent.create(metaData, ChatEvent.ChatEventType.fromString(type), alias.toValue(), body);
+        return ChatEvent.create(metaData,
+                messageId,
+                ChatEvent.ChatEventType.fromString(type),
+                alias.toValue(),
+                body);
     }
 
     public String getObjectId() {
@@ -46,6 +51,14 @@ public class RealmChatEvent extends RealmObject implements ValueSource {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     public String getType() {

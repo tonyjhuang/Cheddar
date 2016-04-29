@@ -1,7 +1,10 @@
 package com.tonyjhuang.cheddar.ui.list;
 
+import android.support.v4.util.Pair;
+
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
 import com.tonyjhuang.cheddar.ui.chat.ChatRoomPresenterImpl;
 import com.tonyjhuang.cheddar.utils.Scheduler;
@@ -17,9 +20,6 @@ import rx.Observable;
 import rx.Subscription;
 import timber.log.Timber;
 
-/**
- * Created by tonyjhuang on 4/14/16.
- */
 @EBean
 public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
 
@@ -57,13 +57,16 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     /**
      * Fetch the list of ChatRoomInfos.
      */
-    private Observable<List<ChatRoomInfo>> refreshChatList() {
+    private Observable<Pair<User, List<ChatRoomInfo>>> refreshChatList() {
         // Only subscribe if the list hasn't been loaded yet.
-        return api.getChatRooms()
+        return Observable.zip(
+                api.getCurrentUser(),
+                api.getChatRooms(),
+                Pair::new)
                 .compose(Scheduler.defaultSchedulers())
-                .doOnNext(infos -> {
-                    Timber.i(infos.toString());
-                    if (view != null) view.displayList(infos);
+                .doOnNext(result -> {
+                    Timber.i(result.second.toString());
+                    if (view != null) view.displayList(result.second, result.first.objectId());
                 }).doOnError(error -> {
                     Timber.e("couldn't get list: " + error);
                     if (view != null) view.showGetListError();
@@ -82,9 +85,9 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                 .doOnError(error -> Timber.e("uhoh: " + error))
                 .subscribe(alias -> {
                     unsubscribe(chatRoomSubscription);
-                    chatRoomSubscription = refreshChatList().subscribe(infos -> {
+                    chatRoomSubscription = refreshChatList().subscribe(result -> {
                         if (view != null) {
-                            view.displayList(infos);
+                            view.displayList(result.second, result.first.objectId());
                             view.navigateToChatView(alias.objectId());
                         }
                     }, error -> {

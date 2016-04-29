@@ -5,6 +5,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
+import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 import com.tonyjhuang.cheddar.utils.TimeUtils;
 
@@ -52,9 +53,7 @@ public abstract class MessageView extends RelativeLayout {
     }
 
     public void updateViews() {
-        String aliasName = WordUtils.capitalizeFully(info.chatEvent.alias().name());
-        authorFullNameView.setText(aliasName);
-        authorDisplayView.setAliasName(aliasName);
+        authorFullNameView.setText(info.chatEvent.alias().displayName());
         bodyView.setText(info.chatEvent.body());
         setPosition(position);
     }

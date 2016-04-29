@@ -239,6 +239,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         if (chatEventSubscription == null || chatEventSubscription.isUnsubscribed()) {
             // Subscribe to cached and future chat events.
             chatEventSubscription = cacheChatEventSubject
+                    .doOnNext(chatEvent -> Timber.i("new chat event: " + chatEvent))
                     .map(chatEvent -> new ChatEvent[]{chatEvent})
                     .map(Arrays::asList)
                     .compose(Scheduler.defaultSchedulers())
@@ -293,6 +294,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         cacheChatEventSubject = ReplaySubject.create();
         return chatEventObservable
                 .compose(Scheduler.backgroundSchedulers())
+                .doOnNext(ce -> Timber.i("??? " + ce))
                 .subscribe(cacheChatEventSubject);
     }
 
@@ -344,7 +346,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private Subscription subscribeToCacheHistoryChatEventSubject() {
         return cacheHistoryChatEventSubject
                 .compose(Scheduler.defaultSchedulers())
-                .doOnNext(chatEvents -> Timber.d("old chat events: %d", chatEvents.size()))
                 .subscribe(chatEvents -> {
                     sendViewOldChatEvents(chatEvents);
                     reachedEndOfMessages = chatEvents.size() < REPLAY_COUNT;

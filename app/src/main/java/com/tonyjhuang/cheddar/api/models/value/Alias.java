@@ -21,11 +21,12 @@ public abstract class Alias implements Parcelable{
                                String name,
                                boolean active,
                                String chatRoomId,
-                               String userId) {
+                               String userId,
+                               int colorId) {
         return new AutoValue_Alias(metaData.objectId(),
                 metaData.createdAt(),
                 metaData.updatedAt(),
-                name, active, chatRoomId, userId);
+                name, active, chatRoomId, userId, colorId);
     }
 
     public static TypeAdapter<Alias> typeAdapter(Gson gson) {
@@ -49,6 +50,8 @@ public abstract class Alias implements Parcelable{
     public abstract String chatRoomId();
 
     public abstract String userId();
+
+    public abstract int colorId();
 
     public boolean equals(Object o) {
         if (this == o) return true;

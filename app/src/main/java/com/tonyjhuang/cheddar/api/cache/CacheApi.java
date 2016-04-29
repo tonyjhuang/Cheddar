@@ -216,7 +216,7 @@ public class CacheApi {
      */
     private <T> Observable.Transformer<String, T> persistJson(Class clazz, T returnValue) {
         return o -> o
-                .doOnNext(s -> Timber.i("persisting: " + s))
+                .doOnNext(s -> Timber.v("persisting: " + s))
                 .doOnNext(saveToDisk(clazz))
                 .map(s -> returnValue);
     }

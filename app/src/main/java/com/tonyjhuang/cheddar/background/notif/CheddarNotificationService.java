@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
@@ -37,7 +36,6 @@ public class CheddarNotificationService {
 
     private static final Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
     private static final long[] vibratePattern = new long[]{0, 250, 250, 500};
-    private static Typeface typeface;
 
     @SystemService
     NotificationManager notificationManager;
@@ -72,14 +70,7 @@ public class CheddarNotificationService {
     private Bitmap getAuthorBitmap(Context context, Alias alias) {
         AliasDisplayView_ aliasDisplayView = (AliasDisplayView_)
                 View.inflate(context, R.layout.stub_notif_author_view, null);
-        aliasDisplayView.setAliasName(alias.name());
-        aliasDisplayView.setTextColor(incomingAuthorTextColor);
-        ((GradientDrawable) aliasDisplayView.getBackground()).setColor(incomingAuthorBackgroundColor);
-
-        if (typeface == null) {
-            typeface = Typeface.createFromAsset(context.getAssets(), "Effra-Medium.ttf");
-        }
-        aliasDisplayView.setTypeface(typeface);
+        aliasDisplayView.setAlias(alias, false);
 
         // Measure view so height and width are not 0
         aliasDisplayView.measure(View.MeasureSpec.makeMeasureSpec(largeIconDimen, View.MeasureSpec.EXACTLY),
