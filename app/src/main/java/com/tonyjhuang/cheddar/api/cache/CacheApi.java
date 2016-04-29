@@ -64,6 +64,17 @@ public class CacheApi {
      * Alias
      ****************/
 
+    public Observable<Alias> getAliasForChatRoom(String currentUserId, String chatRoomId) {
+        return Observable.defer(() -> {
+            Realm realm = Realm.getDefaultInstance();
+            return Observable.just(realm.copyFromRealm(realm.where(RealmAlias.class)
+                    .equalTo("userId", currentUserId)
+                    .equalTo("chatRoomId", chatRoomId)
+                    .findFirst()))
+                    .map(RealmAlias::toValue);
+        });
+    }
+
     public Observable<Alias> getAlias(String aliasId) {
         return Observable.defer(getFirst(aliasId, RealmAlias.class));
     }

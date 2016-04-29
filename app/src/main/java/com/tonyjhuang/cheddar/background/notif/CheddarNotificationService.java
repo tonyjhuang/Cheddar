@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -19,6 +18,7 @@ import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_;
+import com.tonyjhuang.cheddar.utils.Scheduler;
 import com.tonyjhuang.cheddar.utils.StringUtils;
 
 import org.androidannotations.annotations.Bean;
@@ -26,6 +26,8 @@ import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.res.ColorRes;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
+
+import timber.log.Timber;
 
 /**
  * Created by tonyjhuang on 3/15/16.
@@ -58,13 +60,19 @@ public class CheddarNotificationService {
         String chatRoomId = chatEvent.alias().chatRoomId();
         String contentText = chatEvent.displayBody();
 
-        NotificationCompat.Builder builder = getBuilder(context, chatEvent.alias().objectId())
-                .setLargeIcon(getAuthorBitmap(context, chatEvent.alias()))
-                .setContentText(StringUtils.boldSubstring(contentText, chatEvent.alias().displayName()))
-                .setTicker(contentText)
-                .setNumber(unreadMessagesCounter.get(chatRoomId));
+        api.getAliasForChatRoom(chatRoomId)
+                .compose(Scheduler.defaultSchedulers())
+                .subscribe(currentUserAlias -> {
+                    NotificationCompat.Builder builder = getBuilder(context, currentUserAlias.objectId())
+                            .setLargeIcon(getAuthorBitmap(context, chatEvent.alias()))
+                            .setContentText(StringUtils.boldSubstring(contentText, chatEvent.alias().displayName()))
+                            .setTicker(contentText)
+                            .setNumber(unreadMessagesCounter.get(chatRoomId));
 
-        notificationManager.notify(chatRoomId.hashCode(), builder.build());
+                    notificationManager.notify(chatRoomId.hashCode(), builder.build());
+                }, error -> Timber.e(error, "couldn't fetch Alias for chatRoom " + chatRoomId));
+
+
     }
 
     private Bitmap getAuthorBitmap(Context context, Alias alias) {
@@ -98,6 +106,9 @@ public class CheddarNotificationService {
         );
     }
 
+    /**
+     * Creates a Notification Builder. Takes the CURRENT USER's Alias id.
+     */
     private NotificationCompat.Builder getBuilder(Context context, String aliasId) {
         return new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.notif_icon)

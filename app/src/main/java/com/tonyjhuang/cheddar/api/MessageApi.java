@@ -128,6 +128,7 @@ public class MessageApi {
          * to a channel.
          */
         public void onError(PubnubException error) {
+            Timber.e(error, "onerror?");
             if (subscriber != null && !subscriber.isUnsubscribed()) {
                 subscriber.onError(error);
             } else {

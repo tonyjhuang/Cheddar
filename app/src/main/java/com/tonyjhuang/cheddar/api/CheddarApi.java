@@ -87,6 +87,11 @@ public class CheddarApi {
     //                Aliases
     //******************************************************
 
+    public Observable<Alias> getAliasForChatRoom(String chatRoomId) {
+        return getCurrentUser().map(User::objectId)
+                .flatMap(userId -> cacheApi.getAliasForChatRoom(userId, chatRoomId));
+    }
+
     public Observable<Alias> getAlias(String aliasId) {
         return parseApi.findAlias(aliasId)
                 .flatMap(cacheApi::persist);
@@ -143,6 +148,7 @@ public class CheddarApi {
     }
 
     public Observable<ChatEvent> getMessageStream(String aliasId) {
+        Timber.d("cough");
         return getAlias(aliasId)
                 .map(Alias::chatRoomId)
                 .flatMap(messageApi::subscribe)
