@@ -3,7 +3,6 @@ package com.tonyjhuang.cheddar.ui.customviews;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 /**
@@ -11,8 +10,6 @@ import android.widget.ListView;
  * new elements to the top.
  */
 public class PreserveScrollStateListView extends ListView {
-
-    private static final String TAG = PreserveScrollStateListView.class.getSimpleName();
 
     private int savedFirstVisiblePosition;
     private int savedFirstVisibleChildHeight;
@@ -30,8 +27,8 @@ public class PreserveScrollStateListView extends ListView {
 
     public PreserveScrollStateListView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        if(!isInEditMode())
-        getViewTreeObserver().addOnPreDrawListener(() -> shouldDraw);
+        if (!isInEditMode())
+            getViewTreeObserver().addOnPreDrawListener(() -> shouldDraw);
     }
 
     public void pauseDrawing() {
@@ -43,7 +40,7 @@ public class PreserveScrollStateListView extends ListView {
 
         savedFirstVisiblePosition = getFirstVisiblePosition();
         savedNumberOfItems = getAdapter().getCount();
-        View firstVisibleChild = getChildAt(savedFirstVisiblePosition);
+        View firstVisibleChild = getChildAt(0);
         if (firstVisibleChild != null) {
             savedFirstVisibleChildHeight = firstVisibleChild.getHeight();
             savedFirstVisibleChildTop = firstVisibleChild.getTop();
@@ -55,13 +52,16 @@ public class PreserveScrollStateListView extends ListView {
     }
 
     public void restoreScrollStateAndResumeDrawing() {
-        ListAdapter adapter = getAdapter();
-        if (savedNumberOfItems == 0 || adapter == null) {
+        if (getAdapter() == null) {
+            resumeDrawing();
+            return;
+        }
+        int numberOfAddedChildren = getCount() - savedNumberOfItems;
+        if (savedNumberOfItems == 0 || numberOfAddedChildren == 0) {
             resumeDrawing();
             return;
         }
 
-        int numberOfAddedChildren = getAdapter().getCount() - savedNumberOfItems;
         int restoreToIndex = numberOfAddedChildren + savedFirstVisiblePosition;
         int newChildHeight = getMeasuredHeightOfChild(restoreToIndex);
         int heightDifference = newChildHeight - savedFirstVisibleChildHeight;
@@ -71,14 +71,18 @@ public class PreserveScrollStateListView extends ListView {
         if (restoreToTop > 0) {
             setSelectionFromTop(restoreToIndex, restoreToTop);
         } else {
-            while (--restoreToIndex >= 0 && restoreToTop < 0) {
+            while (restoreToIndex > 0 && restoreToTop < 0) {
+                restoreToIndex -= 1;
                 int childHeight = getMeasuredHeightOfChild(restoreToIndex);
+                if (childHeight > (restoreToTop * -1)) {
+                    break;
+                }
                 restoreToTop += childHeight;
             }
-            setSelectionFromTop(Math.max(restoreToIndex, 0), Math.max(restoreToTop, 0));
+            setSelectionFromTop(Math.max(restoreToIndex, 0), restoreToTop);
         }
-
         post(this::resumeDrawing);
+
     }
 
     private int getMeasuredHeightOfChild(int position) {

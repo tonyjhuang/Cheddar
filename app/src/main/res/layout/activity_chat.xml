@@ -22,10 +22,10 @@
 
     <ProgressBar
         android:id="@+id/message_loading"
-        android:alpha="0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
+        android:layout_centerInParent="true"
+        android:alpha="0" />
 
     <com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView
         android:id="@+id/message_list_view"
@@ -39,7 +39,6 @@
         android:divider="@null"
         android:listSelector="@android:color/transparent"
         android:paddingBottom="8dp"
-        android:paddingTop="12dp"
         android:transcriptMode="normal"
         tools:listitem="@layout/row_chat_message_left" />
 
@@ -52,15 +51,15 @@
         android:layout_marginBottom="12dp"
         android:alpha="0"
         android:background="@drawable/new_messages_indicator_bg"
+        android:elevation="4dp"
         android:gravity="center"
         android:paddingLeft="28dp"
         android:paddingRight="28dp"
-        android:textSize="12sp"
         android:text="@string/chat_new_messages"
+        android:textColor="@color/text_primary_light"
         android:textColorHighlight="@color/text_primary_light"
-        android:elevation="4dp"
         android:textColorLink="@color/text_primary_light"
-        android:textColor="@color/text_primary_light" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/network_connection_error"
@@ -158,4 +157,20 @@
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         android:textColor="@color/text_tertiary" />
+
+    <SeekBar
+        android:id="@+id/top"
+        android:max="500"
+        android:progress="250"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/position" />
+
+    <SeekBar
+        android:max="10"
+        android:id="@+id/position"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
 </RelativeLayout>

@@ -7,7 +7,6 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +15,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.CheddarActivity;
@@ -46,14 +46,18 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Created by tonyjhuang on 2/18/16.
  */
 @EActivity(R.layout.activity_chat)
 public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
+    /**
+     * Max number of characters allowed per message.
+     */
     public static final int CHARACTER_COUNT_MAX = 250;
-    private static final String TAG = ChatActivity.class.getSimpleName();
     @ViewById(R.id.toolbar)
     ClickableTitleToolbar toolbar;
 
@@ -112,9 +116,16 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
      */
     private LoadingDialog leaveChatRoomDialog;
 
+    @ViewById
+    SeekBar position;
+
+    @ViewById
+    SeekBar top;
+
+
     @AfterInject
     public void afterInject() {
-        Log.d(TAG, "afterInject");
+        Timber.v("afterInject");
         presenter.setView(this);
         presenter.setAliasId(aliasId);
     }
@@ -212,11 +223,9 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 chatEventListView.getLastVisiblePosition() == adapter.getCount() - 1;
 
         chatEventListView.pauseDrawing();
-        for (ChatEvent chatEvent : chatEvents) {
-            adapter.addOrUpdateMessageEvent(chatEvent, true);
-        }
+        adapter.addOrUpdateChatEvents(chatEvents, true);
 
-        chatEventListView.animate().alpha(1f).setDuration(250);
+        showListView(true);
         chatEventListView.post(() -> {
             if (isBottomAnchored) {
                 chatEventListView.setSelection(adapter.getCount() - 1);
@@ -231,21 +240,23 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @Override
     public void displayOldChatEvents(String currentUserId, List<ChatEvent> chatEvents) {
         setUpChatEventListView(currentUserId);
-        chatEventListView.saveScrollStateAndPauseDrawing();
-        for (ChatEvent chatEvent : chatEvents) {
-            adapter.addOrUpdateMessageEvent(chatEvent, false);
-        }
+        if(chatEvents.size() == 0) return;
         chatEventListView.post(() -> {
-            if (firstLoad) {
-                // Scroll to the bottom of the list on first load to show
-                // the newest messages first.
-                firstLoad = false;
-                chatEventListView.setSelection(adapter.getCount() - 1);
-                chatEventListView.resumeDrawing();
-            } else {
-                chatEventListView.restoreScrollStateAndResumeDrawing();
-            }
-            showListView(true);
+            chatEventListView.saveScrollStateAndPauseDrawing();
+            adapter.addOrUpdateChatEvents(chatEvents, false);
+            chatEventListView.post(() -> {
+                if (firstLoad) {
+                    // Scroll to the bottom of the list on first load to show
+                    // the newest messages first.
+                    firstLoad = false;
+                    chatEventListView.setSelection(adapter.getCount() - 1);
+                    chatEventListView.resumeDrawing();
+                    showListView(true);
+                } else {
+                    chatEventListView.restoreScrollStateAndResumeDrawing();
+                }
+                showListView(true);
+            });
         });
     }
 
@@ -262,6 +273,19 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         adapter = new ChatEventListAdapter(currentUserId);
         chatEventListView.setAdapter(adapter);
         chatEventListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            /**
+             * Keep track of our last firstVisibleItem. This is two cover the
+             * following two cases:
+             * 1. The user is at the top of the list and scrolls around in small increments.
+             *    We don't want to spam our presenter with requests and perform extraneous actions.
+             * 2. The user is at the top of the list and the presenter loads more items in.
+             *    Even if the new items don't change the list, we can expect our adapter to
+             *    redraw. On this redraw, onScroll will be called. We don't want to cause an
+             *    infinite loop, where the presenter is constantly feeding us stale data and
+             *    we're constantly asking for the same stale data over and over.
+             */
+            private int lastFirstVisibleItem = 0;
+
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
 
@@ -269,9 +293,14 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem == 0) presenter.loadMoreMessages();
-                if (view.getLastVisiblePosition() == adapter.getCount() - 1 && newMessagesIndicator.getAlpha() == 1)
+                if (lastFirstVisibleItem == firstVisibleItem) return;
+                if (firstVisibleItem == 0) {
+                    presenter.loadMoreMessages();
+                }
+                if (view.getLastVisiblePosition() == adapter.getCount() - 1 && newMessagesIndicator.getAlpha() == 1) {
                     showNewMessagesIndicator(false);
+                }
+                lastFirstVisibleItem = firstVisibleItem;
             }
         });
     }
@@ -379,7 +408,6 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
             case R.id.action_report:
                 showToast(R.string.report_coming_soon);
                 CheddarMetrics.trackReportUser(CheddarMetrics.ReportUserLifecycle.CLICKED);
-                Log.d(TAG, "report");
                 return true;
             case R.id.action_leave:
                 promptToLeaveChatRoom();

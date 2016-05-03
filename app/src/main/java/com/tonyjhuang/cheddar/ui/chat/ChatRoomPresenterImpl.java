@@ -3,7 +3,6 @@ package com.tonyjhuang.cheddar.ui.chat;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.os.Handler;
 
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
@@ -328,6 +327,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         if (!ConnectivityBroadcastReceiver.isConnected(context)) return;
 
         if (loadingMessages || reachedEndOfMessages) return;
+        Timber.d("loading messages..");
         loadingMessages = true;
         firstLoad = false;
 
@@ -346,10 +346,11 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private Subscription subscribeToCacheHistoryChatEventSubject() {
         return cacheHistoryChatEventSubject
                 .compose(Scheduler.defaultSchedulers())
+                .doAfterTerminate(() -> loadingMessages = false)
                 .subscribe(chatEvents -> {
-                    sendViewOldChatEvents(chatEvents);
+                    Timber.d("displaying old chat events..");
                     reachedEndOfMessages = chatEvents.size() < REPLAY_COUNT;
-                    new Handler().postDelayed(() -> loadingMessages = false, 250);
+                    sendViewOldChatEvents(chatEvents);
                 }, e -> {
                     Timber.e("Failed to load more messages: " + e.toString());
                     view.displayLoadHistoryChatEventsError();

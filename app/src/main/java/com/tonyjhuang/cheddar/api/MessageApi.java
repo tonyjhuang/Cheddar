@@ -33,6 +33,7 @@ public class MessageApi {
     }
 
     public Observable<Object> subscribe(String channel) {
+        Timber.d("channel: " + channel);
         if (channelObservables.containsKey(channel)) {
             return channelObservables.get(channel).getObservable();
         } else {

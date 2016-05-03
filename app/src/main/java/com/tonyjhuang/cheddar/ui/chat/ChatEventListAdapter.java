@@ -31,19 +31,16 @@ public class ChatEventListAdapter extends BaseAdapter {
     private static final int MESSAGE_LEFT = 0;
     private static final int MESSAGE_RIGHT = 1;
     private static final int PRESENCE = 2;
-
+    /**
+     * Used for determining the direction of new Messages.
+     */
+    private final String currentUserId;
     List<ChatEventViewInfo> itemViewInfos = new ArrayList<>();
-
     /**
      * Holds indices to all of the placeholder messages in itemViewInfos.
      * INVARIANT: These indices MUST point to MessageChatItemViewInfos.
      */
     List<Integer> placeholderMessageIndexes = new ArrayList<>();
-
-    /**
-     * Used for determining the direction of new Messages.
-     */
-    private final String currentUserId;
 
     public ChatEventListAdapter(String currentUserId) {
         this.currentUserId = currentUserId;
@@ -54,17 +51,20 @@ public class ChatEventListAdapter extends BaseAdapter {
      * then this method will attempt to add it to the end of the list (most recent) and
      * search for the proper state backwards.
      */
-    public void addOrUpdateMessageEvent(ChatEvent chatEvent, boolean addToEnd) {
-        switch (chatEvent.type()) {
-            case MESSAGE:
-                addOrUpdateMessage(chatEvent, addToEnd);
-                break;
-            case PRESENCE:
-                addPresence(chatEvent, addToEnd);
-                break;
-            default:
-                Log.e(TAG, "Encountered unrecognized ChatEvent: " + chatEvent.toString());
+    public void addOrUpdateChatEvents(List<ChatEvent> chatEvents, boolean addToEnd) {
+        for (ChatEvent chatEvent : chatEvents) {
+            switch (chatEvent.type()) {
+                case MESSAGE:
+                    addOrUpdateMessage(chatEvent, addToEnd);
+                    break;
+                case PRESENCE:
+                    addPresence(chatEvent, addToEnd);
+                    break;
+                default:
+                    Log.e(TAG, "Encountered unrecognized ChatEvent: " + chatEvent.toString());
+            }
         }
+        notifyDataSetChanged();
     }
 
     /**
@@ -93,6 +93,7 @@ public class ChatEventListAdapter extends BaseAdapter {
      */
     public void notifyFailed(ChatEvent message) {
         updateOutgoingMessage(message, Status.FAILED, true);
+        notifyDataSetChanged();
     }
 
     /**
@@ -131,7 +132,7 @@ public class ChatEventListAdapter extends BaseAdapter {
                     break;
                 }
             }
-            if(indexOfNewViewInfo == -1)
+            if (indexOfNewViewInfo == -1)
                 indexOfNewViewInfo = 0; // Fell out of loop without assigning.
         } else {
             for (int i = 0; i < itemViewInfos.size(); i++) {
@@ -143,7 +144,7 @@ public class ChatEventListAdapter extends BaseAdapter {
                     break;
                 }
             }
-            if(indexOfNewViewInfo == -1)
+            if (indexOfNewViewInfo == -1)
                 indexOfNewViewInfo = itemViewInfos.size(); // Fell out of loop.
         }
 
@@ -158,7 +159,6 @@ public class ChatEventListAdapter extends BaseAdapter {
                 break;
             }
         }
-        notifyDataSetChanged();
     }
 
     /**

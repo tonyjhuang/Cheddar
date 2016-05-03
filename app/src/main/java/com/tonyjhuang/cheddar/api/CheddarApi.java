@@ -196,6 +196,7 @@ public class CheddarApi {
                         .doOnNext(response -> replayPagerToken = response.startTimeToken)
                         .map(response -> response.chatEvents)
                         .doOnNext(Collections::reverse)
+                        .doOnNext(chatEvents -> Timber.i("network chatEvents: %d", chatEvents.size()))
                         .flatMap(cacheApi::persistChatEvents));
     }
 
