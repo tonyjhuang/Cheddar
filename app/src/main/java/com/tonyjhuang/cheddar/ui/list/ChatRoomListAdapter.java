@@ -6,18 +6,18 @@ import android.widget.BaseAdapter;
 
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 
+import org.androidannotations.annotations.EBean;
+
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by tonyjhuang on 4/5/16.
- */
+@EBean
 public class ChatRoomListAdapter extends BaseAdapter {
 
     private List<ChatRoomInfo> infoList = new ArrayList<>();
-    private final String currentUserId;
+    private String currentUserId;
 
-    public ChatRoomListAdapter(String currentUserId) {
+    public void setCurrentUserId(String currentUserId) {
         this.currentUserId = currentUserId;
     }
 

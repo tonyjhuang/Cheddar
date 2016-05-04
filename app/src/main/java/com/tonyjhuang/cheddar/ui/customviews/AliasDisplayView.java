@@ -2,6 +2,7 @@ package com.tonyjhuang.cheddar.ui.customviews;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
 import android.view.View;
@@ -20,12 +21,10 @@ import org.androidannotations.annotations.res.DimensionRes;
 import org.androidannotations.annotations.res.IntArrayRes;
 
 /**
- * YOU MUST SET THE STYLE TO R.style.AliasDisplay IN XML
- * SINCE YOU CANNOT UPDATE STYLES PROGRAMMATICALLY (for some reason).
+ * Displays a single Alias in a bubble using its initials.
  */
 @EViewGroup(R.layout.view_alias_display)
 public class AliasDisplayView extends FrameLayout {
-
     @ColorRes(R.color.chat_author_text)
     int textColor;
 
@@ -37,14 +36,16 @@ public class AliasDisplayView extends FrameLayout {
 
     @DimensionRes(R.dimen.chat_bubble_author_text_size)
     float defaultAuthorTextSize;
-
-    private float authorTextSize;
-
     @ViewById(R.id.background)
     View background;
-
+    @ViewById(R.id.unread_indicator)
+    View unreadIndicator;
     @ViewById(R.id.author_text)
     TextView authorText;
+    /**
+     * Size of our authorText set in AttributeSet.
+     */
+    private float authorTextSize;
 
     public AliasDisplayView(Context context) {
         this(context, null);
@@ -66,27 +67,42 @@ public class AliasDisplayView extends FrameLayout {
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                ((GradientDrawable) background.getBackground()).setCornerRadius(getMeasuredHeight() / 2);
                 getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                resize();
             }
         });
     }
 
+    /**
+     * Resize the view according to its current dimensions. Should only be called publicly
+     * if you've manually changed the view dimens and you need to force a resize.
+     */
+    public void resize() {
+        int measuredHeight = getMeasuredHeight();
+        ((GradientDrawable) background.getBackground()).setCornerRadius(measuredHeight / 2);
+
+        // Style unread message indicator.
+        // Lots of magic numbers ^_^
+        int unreadIndicatorDimen = measuredHeight / 4;
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(unreadIndicatorDimen, unreadIndicatorDimen);
+        lp.leftMargin = measuredHeight / 14;
+        unreadIndicator.setLayoutParams(lp);
+        GradientDrawable backgroundGradient = (GradientDrawable) unreadIndicator.getBackground();
+        backgroundGradient.setStroke(unreadIndicatorDimen / 7, getResources().getColor(R.color.ui_light_gray));
+    }
+
     @AfterViews
     public void afterViews() {
-        if(authorTextSize == -1) {
+        if (authorTextSize == -1 || authorTextSize == 0) {
             authorTextSize = defaultAuthorTextSize;
         }
-        // Descale dimension to actual value.
-        // i.e. android will scale a 16sp dimen to 32sp on a 2x density device, we want to
-        // descale that back to 16.
-        authorTextSize /= getResources().getDisplayMetrics().density;
-        authorText.setTextSize(authorTextSize);
+        setTextSize(authorTextSize);
     }
 
     public void setAlias(Alias alias, boolean isCurrentUser) {
         setAliasName(alias.name());
         authorText.setTextColor(textColor);
+        authorText.setTextColor(getResources().getColor(R.color.text_primary_light));
 
         if (isCurrentUser) {
             setBgColor(outgoingBackgroundColor);
@@ -105,7 +121,24 @@ public class AliasDisplayView extends FrameLayout {
         authorText.setText(display);
     }
 
-    public void setBgColor(int color) {
+    private void setBgColor(int color) {
         ((GradientDrawable) background.getBackground()).setColor(color);
+    }
+
+    public void showUnreadMessageIndicator(boolean show) {
+        unreadIndicator.setVisibility(show ? VISIBLE : INVISIBLE);
+    }
+
+    public void setTextSize(float authorTextSize) {
+        // Descale dimension to actual value.
+        // i.e. android will scale a 16sp dimen to 32 on a 2x density device, we want to
+        // descale that back to 16.
+        authorTextSize /= getResources().getDisplayMetrics().density;
+        this.authorTextSize = authorTextSize;
+        authorText.setTextSize(authorTextSize);
+    }
+
+    public void setTypeface(Typeface typeface) {
+        authorText.setTypeface(typeface);
     }
 }

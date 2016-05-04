@@ -10,7 +10,7 @@ import org.androidannotations.annotations.EBean;
  * Keeps track of the number of unread notifications for each chat room.
  * Persists across app closes.
  */
-@EBean
+@EBean(scope = EBean.Scope.Singleton)
 public class UnreadMessagesCounter {
 
     @Bean

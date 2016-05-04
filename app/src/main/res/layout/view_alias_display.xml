@@ -20,4 +20,12 @@
         tools:ignore="MissingPrefix"
         tools:text="DC" />
 
+    <View
+        android:visibility="gone"
+        android:id="@+id/unread_indicator"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginLeft="4dp"
+        android:background="@drawable/unread_messages_indicator_bg" />
+
 </merge>

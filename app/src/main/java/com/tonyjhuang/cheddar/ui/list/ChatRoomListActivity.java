@@ -41,10 +41,12 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
 
     @Pref
     CheddarPrefs_ prefs;
-
+    @Bean
+    ChatRoomListAdapter adapter;
+    /**
+     * Loading indicator to display while joining a new ChatRoom.
+     */
     private LoadingDialog loadingDialog;
-
-    private ChatRoomListAdapter adapter;
 
     @AfterInject
     public void afterInject() {
@@ -61,8 +63,8 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
 
     @Override
     public void displayList(List<ChatRoomInfo> infoList, String currentUserId) {
-        if (adapter == null) {
-            adapter = new ChatRoomListAdapter(currentUserId);
+        adapter.setCurrentUserId(currentUserId);
+        if (listView.getAdapter() == null) {
             listView.setAdapter(adapter);
         }
         adapter.setInfoList(infoList);
@@ -76,13 +78,13 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
 
     @Override
     public void navigateToChatView(String aliasId) {
-        if(loadingDialog != null) loadingDialog.dismiss();
+        if (loadingDialog != null) loadingDialog.dismiss();
         ChatActivity_.intent(this).aliasId(aliasId).start();
     }
 
     @Override
     public void showJoinChatError() {
-        if(loadingDialog != null) loadingDialog.dismiss();
+        if (loadingDialog != null) loadingDialog.dismiss();
         showToast(R.string.list_error_join_chat);
     }
 

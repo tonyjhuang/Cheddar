@@ -6,9 +6,11 @@ import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
+import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.ColorRes;
@@ -36,23 +38,21 @@ public class ChatRoomItemView extends RelativeLayout {
     @ViewById(R.id.recent_message)
     TextView recentMessageView;
 
-    @ColorRes(R.color.chat_author_background_incoming)
-    int aliasDisplayColor;
+    @Bean
+    UnreadMessagesCounter unreadMessagesCounter;
 
     public ChatRoomItemView(Context context) {
         super(context);
     }
 
-    @AfterViews
-    public void afterViews() {
-        aliasDisplayView.setBgColor(aliasDisplayColor);
-    }
-
     public void setChatRoomInfo(ChatRoomInfo info, String currentUserId) {
         recentMessageView.setText(info.chatEvent().displayBody());
+        timestampView.setText(formatDate(info.chatEvent().updatedAt()));
+
         aliasDisplayView.setAlias(info.chatEvent().alias(),
                 currentUserId.equals(info.chatEvent().alias().userId()));
-        timestampView.setText(formatDate(info.chatEvent().updatedAt()));
+        aliasDisplayView.showUnreadMessageIndicator(
+                unreadMessagesCounter.get(info.chatRoom().objectId()) != 0);
     }
 
     /**

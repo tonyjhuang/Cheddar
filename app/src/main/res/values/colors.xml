@@ -14,6 +14,9 @@
 
     <color name="divider_gray">#dadada</color>
 
+    <!-- list -->
+    <color name="list_unread_indicator">#D76564</color>
+
     <!-- chat -->
     <color name="chat_text_light">#a0a0a0</color>
     <color name="chat_text_error_bg">@color/colorPrimaryDark</color>
