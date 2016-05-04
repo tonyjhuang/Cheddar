@@ -10,8 +10,8 @@ import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
+import com.tonyjhuang.cheddar.background.IntentFilters;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
-import com.tonyjhuang.cheddar.background.notif.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.background.notif.CheddarNotificationService;
 import com.tonyjhuang.cheddar.background.notif.PushRegistrationIntentService_;
 import com.tonyjhuang.cheddar.utils.Scheduler;
@@ -133,7 +133,16 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         chatEventObservable = api.getMessageStream(aliasId).publish();
         chatEventObservable.connect();
 
-        aliasSubscription = api.fetchAlias(aliasId)
+        // Make sure we have an active Alias from the server.
+        api.fetchAlias(aliasId).compose(Scheduler.defaultSchedulers())
+                .subscribe(alias -> {
+                    if (!alias.active()) {
+                        // Respect server switches to active status.
+                        leaveChatRoom();
+                    }
+                }, error -> onFailedToRetrieveAlias());
+
+        aliasSubscription = api.getAlias(aliasId)
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(aliasSubject);
 
@@ -269,8 +278,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private void registerReceiver(Context context, String chatRoomId) {
         if (chatPushBroadcastReceiver == null) {
             chatPushBroadcastReceiver = new ChatPushBroadcastReceiver(chatRoomId);
-            chatPushIntentFilter = new IntentFilter(CheddarGcmListenerService.MESSAGE_EVENT_ACTION);
-            chatPushIntentFilter.setPriority(100);
+            chatPushIntentFilter = IntentFilters.chatEventIntentFilter(100);
         }
         context.registerReceiver(chatPushBroadcastReceiver, chatPushIntentFilter);
     }

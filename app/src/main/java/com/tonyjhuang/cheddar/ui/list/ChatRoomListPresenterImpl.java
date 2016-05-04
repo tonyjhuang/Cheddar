@@ -1,16 +1,20 @@
 package com.tonyjhuang.cheddar.ui.list;
 
+import android.content.Context;
+import android.content.IntentFilter;
 import android.support.v4.util.Pair;
 
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
+import com.tonyjhuang.cheddar.background.IntentFilters;
 import com.tonyjhuang.cheddar.ui.chat.ChatRoomPresenterImpl;
 import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -23,6 +27,9 @@ import timber.log.Timber;
 @EBean
 public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
 
+    @RootContext
+    Context context;
+
     @Bean
     CheddarApi api;
 
@@ -30,14 +37,26 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     ParseApi pApi;
 
     /**
-     * The view's subscription to chatRoomSubject.
+     * Subscription to refreshChatList.
      */
     private Subscription chatRoomSubscription;
+
+    /**
+     * Subscription to the push notification BroadcastReceiver.
+     */
+    private Subscription pushSubscription;
 
     /**
      * That view that this presenter is presenting with.
      */
     private ChatRoomListView view;
+
+    /**
+     * BroadcastReceiver that listens for incoming push notifications.
+     */
+    @Bean
+    ChatRoomListPushBroadcastReceiver pushReceiver;
+    IntentFilter pushReceiverIntentFilter = IntentFilters.chatEventIntentFilter(100);
 
     public ChatRoomListPresenterImpl() {
         EventBus.getDefault().register(this);
@@ -52,20 +71,27 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     public void onResume() {
         unsubscribe(chatRoomSubscription);
         chatRoomSubscription = refreshChatList().publish().connect();
+        context.registerReceiver(pushReceiver, pushReceiverIntentFilter);
+        pushSubscription = pushReceiver.getChatEvents()
+                .compose(Scheduler.backgroundSchedulers())
+                .subscribe(chatEvent -> chatRoomSubscription = refreshChatList().publish().connect(),
+                        error -> Timber.e(error, "huh?"));
+
     }
 
     /**
      * Fetch the list of ChatRoomInfos.
      */
     private Observable<Pair<User, List<ChatRoomInfo>>> refreshChatList() {
+        Timber.d("refreshing?..");
         // Only subscribe if the list hasn't been loaded yet.
-        return Observable.zip(
+        return Observable.combineLatest(
                 api.getCurrentUser(),
                 api.getChatRooms(),
                 Pair::new)
                 .compose(Scheduler.defaultSchedulers())
                 .doOnNext(result -> {
-                    Timber.i(result.second.toString());
+                    Timber.i(result.second.get(0).chatEvent().toString());
                     if (view != null) view.displayList(result.second, result.first.objectId());
                 }).doOnError(error -> {
                     Timber.e("couldn't get list: " + error);
@@ -99,6 +125,8 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     @Override
     public void onPause() {
         unsubscribe(chatRoomSubscription);
+        unsubscribe(pushSubscription);
+        context.unregisterReceiver(pushReceiver);
     }
 
     @Override

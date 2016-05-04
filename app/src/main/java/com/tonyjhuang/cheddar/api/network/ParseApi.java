@@ -165,7 +165,7 @@ public class ParseApi {
      * for this user.
      */
     public Observable<List<ChatRoomInfo>> getChatRooms(String userId) {
-        return service.getChatRooms(new GetChatRoomsRequest(userId));
+        return service.getChatRooms(GetChatRoomsRequest.create(userId));
     }
 
     /**

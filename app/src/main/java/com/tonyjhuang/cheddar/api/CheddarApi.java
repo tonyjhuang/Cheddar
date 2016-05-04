@@ -121,12 +121,14 @@ public class CheddarApi {
     public Observable<List<ChatRoomInfo>> getChatRooms() {
         return getCurrentUser().map(User::objectId)
                 .flatMap(userId -> Observable.concat(
-                        Observable.empty(),
                         cacheApi.getChatRoomInfos(userId)
                                 .compose(sortChatRoomInfoList())
+                                .doOnNext(infos -> Timber.i("cached: " + infos.get(0).chatEvent()))
+                                .doOnError(error -> Timber.e(error, "couldn't get cached infolist"))
                                 .onExceptionResumeNext(Observable.empty()),
                         parseApi.getChatRooms(userId).flatMap(cacheApi::persistChatRoomInfos)
-                                .compose(sortChatRoomInfoList())));
+                                .compose(sortChatRoomInfoList())
+                                .doOnNext(infos -> Timber.i("network: " + infos.get(0).chatEvent()))));
     }
 
     private Observable.Transformer<List<ChatRoomInfo>, List<ChatRoomInfo>> sortChatRoomInfoList() {

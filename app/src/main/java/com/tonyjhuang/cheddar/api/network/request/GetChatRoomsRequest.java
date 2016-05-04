@@ -1,10 +1,19 @@
 package com.tonyjhuang.cheddar.api.network.request;
 
-public class GetChatRoomsRequest {
+import com.google.auto.value.AutoValue;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 
-    public String userId;
+@AutoValue
+public abstract class GetChatRoomsRequest {
 
-    public GetChatRoomsRequest(String userId) {
-        this.userId = userId;
+    public static GetChatRoomsRequest create(String userId) {
+        return new AutoValue_GetChatRoomsRequest(userId);
     }
+
+    public static TypeAdapter<GetChatRoomsRequest> typeAdapter(Gson gson) {
+        return new AutoValue_GetChatRoomsRequest.GsonTypeAdapter(gson);
+    }
+
+    public abstract String userId();
 }

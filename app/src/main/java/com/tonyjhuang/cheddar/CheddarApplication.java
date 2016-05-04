@@ -6,6 +6,8 @@ import com.crashlytics.android.Crashlytics;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 import java.util.regex.Pattern;
 
 import io.fabric.sdk.android.Fabric;
@@ -62,5 +64,6 @@ public class CheddarApplication extends MultiDexApplication {
                 .deleteRealmIfMigrationNeeded()
                 .build();
         Realm.setDefaultConfiguration(config);
+        JodaTimeAndroid.init(this);
     }
 }

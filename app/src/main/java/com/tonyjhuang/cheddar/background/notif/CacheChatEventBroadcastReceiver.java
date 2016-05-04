@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.tonyjhuang.cheddar.api.cache.CacheApi;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
-import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EReceiver;
@@ -13,27 +13,22 @@ import org.androidannotations.annotations.EReceiver;
 import timber.log.Timber;
 
 /**
- * Handles Gcm payloads if no Activity wants to handle it.
+ * Catches ChatEvents that come in by push notification and caches them.
  */
 @EReceiver
-public class GcmBroadcastReceiver extends BroadcastReceiver {
-
+public class CacheChatEventBroadcastReceiver extends BroadcastReceiver{
     @Bean
-    CheddarNotificationService notificationService;
-    @Bean
-    UnreadMessagesCounter unreadMessagesCounter;
+    CacheApi cacheApi;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Timber.d("onReceive!");
         if(intent.hasExtra("chatEvent")) {
             ChatEvent chatEvent = intent.getParcelableExtra("chatEvent");
-            handleChatEvent(context, chatEvent);
+            cacheApi.forcePersist(chatEvent);
+            cacheApi.getMostRecentChatEventForChatRoom(chatEvent.alias().chatRoomId())
+                    .subscribe(ce -> Timber.i("ce: " + ce));
         }
     }
 
-    private void handleChatEvent(Context context, ChatEvent parseChatEvent) {
-        notificationService.createOrUpdateChatEventNotification(context, parseChatEvent);
-        unreadMessagesCounter.increment(parseChatEvent.alias().chatRoomId());
-    }
 }

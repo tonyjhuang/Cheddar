@@ -18,8 +18,7 @@ import timber.log.Timber;
  */
 public class CheddarGcmListenerService extends GcmListenerService {
 
-    public static final String MESSAGE_EVENT_ACTION = "com.tonyjhuang.cheddar.MESSAGE_EVENT";
-    private static final String TAG = CheddarGcmListenerService.class.getSimpleName();
+    public static final String CHAT_EVENT_ACTION = "com.tonyjhuang.cheddar.CHAT_EVENT";
     private static final Gson gson = createGson();
 
 
@@ -38,7 +37,7 @@ public class CheddarGcmListenerService extends GcmListenerService {
             GcmPayload payload = gson.fromJson(payloadString, GcmPayload.class);
             if (payload instanceof GcmChatEventPayload) {
                 Timber.v("sending broadcast with chatevent: " + ((GcmChatEventPayload) payload).chatEvent);
-                Intent intent = new Intent(MESSAGE_EVENT_ACTION);
+                Intent intent = new Intent(CHAT_EVENT_ACTION);
                 intent.putExtra("chatEvent", ((GcmChatEventPayload) payload).chatEvent);
                 sendOrderedBroadcast(intent, null);
             } else {

@@ -20,6 +20,10 @@ public class ValueTypeAdapterFactory implements TypeAdapterFactory {
         try {
             if(rawType.equals(AutoValue_User.class)) {
                 return (TypeAdapter<T>) AutoValue_User.typeAdapter(gson);
+            } else if (rawType.equals(AutoValue_Alias.class)) {
+                return (TypeAdapter<T>) AutoValue_Alias.typeAdapter(gson);
+            } else if (rawType.equals(AutoValue_ChatEvent.class)) {
+                return (TypeAdapter<T>) AutoValue_ChatEvent.typeAdapter(gson);
             }
             // Call static typeAdapter method on class if it exists, otherwise
             // return the default type adapter.
