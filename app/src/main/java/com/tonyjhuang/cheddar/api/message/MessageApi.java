@@ -1,10 +1,13 @@
-package com.tonyjhuang.cheddar.api;
+package com.tonyjhuang.cheddar.api.message;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 import com.tonyjhuang.cheddar.BuildConfig;
+import com.tonyjhuang.cheddar.api.models.value.ValueTypeAdapterFactory;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
 
 import org.androidannotations.annotations.EBean;
@@ -32,7 +35,7 @@ public class MessageApi {
                 .subscribe(isConnected -> pubnub.disconnectAndResubscribe());
     }
 
-    public Observable<Object> subscribe(String channel) {
+    public Observable<MessageApiObjectHolder> subscribe(String channel) {
         Timber.d("channel: " + channel);
         if (channelObservables.containsKey(channel)) {
             return channelObservables.get(channel).getObservable();
@@ -117,12 +120,17 @@ public class MessageApi {
     }
 
     /**
-     * Propagates Pubnub events to a subscriber.
+     * Propagates Pubnub events to a subscriber in the form of MessageApiObjectHolders.
      */
     private static class PubnubObservableCallback extends Callback {
 
+        private Gson gson = new GsonBuilder()
+                .registerTypeAdapterFactory(new ValueTypeAdapterFactory())
+                .registerTypeAdapter(MessageApiObjectHolder.class, new MessageApiDeserializer())
+                .create();
+
         private PubnubException error;
-        private Subscriber<Object> subscriber;
+        private Subscriber<? super MessageApiObjectHolder> subscriber;
 
         /**
          * Call if an PubnubException is thrown while subscribing/unsubscribing
@@ -144,9 +152,9 @@ public class MessageApi {
 
         @Override
         public void successCallback(String channel, Object message) {
-            Timber.i("got object: " + message.toString());
+            Timber.v("got object: " + message.toString());
             if (subscriber != null && !subscriber.isUnsubscribed()) {
-                subscriber.onNext(message);
+                subscriber.onNext(gson.fromJson(message.toString(), MessageApiObjectHolder.class));
             }
 
         }
@@ -166,7 +174,7 @@ public class MessageApi {
             Timber.i("Disconnected..");
         }
 
-        public Observable<Object> getObservable() {
+        public Observable<MessageApiObjectHolder> getObservable() {
             return Observable.defer(() ->
                     Observable.create(subscriber -> {
                         if (error != null) {

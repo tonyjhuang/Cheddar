@@ -158,19 +158,4 @@
         android:paddingRight="8dp"
         android:textColor="@color/text_tertiary" />
 
-    <SeekBar
-        android:id="@+id/top"
-        android:max="500"
-        android:progress="250"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/position" />
-
-    <SeekBar
-        android:max="10"
-        android:id="@+id/position"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" />
-
 </RelativeLayout>

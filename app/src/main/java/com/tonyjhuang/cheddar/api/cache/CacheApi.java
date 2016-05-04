@@ -179,7 +179,7 @@ public class CacheApi {
                             getMostRecentChatEventForChatRoom(a.chatRoomId()),
                             ChatRoomInfo::create))
                     .toList()
-                    .doOnNext(infos -> Timber.d("cached infos: " + infos))
+                    .doOnNext(infos -> Timber.v("cached infos: " + infos))
                     .doAfterTerminate(realm::close);
         });
     }

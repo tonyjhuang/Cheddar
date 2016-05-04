@@ -20,6 +20,9 @@ public class ReplayChatEventDeserializer implements JsonDeserializer<ReplayChatE
 
         ReplayChatEventObjectType objectType =
                 context.deserialize(jsonObject.get("objectType"), ReplayChatEventObjectType.class);
+        if(objectType == null) {
+            return new ReplayChatEventUnknownHolder();
+        }
         switch(objectType) {
             case CHATEVENT:
                 return context.deserialize(json, ReplayChatEventChatEventHolder.class);

@@ -133,7 +133,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         chatEventObservable = api.getMessageStream(aliasId).publish();
         chatEventObservable.connect();
 
-        aliasSubscription = api.getAlias(aliasId)
+        aliasSubscription = api.fetchAlias(aliasId)
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(aliasSubject);
 
@@ -154,7 +154,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                         // Restart the connection here.
                         if (aliasSubject.hasThrowable()) {
                             aliasSubscription.unsubscribe();
-                            aliasSubscription = api.getAlias(aliasId)
+                            aliasSubscription = api.fetchAlias(aliasId)
                                     .compose(Scheduler.backgroundSchedulers())
                                     .subscribe(aliasSubject);
                         }
@@ -293,7 +293,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         cacheChatEventSubject = ReplaySubject.create();
         return chatEventObservable
                 .compose(Scheduler.backgroundSchedulers())
-                .doOnNext(ce -> Timber.i("??? " + ce))
                 .subscribe(cacheChatEventSubject);
     }
 
@@ -348,7 +347,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .compose(Scheduler.defaultSchedulers())
                 .doAfterTerminate(() -> loadingMessages = false)
                 .subscribe(chatEvents -> {
-                    Timber.d("displaying old chat events..");
                     reachedEndOfMessages = chatEvents.size() < REPLAY_COUNT;
                     sendViewOldChatEvents(chatEvents);
                 }, e -> {

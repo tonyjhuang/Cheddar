@@ -49,8 +49,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 import timber.log.Timber;
 
-import static com.tonyjhuang.cheddar.api.MessageApi.PUBKEY;
-import static com.tonyjhuang.cheddar.api.MessageApi.SUBKEY;
+import static com.tonyjhuang.cheddar.api.message.MessageApi.PUBKEY;
+import static com.tonyjhuang.cheddar.api.message.MessageApi.SUBKEY;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class ParseApi {

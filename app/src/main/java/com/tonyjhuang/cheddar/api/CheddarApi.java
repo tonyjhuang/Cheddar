@@ -5,16 +5,18 @@ import com.google.gson.GsonBuilder;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.cache.CacheApi;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
+import com.tonyjhuang.cheddar.api.message.MessageApi;
+import com.tonyjhuang.cheddar.api.message.MessageApiChatEventHolder;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
+import com.tonyjhuang.cheddar.api.models.value.ValueTypeAdapterFactory;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.sharedpreferences.Pref;
-import org.json.JSONObject;
 
 import java.util.Collections;
 import java.util.Date;
@@ -31,7 +33,9 @@ import timber.log.Timber;
 @EBean(scope = EBean.Scope.Singleton)
 public class CheddarApi {
 
-    private final Gson gson = createGson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(new ValueTypeAdapterFactory())
+            .create();
     @Bean
     MessageApi messageApi;
     @Bean
@@ -62,7 +66,7 @@ public class CheddarApi {
             if (!prefs.currentUserId().getOr("").isEmpty()) {
                 Timber.v("cached current user");
                 return cacheApi.getUser(prefs.currentUserId().get())
-                        .doOnNext(user -> Timber.d("cached user: " + user))
+                        .doOnNext(user -> Timber.v("cached user: " + user))
                         .doOnError(error -> Timber.e(error.toString()))
                         .doOnError(error -> prefs.currentUserId().remove())
                         .onExceptionResumeNext(getCurrentUser());
@@ -70,7 +74,7 @@ public class CheddarApi {
                 Timber.v("registering new user");
                 return parseApi.registerNewUser()
                         .doOnNext(user -> prefs.currentUserId().put(user.objectId()))
-                        .doOnNext(user -> Timber.d("user: " + user))
+                        .doOnNext(user -> Timber.d("registered user: " + user))
                         .flatMap(user -> cacheApi.persist(user));
             }
         });
@@ -92,9 +96,17 @@ public class CheddarApi {
                 .flatMap(userId -> cacheApi.getAliasForChatRoom(userId, chatRoomId));
     }
 
-    public Observable<Alias> getAlias(String aliasId) {
+    public Observable<Alias> fetchAlias(String aliasId) {
         return parseApi.findAlias(aliasId)
-                .flatMap(cacheApi::persist);
+                .doOnNext(alias -> Timber.d("returning alias: " + alias))
+                .flatMap(cacheApi::persist)
+                .doOnNext(alias -> Timber.d("persisted.."));
+    }
+
+    public Observable<Alias> getAlias(String aliasId) {
+        return cacheApi.getAlias(aliasId)
+                // Fetch Alias from network if it doesn't exist in the cache.
+                .onExceptionResumeNext(fetchAlias(aliasId));
     }
 
     //******************************************************
@@ -148,28 +160,13 @@ public class CheddarApi {
     }
 
     public Observable<ChatEvent> getMessageStream(String aliasId) {
-        Timber.d("cough");
-        return getAlias(aliasId)
-                .map(Alias::chatRoomId)
+        Timber.d("getMessageStream");
+        return getAlias(aliasId).map(Alias::chatRoomId)
                 .flatMap(messageApi::subscribe)
-                .doOnNext(o -> Timber.i(o.toString()))
-                .cast(JSONObject.class)
-                // Continue past any Exceptions thrown in parseChatEventRx.
-                .flatMap(this::parseChatEventOrSkip)
+                .filter(o -> o instanceof MessageApiChatEventHolder)
+                .cast(MessageApiChatEventHolder.class)
+                .map(o -> o.chatEvent)
                 .flatMap(cacheApi::persist);
-    }
-
-    /**
-     * Turns a JSONObject into a ChatEvent or emits nothing if
-     * the json is unparseable.
-     */
-    private Observable<ChatEvent> parseChatEventOrSkip(JSONObject o) {
-        return Observable.just(gson.fromJson(o.toString(), ChatEvent.class))
-                .doOnError(error -> {
-                    Timber.e("uh oh, couldn't parse: " + o);
-                    Timber.e(error.toString());
-                })
-                .onExceptionResumeNext(Observable.empty());
     }
 
     public Observable<Void> endMessageStream(String aliasId) {

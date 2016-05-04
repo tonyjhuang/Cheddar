@@ -9,7 +9,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.api.MessageApi;
+import com.tonyjhuang.cheddar.api.message.MessageApi;
 import com.tonyjhuang.cheddar.api.simplepersist.GcmChannels;
 import com.tonyjhuang.cheddar.api.simplepersist.SimplePersistApi;
 

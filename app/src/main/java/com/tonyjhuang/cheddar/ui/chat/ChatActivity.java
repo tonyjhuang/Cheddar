@@ -15,7 +15,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.CheddarActivity;
@@ -115,13 +114,6 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
      * Loading dialog for when the user is leaving the chatroom.
      */
     private LoadingDialog leaveChatRoomDialog;
-
-    @ViewById
-    SeekBar position;
-
-    @ViewById
-    SeekBar top;
-
 
     @AfterInject
     public void afterInject() {
