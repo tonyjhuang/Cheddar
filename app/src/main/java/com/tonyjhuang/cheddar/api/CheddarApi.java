@@ -1,7 +1,5 @@
 package com.tonyjhuang.cheddar.api;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.cache.CacheApi;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
@@ -11,7 +9,6 @@ import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
-import com.tonyjhuang.cheddar.api.models.value.ValueTypeAdapterFactory;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
 
 import org.androidannotations.annotations.Bean;
@@ -32,10 +29,6 @@ import timber.log.Timber;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class CheddarApi {
-
-    private final Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(new ValueTypeAdapterFactory())
-            .create();
     @Bean
     MessageApi messageApi;
     @Bean
@@ -51,10 +44,6 @@ public class CheddarApi {
     private Date replayPagerToken = null;
 
     public CheddarApi() {
-    }
-
-    private static Gson createGson() {
-        return new GsonBuilder().create();
     }
 
     //******************************************************

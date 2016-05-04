@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_
         android:id="@+id/alias_display"
-        style="@style/AliasDisplay"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_margin="@dimen/list_room_row_padding"
-        android:text="NM"
-        android:textColor="@color/text_primary_light"
-        android:textSize="22sp" />
+        app:textSize="22sp" />
 
     <RelativeLayout
         android:layout_width="match_parent"

@@ -13,10 +13,8 @@
 
     <com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_
         android:id="@+id/alias_display"
-        style="@style/AliasDisplay"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:textSize="20sp"
         tools:text="DS" />
 
     <LinearLayout

@@ -17,6 +17,7 @@ import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
+import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_;
 import com.tonyjhuang.cheddar.utils.Scheduler;
 import com.tonyjhuang.cheddar.utils.StringUtils;
@@ -76,8 +77,7 @@ public class CheddarNotificationService {
     }
 
     private Bitmap getAuthorBitmap(Context context, Alias alias) {
-        AliasDisplayView_ aliasDisplayView = (AliasDisplayView_)
-                View.inflate(context, R.layout.stub_notif_author_view, null);
+        AliasDisplayView aliasDisplayView = AliasDisplayView_.build(context);
         aliasDisplayView.setAlias(alias, false);
 
         // Measure view so height and width are not 0

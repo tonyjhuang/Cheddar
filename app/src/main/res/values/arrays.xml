@@ -51,11 +51,11 @@
         <item>Undeclared</item>
     </string-array>
 
-    <integer-array name="chat_author_color">
+    <array name="chat_author_color">
         <item>@color/chat_author_background_0</item>
         <item>@color/chat_author_background_1</item>
         <item>@color/chat_author_background_2</item>
         <item>@color/chat_author_background_3</item>
         <item>@color/chat_author_background_4</item>
-    </integer-array>
+    </array>
 </resources>

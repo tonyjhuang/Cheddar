@@ -22,12 +22,10 @@
 
     <com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_
         android:id="@+id/author_display"
-        style="@style/AliasDisplay"
         android:layout_width="@dimen/chat_bubble_min_height"
         android:layout_height="@dimen/chat_bubble_min_height"
         android:layout_alignBottom="@+id/body"
-        android:layout_alignParentRight="true"
-        tools:text="DS" />
+        android:layout_alignParentRight="true" />
 
     <TextView
         android:id="@+id/body"

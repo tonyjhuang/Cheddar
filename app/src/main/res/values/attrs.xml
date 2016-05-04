@@ -3,8 +3,7 @@
     <declare-styleable name="ParalloidImageView">
         <attr name="parallaxAmount" format="dimension" />
     </declare-styleable>
-    <declare-styleable name="ViewPagerCustomDuration">
-        <attr name="swipeable" format="boolean" />
-        <attr name="duration" format="float" />
+    <declare-styleable name="AliasDisplayView">
+        <attr name="textSize" format="dimension" />
     </declare-styleable>
 </resources>

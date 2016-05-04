@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/chat_bubble_background" />
+
+    <TextView xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/author_text"
+        fontPath="Effra-Medium.ttf"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="@android:color/primary_text_dark"
+        android:textSize="@dimen/chat_bubble_author_text_size"
+        tools:ignore="MissingPrefix"
+        tools:text="DC" />
+
+</merge>
