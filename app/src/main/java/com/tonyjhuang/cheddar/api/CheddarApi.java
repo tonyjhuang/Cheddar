@@ -134,11 +134,11 @@ public class CheddarApi {
                 .flatMap(userId -> Observable.concat(
                         cacheApi.getChatRoomInfos(userId)
                                 .compose(sortChatRoomInfoList())
-                                .doOnNext(infos -> Timber.i("cached: " + infos.size()))
+                                .doOnNext(infos -> Timber.v("cached: " + infos.size()))
                                 .onExceptionResumeNext(Observable.empty()),
                         parseApi.getChatRooms(userId).flatMap(cacheApi::persistChatRoomInfos)
                                 .compose(sortChatRoomInfoList())
-                                .doOnNext(infos -> Timber.i("network: " + infos.size()))));
+                                .doOnNext(infos -> Timber.v("network: " + infos.size()))));
     }
 
     private Observable.Transformer<List<ChatRoomInfo>, List<ChatRoomInfo>> sortChatRoomInfoList() {
@@ -165,7 +165,6 @@ public class CheddarApi {
     }
 
     public Observable<ChatEvent> getMessageStream(String aliasId) {
-        Timber.d("getMessageStream");
         return getAlias(aliasId).map(Alias::chatRoomId)
                 .flatMap(messageApi::subscribe)
                 .filter(o -> o instanceof MessageApiChatEventHolder)
@@ -196,7 +195,7 @@ public class CheddarApi {
                     if (replayPagerToken == null) {
                         return getAlias(aliasId).map(Alias::chatRoomId)
                                 .flatMap(chatRoomId -> cacheApi.getMostRecentChatEventsForChatRoom(chatRoomId, limit))
-                                .doOnNext(chatEvents -> Timber.i("cached chatEvents: %d", chatEvents.size()));
+                                .doOnNext(chatEvents -> Timber.v("cached chatEvents: %d", chatEvents.size()));
                     } else {
                         return Observable.empty();
                     }
@@ -205,7 +204,7 @@ public class CheddarApi {
                         .doOnNext(response -> replayPagerToken = response.startTimeToken)
                         .map(response -> response.chatEvents)
                         .doOnNext(Collections::reverse)
-                        .doOnNext(chatEvents -> Timber.i("network chatEvents: %d", chatEvents.size()))
+                        .doOnNext(chatEvents -> Timber.v("network chatEvents: %d", chatEvents.size()))
                         .flatMap(cacheApi::persistChatEvents));
     }
 

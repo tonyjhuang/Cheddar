@@ -51,7 +51,10 @@ public class PushRegistrationIntentService extends AbstractIntentService {
             showRegistrationFailedError();
         } else {
             addRegisteredChannel(channel);
-            messageApi.registerForPushNotifications(channel, token).publish().connect();
+            messageApi.registerForPushNotifications(channel, token)
+                    .doOnNext(result -> Timber.d("registered for push " + result))
+                    .doOnError(e -> Timber.e(e, "failed to register for push"))
+                    .publish().connect();
         }
     }
 

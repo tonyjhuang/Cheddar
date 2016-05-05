@@ -76,7 +76,6 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
      * Fetch the list of ChatRoomInfos.
      */
     private Observable<Pair<User, List<ChatRoomInfo>>> refreshChatList() {
-        Timber.d("refreshing?..");
         // Only subscribe if the list hasn't been loaded yet.
         return Observable.combineLatest(
                 api.getCurrentUser(),

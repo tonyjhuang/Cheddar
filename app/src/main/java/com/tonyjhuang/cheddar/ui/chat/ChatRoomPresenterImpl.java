@@ -21,7 +21,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -244,7 +243,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                             .compose(Scheduler.defaultSchedulers())
                             .subscribe(aliases -> {
                                 if (view != null)
-                                    view.displayActiveAliases(aliases, alias.objectId());
+                                    view.displayActiveAliases(aliases, alias.userId());
                             }, error -> Timber.e(error, "couldn't get active aliases"));
 
                     // Listen for CHANGE_ROOM_NAME ChatEvents.
@@ -389,14 +388,13 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .subscribe(chatEvents -> {
                     sendViewOldChatEvents(chatEvents);
                     if (chatEvents.size() < REPLAY_COUNT) {
-                        Timber.d("size: %d", chatEvents.size());
                         reachedEndOfChatEvents = true;
                         if (view != null) view.notifyEndOfChatEvents();
                     } else {
                         reachedEndOfChatEvents = false;
                     }
                 }, e -> {
-                    Timber.e("Failed to load more messages: " + e.toString());
+                    Timber.e(e, "Failed to load more messages");
                     view.displayLoadHistoryChatEventsError();
                     loadingMessages = false;
                     reachedEndOfChatEvents = true;
@@ -488,6 +486,12 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void onDestroy() {
+        aliasSubject.compose(Scheduler.backgroundSchedulers())
+                .map(Alias::objectId)
+                .flatMap(api::endMessageStream)
+                .doOnNext(result -> Timber.d("ended message stream"))
+                .doOnError(error -> Timber.e(error, "uh oh"))
+                .publish().connect();
         unsubscribe(networkConnectionSubscription);
         unsubscribe(aliasSubscription);
         unsubscribe(cacheChatEventSubscription);

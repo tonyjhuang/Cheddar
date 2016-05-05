@@ -231,7 +231,6 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     public void displayNewChatEvents(String currentUserId, List<ChatEvent> chatEvents) {
         setUpChatEventListView(currentUserId);
 
-        Timber.d("lastvisibleposition: %d", chatEventListView.getLastVisiblePosition());
         boolean isBottomAnchored = adapter.getCount() == 0 ||
                 chatEventListView.getLastVisiblePosition() == adapter.getCount() - 1 + chatEventListView.getHeaderViewsCount();
 
@@ -280,7 +279,6 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @Override
     public void notifyEndOfChatEvents() {
-        Timber.d("end of chat events..");
         showListLoadingView(false);
     }
 

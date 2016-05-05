@@ -64,17 +64,20 @@ public class MessageApi {
             pubnub.unsubscribe(channel, new Callback() {
                 @Override
                 public void successCallback(String channel, Object message) {
+                    Timber.i("success: " + message);
                     subscriber.onNext(null);
                     subscriber.onCompleted();
                 }
 
                 @Override
                 public void errorCallback(String channel, PubnubError error) {
+                    Timber.i("error: " + error);
                     subscriber.onError(new PubnubException(error));
                 }
 
                 @Override
                 public void disconnectCallback(String channel, Object message) {
+                    Timber.i("disconnect: " + message);
                     subscriber.onNext(null);
                     subscriber.onCompleted();
                 }
@@ -83,6 +86,7 @@ public class MessageApi {
     }
 
     public Observable<Object> registerForPushNotifications(String channel, String registrationToken) {
+        Timber.i("subscribing to %s as %s", channel, registrationToken);
         return Observable.create(subscriber -> {
                     pubnub.enablePushNotificationsOnChannel(channel, registrationToken, new Callback() {
                         @Override
@@ -168,12 +172,12 @@ public class MessageApi {
 
         @Override
         public void errorCallback(String channel, PubnubError error) {
-            Timber.i("error.. " + error.toString());
+            Timber.e("error.." + error.toString());
         }
 
         @Override
         public void disconnectCallback(String channel, Object message) {
-            Timber.i("Disconnected..");
+            Timber.i("Disconnected.. " + message);
         }
 
         public Observable<MessageApiObjectHolder> getObservable() {
