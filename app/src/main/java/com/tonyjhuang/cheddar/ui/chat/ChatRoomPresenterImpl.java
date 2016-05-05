@@ -117,7 +117,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
      * Keeps track of paging through message history.
      */
     private boolean loadingMessages = false;
-    private boolean reachedEndOfMessages = false;
+    private boolean reachedEndOfChatEvents = false;
     private boolean firstLoad = true;
 
     /**
@@ -333,12 +333,12 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     public void loadMoreMessages() {
         if (!ConnectivityBroadcastReceiver.isConnected(context)) return;
 
-        if (loadingMessages || reachedEndOfMessages) return;
+        if (loadingMessages || reachedEndOfChatEvents) return;
         Timber.d("loading messages..");
         loadingMessages = true;
         firstLoad = false;
 
-        cacheHistoryChatEventSubject = BehaviorSubject.create(new ArrayList<>());
+        cacheHistoryChatEventSubject = BehaviorSubject.create();
         cacheHistoryChatEventSubscription = aliasSubject.map(Alias::objectId)
                 .flatMap(aliasId -> api.replayChatEvents(aliasId, REPLAY_COUNT))
                 .compose(Scheduler.backgroundSchedulers())
@@ -355,13 +355,19 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .compose(Scheduler.defaultSchedulers())
                 .doAfterTerminate(() -> loadingMessages = false)
                 .subscribe(chatEvents -> {
-                    reachedEndOfMessages = chatEvents.size() < REPLAY_COUNT;
                     sendViewOldChatEvents(chatEvents);
+                    if(chatEvents.size() < REPLAY_COUNT) {
+                        Timber.d("size: %d", chatEvents.size());
+                        reachedEndOfChatEvents = true;
+                        if(view != null) view.notifyEndOfChatEvents();
+                    } else {
+                        reachedEndOfChatEvents = false;
+                    }
                 }, e -> {
                     Timber.e("Failed to load more messages: " + e.toString());
                     view.displayLoadHistoryChatEventsError();
                     loadingMessages = false;
-                    reachedEndOfMessages = true;
+                    reachedEndOfChatEvents = true;
                 });
     }
 

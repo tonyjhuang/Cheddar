@@ -145,8 +145,7 @@ public class CheddarApi {
      * using ChatEvent.createPlaceholderMessage.
      */
     public Observable<ChatEvent> sendMessage(ChatEvent chatEvent) {
-        return parseApi.sendMessage(chatEvent.alias().objectId(),
-                chatEvent.body(), chatEvent.objectId())
+        return parseApi.sendMessage(chatEvent.alias().objectId(), chatEvent.body(), chatEvent.objectId())
                 .flatMap(cacheApi::persist);
     }
 
@@ -177,9 +176,10 @@ public class CheddarApi {
      */
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, int limit) {
         return Observable.concat(
-                getAlias(aliasId).map(Alias::chatRoomId)
+                Observable.empty(),
+                /*getAlias(aliasId).map(Alias::chatRoomId)
                         .flatMap(chatRoomId -> cacheApi.getMostRecentChatEventsForChatRoom(chatRoomId, limit))
-                        .doOnNext(chatEvents -> Timber.i("cached chatEvents: %d", chatEvents.size())),
+                        .doOnNext(chatEvents -> Timber.i("cached chatEvents: %d", chatEvents.size())),*/
                 parseApi.pageChatEvents(aliasId, limit, replayPagerToken)
                         .doOnNext(response -> replayPagerToken = response.startTimeToken)
                         .map(response -> response.chatEvents)

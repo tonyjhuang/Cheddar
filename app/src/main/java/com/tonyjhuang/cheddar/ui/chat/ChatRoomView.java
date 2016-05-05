@@ -32,5 +32,10 @@ public interface ChatRoomView {
 
     void notifyPlaceholderMessageFailed(ChatEvent message);
 
+    /**
+     * Tells this View that there are no more ChatEvents for this ChatRoom.
+     */
+    void notifyEndOfChatEvents();
+
     void navigateToListView();
 }

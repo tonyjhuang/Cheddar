@@ -18,6 +18,8 @@ import com.tonyjhuang.cheddar.ui.chat.chatevent.PresenceView_;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Handles the displaying of ChatEvent objects in a list.
  */
@@ -71,6 +73,7 @@ public class ChatEventListAdapter extends BaseAdapter {
      * Adds |presence| to the adapter by creating a new ChatEventViewInfo.
      */
     private void addPresence(ChatEvent presence, boolean addToEnd) {
+        Timber.d("adding new presence");
         addNewChatItemViewInfo(new ChatEventViewInfo(presence), addToEnd);
     }
 

@@ -5,14 +5,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 import com.tonyjhuang.cheddar.utils.TimeUtils;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
-import org.apache.commons.lang3.text.WordUtils;
 
 /**
  * View representation of a Presence ChatEvent.
@@ -65,7 +63,7 @@ public abstract class MessageView extends RelativeLayout {
                 // prev: null, next: null
                 position = Position.ONLY;
             } else {
-                if (info.hasSameAuthor(next)) {
+                if (info.hasSameAuthor(next) && info.isSameType(next)) {
                     // prev: null, next: same
                     position = Position.TOP;
                 } else {
@@ -75,7 +73,7 @@ public abstract class MessageView extends RelativeLayout {
             }
         } else {
             if (next == null) {
-                if (info.hasSameAuthor(prev)) {
+                if (info.hasSameAuthor(prev) && info.isSameType(prev)) {
                     // prev: same, next: null
                     position = Position.BOTTOM;
                 } else {
@@ -83,8 +81,8 @@ public abstract class MessageView extends RelativeLayout {
                     position = Position.ONLY;
                 }
             } else {
-                if (info.hasSameAuthor(prev)) {
-                    if (info.hasSameAuthor(next)) {
+                if (info.hasSameAuthor(prev) && info.isSameType(prev)) {
+                    if (info.hasSameAuthor(next) && info.isSameType(next)) {
                         // prev: same, next: same
                         position = Position.MIDDLE;
                     } else {
@@ -92,7 +90,7 @@ public abstract class MessageView extends RelativeLayout {
                         position = Position.BOTTOM;
                     }
                 } else {
-                    if (info.hasSameAuthor(next)) {
+                    if (info.hasSameAuthor(next) && info.isSameType(next)) {
                         // prev: diff, next: same
                         position = Position.TOP;
                     } else {

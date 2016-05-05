@@ -37,13 +37,26 @@ public class PreserveScrollStateListView extends ListView {
 
     public void saveScrollStateAndPauseDrawing() {
         pauseDrawing();
+        if (getAdapter().getCount() - getHeaderViewsCount() == 0) return;
 
-        savedFirstVisiblePosition = getFirstVisiblePosition();
         savedNumberOfItems = getAdapter().getCount();
-        View firstVisibleChild = getChildAt(0);
-        if (firstVisibleChild != null) {
-            savedFirstVisibleChildHeight = firstVisibleChild.getHeight();
-            savedFirstVisibleChildTop = firstVisibleChild.getTop();
+
+        int headerViewsCount = getHeaderViewsCount();
+        savedFirstVisiblePosition = getFirstVisiblePosition();
+        View firstVisibleNonHeaderChild;
+        if(savedFirstVisiblePosition < headerViewsCount) {
+            firstVisibleNonHeaderChild = getChildAt(headerViewsCount - savedFirstVisiblePosition);
+            savedFirstVisiblePosition = headerViewsCount;
+        } else {
+            firstVisibleNonHeaderChild = getChildAt(0);
+        }
+
+        if (firstVisibleNonHeaderChild != null) {
+            savedFirstVisibleChildHeight = firstVisibleNonHeaderChild.getHeight();
+            savedFirstVisibleChildTop = firstVisibleNonHeaderChild.getTop();
+        } else {
+            savedFirstVisibleChildHeight = getMeasuredHeightOfChild(savedFirstVisiblePosition);
+            savedFirstVisibleChildTop = 0;
         }
     }
 
@@ -66,21 +79,8 @@ public class PreserveScrollStateListView extends ListView {
         int newChildHeight = getMeasuredHeightOfChild(restoreToIndex);
         int heightDifference = newChildHeight - savedFirstVisibleChildHeight;
 
-        int restoreToTop = heightDifference + savedFirstVisibleChildTop;
-
-        if (restoreToTop > 0) {
-            setSelectionFromTop(restoreToIndex, restoreToTop);
-        } else {
-            while (restoreToIndex > 0 && restoreToTop < 0) {
-                restoreToIndex -= 1;
-                int childHeight = getMeasuredHeightOfChild(restoreToIndex);
-                if (childHeight > (restoreToTop * -1)) {
-                    break;
-                }
-                restoreToTop += childHeight;
-            }
-            setSelectionFromTop(Math.max(restoreToIndex, 0), restoreToTop);
-        }
+        int restoreToTop = savedFirstVisibleChildTop - heightDifference;
+        setSelectionFromTop(restoreToIndex, restoreToTop);
         post(this::resumeDrawing);
 
     }

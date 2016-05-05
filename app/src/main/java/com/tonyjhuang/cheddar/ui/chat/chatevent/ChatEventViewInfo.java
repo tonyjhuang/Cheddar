@@ -39,6 +39,10 @@ public class ChatEventViewInfo {
         return chatEvent.alias().equals(otherInfo.chatEvent.alias());
     }
 
+    public boolean isSameType(ChatEventViewInfo otherInfo) {
+        return chatEvent.type().equals(otherInfo.chatEvent.type());
+    }
+
     public boolean isSameObject(ChatEventViewInfo otherInfo) {
         return chatEvent.equals(otherInfo.chatEvent);
     }
