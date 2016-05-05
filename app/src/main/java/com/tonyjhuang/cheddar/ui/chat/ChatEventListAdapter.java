@@ -1,6 +1,5 @@
 package com.tonyjhuang.cheddar.ui.chat;
 
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -24,8 +23,6 @@ import timber.log.Timber;
  * Handles the displaying of ChatEvent objects in a list.
  */
 public class ChatEventListAdapter extends BaseAdapter {
-
-    private static final String TAG = ChatEventListAdapter.class.getSimpleName();
 
     /**
      * Constants for determining item view type.
@@ -63,7 +60,7 @@ public class ChatEventListAdapter extends BaseAdapter {
                     addPresence(chatEvent, addToEnd);
                     break;
                 default:
-                    Log.e(TAG, "Encountered unrecognized ChatEvent: " + chatEvent.toString());
+                    Timber.w("Encountered unrecognized ChatEvent: " + chatEvent.toString());
             }
         }
         notifyDataSetChanged();

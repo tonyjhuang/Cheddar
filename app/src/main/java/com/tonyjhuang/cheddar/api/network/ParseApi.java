@@ -95,6 +95,7 @@ public class ParseApi {
                 .registerTypeAdapterFactory(new ResultUnwrapperTypeAdapterFactory())
                 .registerTypeAdapter(ReplayChatEventObjectHolder.class, new ReplayChatEventDeserializer())
                 .registerTypeAdapter(Date.class, new UtcDateAdapter())
+                .registerTypeAdapter(ChatEvent.ChatEventType.class, ChatEvent.ChatEventType.DESERIALIZER)
                 .create();
     }
 

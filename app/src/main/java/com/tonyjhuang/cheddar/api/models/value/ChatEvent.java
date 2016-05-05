@@ -5,11 +5,18 @@ import android.support.annotation.Nullable;
 
 import com.google.auto.value.AutoValue;
 import com.google.gson.Gson;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
+
+import timber.log.Timber;
 
 /**
  * A single event that can be sent to through a ChatRoom,
@@ -56,7 +63,7 @@ public abstract class ChatEvent implements Parcelable {
             case PRESENCE:
                 return body();
             default:
-                return "";
+                return alias().displayName() + " send a message.";
         }
     }
 
@@ -93,7 +100,19 @@ public abstract class ChatEvent implements Parcelable {
     }
 
     public enum ChatEventType {
-        MESSAGE, PRESENCE;
+        MESSAGE, PRESENCE, UNKNOWN;
+
+        public static final JsonDeserializer<ChatEventType> DESERIALIZER = new JsonDeserializer<ChatEventType>() {
+            @Override
+            public ChatEventType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                try {
+                    return fromString(json.getAsString());
+                } catch (Exception e) {
+                    Timber.e("failed to deserialize " + json.getAsString() + " as ChatEventType.");
+                    return UNKNOWN;
+                }
+            }
+        };
 
         public static ChatEventType fromString(String string) {
             return ChatEventType.valueOf(string.toUpperCase(Locale.US));

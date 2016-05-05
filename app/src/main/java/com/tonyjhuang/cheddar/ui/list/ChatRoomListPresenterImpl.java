@@ -91,7 +91,6 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                 Pair::new)
                 .compose(Scheduler.defaultSchedulers())
                 .doOnNext(result -> {
-                    Timber.i(result.second.get(0).chatEvent().toString());
                     if (view != null) view.displayList(result.second, result.first.objectId());
                 }).doOnError(error -> {
                     Timber.e("couldn't get list: " + error);

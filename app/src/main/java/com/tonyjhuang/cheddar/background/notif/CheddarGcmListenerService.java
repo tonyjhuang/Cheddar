@@ -6,6 +6,7 @@ import android.os.Bundle;
 import com.google.android.gms.gcm.GcmListenerService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.network.ResultUnwrapperTypeAdapterFactory;
 import com.tonyjhuang.cheddar.background.notif.payload.GcmChatEventPayload;
 import com.tonyjhuang.cheddar.background.notif.payload.GcmPayload;
@@ -26,6 +27,7 @@ public class CheddarGcmListenerService extends GcmListenerService {
         return new GsonBuilder()
                 .registerTypeAdapterFactory(new ResultUnwrapperTypeAdapterFactory())
                 .registerTypeAdapter(GcmPayload.class, new GcmPayloadDeserializer())
+                .registerTypeAdapter(ChatEvent.ChatEventType.class, ChatEvent.ChatEventType.DESERIALIZER)
                 .create();
     }
 

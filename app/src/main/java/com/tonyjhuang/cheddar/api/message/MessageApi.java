@@ -7,6 +7,7 @@ import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 import com.tonyjhuang.cheddar.BuildConfig;
+import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ValueTypeAdapterFactory;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
 
@@ -127,6 +128,7 @@ public class MessageApi {
         private Gson gson = new GsonBuilder()
                 .registerTypeAdapterFactory(new ValueTypeAdapterFactory())
                 .registerTypeAdapter(MessageApiObjectHolder.class, new MessageApiDeserializer())
+                .registerTypeAdapter(ChatEvent.ChatEventType.class, ChatEvent.ChatEventType.DESERIALIZER)
                 .create();
 
         private PubnubException error;
