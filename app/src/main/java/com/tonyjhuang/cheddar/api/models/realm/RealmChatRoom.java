@@ -16,11 +16,12 @@ public class RealmChatRoom extends RealmObject implements ValueSource {
     private Date updatedAt;
     private int maxOccupancy;
     private int numOccupants;
+    private String name;
 
     @Override
     public Object toValue() {
         MetaData metaData = MetaData.create(objectId, createdAt, updatedAt);
-        return ChatRoom.create(metaData, maxOccupancy, numOccupants);
+        return ChatRoom.create(metaData, maxOccupancy, numOccupants, name);
     }
 
     public String getObjectId() {
@@ -61,5 +62,13 @@ public class RealmChatRoom extends RealmObject implements ValueSource {
 
     public void setNumOccupants(int numOccupants) {
         this.numOccupants = numOccupants;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

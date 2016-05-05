@@ -1,5 +1,7 @@
 package com.tonyjhuang.cheddar.api.models.value;
 
+import android.support.annotation.Nullable;
+
 import com.google.auto.value.AutoValue;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
@@ -15,11 +17,12 @@ public abstract class ChatRoom {
 
     public static ChatRoom create(MetaData metaData,
                                   int maxOccupancy,
-                                  int numOccupants) {
+                                  int numOccupants,
+                                  String name) {
         return new AutoValue_ChatRoom(metaData.objectId(),
                 metaData.createdAt(),
                 metaData.updatedAt(),
-                maxOccupancy, numOccupants);
+                maxOccupancy, numOccupants, name);
     }
 
     public static TypeAdapter<ChatRoom> typeAdapter(Gson gson) {
@@ -35,6 +38,13 @@ public abstract class ChatRoom {
     public abstract int maxOccupancy();
 
     public abstract int numOccupants();
+
+    @Nullable
+    public abstract String name();
+
+    public String displayName() {
+        return name() == null ? "Group" : name();
+    }
 
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -44,24 +44,31 @@
     <string name="chat_no_members">Waiting for others..</string>
     <string name="chat_members">%1$d members ></string>
     <string name="chat_message_input_hint">Say cheese!</string>
-    <string name="chat_load_messages_failed">Failed to load messages.</string>
     <string name="chat_send_message">Send</string>
     <string name="chat_new_messages">NEW MESSAGES</string>
     <string name="chat_title_group">Group</string>
     <string name="chat_action_feedback">Feedback</string>
+    <string name="chat_action_name_room">Set Room Name</string>
     <string name="chat_action_report">Report User</string>
     <string name="chat_action_leave">Leave Chat</string>
     <string name="chat_leave_confirm">Leave</string>
     <string name="chat_leave_cancel">Cancel</string>
     <string name="chat_leave_chat">Leaving chat&#8230;</string>
-    <string name="chat_message_failed">Could not deliver message. Check your connection settings?</string>
-    <string name="chat_network_connection_error">NO NETWORK CONNECTION</string>
-    <string name="chat_play_services_missing">"Couldn\'t find Google Play Services. Push notifications will not work."</string>
     <string name="chat_alias_list_header">Active Members</string>
     <string name="chat_alias_timestamp">Joined %1$s.</string>
     <string name="chat_presence_joined">%1$s has joined.</string>
     <string name="chat_presence_left">%1$s has left.</string>
     <string name="chat_copied_to_clipboard">Copied message.</string>
+    <string name="chat_error_change_chat_room_name_failed">Failed to change room name.</string>
+    <string name="chat_error_load_messages_failed">Failed to load messages.</string>
+    <string name="chat_error_message_failed">Could not deliver message. Check your connection settings?</string>
+    <string name="chat_error_network_connection_error">NO NETWORK CONNECTION</string>
+    <string name="chat_error_play_services_missing">"Couldn\'t find Google Play Services. Push notifications will not work."</string>
+    <string name="chat_name_name_hint">Name</string>
+    <string name="chat_name_dialog_title">Set New Room Name</string>
+    <string name="chat_name_dialog_ok">Set</string>
+    <string name="chat_name_dialog_cancel">Cancel</string>
+    <string name="chat_name_dialog_error_empty">Room name can\'t be empty!</string>
 
     <!-- list -->
     <string name="list_title">Messages</string>

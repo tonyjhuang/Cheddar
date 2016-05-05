@@ -7,6 +7,7 @@ import com.tonyjhuang.cheddar.api.message.MessageApi;
 import com.tonyjhuang.cheddar.api.message.MessageApiChatEventHolder;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
@@ -102,6 +103,10 @@ public class CheddarApi {
     //                ChatRooms
     //******************************************************
 
+    public Observable<ChatRoom> getChatRoom(String chatRoomId) {
+        return cacheApi.getChatRoom(chatRoomId);
+    }
+
     public Observable<Alias> joinGroupChatRoom() {
         return getCurrentUser().map(User::objectId)
                 .flatMap(parseApi::joinGroupChatRoom);
@@ -134,6 +139,11 @@ public class CheddarApi {
     private Observable.Transformer<List<ChatRoomInfo>, List<ChatRoomInfo>> sortChatRoomInfoList() {
         return o -> o.flatMap(Observable::from)
                 .toSortedList((i1, i2) -> i2.chatEvent().updatedAt().compareTo(i1.chatEvent().updatedAt()));
+    }
+
+    public Observable<ChatRoom> updateChatRoomName(String aliasId, String name) {
+        return parseApi.updateChatRoomName(aliasId, name.trim())
+                .flatMap(cacheApi::persist);
     }
 
     //******************************************************

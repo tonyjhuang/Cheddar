@@ -32,6 +32,10 @@ public interface ChatRoomView {
 
     void notifyPlaceholderMessageFailed(ChatEvent message);
 
+    void displayChatRoomName(String chatRoomName);
+
+    void displayChatRoomNameChangeError();
+
     /**
      * Tells this View that there are no more ChatEvents for this ChatRoom.
      */

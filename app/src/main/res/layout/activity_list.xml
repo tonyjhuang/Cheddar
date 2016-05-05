@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar_divider"
-        android:background="@color/ui_light_gray"
+        android:background="@color/ui_medium_gray"
         android:divider="@null" />
 
 </RelativeLayout>

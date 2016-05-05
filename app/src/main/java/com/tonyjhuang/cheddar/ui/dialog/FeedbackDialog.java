@@ -9,12 +9,9 @@ import android.widget.Toast;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarMetrics;
 
-import org.androidannotations.annotations.EBean;
-
 /**
  * Wrapper for customized feedback AlertDialog.
  */
-@EBean
 public class FeedbackDialog {
 
     public static void getFeedback(Context context, Callback callback) {

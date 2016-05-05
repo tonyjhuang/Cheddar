@@ -27,6 +27,7 @@ import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo;
 import com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
+import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 
 import org.androidannotations.annotations.AfterInject;
@@ -120,6 +121,11 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
      */
     private View listLoadingView;
 
+    /**
+     * The name of this ChatRoom.
+     */
+    private String chatRoomName;
+
     @AfterInject
     public void afterInject() {
         Timber.v("afterInject");
@@ -136,6 +142,15 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         presenter.loadMoreMessages();
         version.setText(getVersionName());
         messageLoadingView.postDelayed(() -> messageLoadingView.animate().alpha(1).setDuration(250), 500);
+    }
+
+    @Override
+    public void displayChatRoomName(String chatRoomName) {
+        this.chatRoomName = chatRoomName;
+        assert getSupportActionBar() != null;
+        if (chatRoomName != null && !chatRoomName.isEmpty()) {
+            getSupportActionBar().setTitle(chatRoomName);
+        }
     }
 
     private void displayActiveAliasesDialog() {
@@ -341,7 +356,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @Override
     public void displayLoadHistoryChatEventsError() {
-        showToast(R.string.chat_load_messages_failed);
+        showToast(R.string.chat_error_load_messages_failed);
         chatEventListView.setAlpha(1f);
     }
 
@@ -354,7 +369,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @Override
     public void notifyPlaceholderMessageFailed(ChatEvent placeholder) {
         adapter.notifyFailed(placeholder);
-        showToast(R.string.chat_message_failed);
+        showToast(R.string.chat_error_message_failed);
     }
 
     @Click(R.id.new_messages)
@@ -399,6 +414,11 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     }
 
     @Override
+    public void displayChatRoomNameChangeError() {
+        showToast(R.string.chat_error_change_chat_room_name_failed);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_chat, menu);
         return true;
@@ -415,14 +435,15 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 navigateToListView();
                 return true;
             case R.id.action_feedback:
-                /*FeedbackDialog.getFeedback(this, (name, feedback) -> {
+                FeedbackDialog.getFeedback(this, (name, feedback) -> {
                     if (feedback != null && !feedback.isEmpty()) {
                         showToast(R.string.feedback_thanks);
                         presenter.sendFeedback(name, feedback);
                     }
-                });*/
-                showListLoadingView(listLoadingView.getVisibility() == View.GONE);
+                });
                 return true;
+            case R.id.action_name_room:
+                GetChatRoomNameDialog.show(this, chatRoomName, presenter::updateChatRoomName);
             case R.id.action_report:
                 showToast(R.string.report_coming_soon);
                 CheddarMetrics.trackReportUser(CheddarMetrics.ReportUserLifecycle.CLICKED);

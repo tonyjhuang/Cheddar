@@ -9,6 +9,7 @@ import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
 import com.tonyjhuang.cheddar.background.IntentFilters;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
@@ -213,6 +214,11 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     PushRegistrationIntentService_.intent(context).registerForPush(chatRoomId).start();
                     registerReceiver(context, chatRoomId);
 
+                    api.getChatRoom(chatRoomId).compose(Scheduler.defaultSchedulers())
+                            .subscribe(chatRoom -> {
+                                if (view != null) view.displayChatRoomName(chatRoom.name());
+                            }, error -> Timber.e(error, "couldn't retrieve ChatRoom " + chatRoomId));
+
                     if (activeAliasSubscription == null) {
                         // Listen to ChatEvent stream for Presence events and get
                         // the updated list of active Aliases.
@@ -356,10 +362,10 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .doAfterTerminate(() -> loadingMessages = false)
                 .subscribe(chatEvents -> {
                     sendViewOldChatEvents(chatEvents);
-                    if(chatEvents.size() < REPLAY_COUNT) {
+                    if (chatEvents.size() < REPLAY_COUNT) {
                         Timber.d("size: %d", chatEvents.size());
                         reachedEndOfChatEvents = true;
-                        if(view != null) view.notifyEndOfChatEvents();
+                        if (view != null) view.notifyEndOfChatEvents();
                     } else {
                         reachedEndOfChatEvents = false;
                     }
@@ -419,6 +425,20 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     Timber.e("uhh");
                     Timber.e("couldn't find current alias to leave chatroom! " + error.toString());
                     onFailedToRetrieveAlias();
+                });
+    }
+
+    @Override
+    public void updateChatRoomName(String name) {
+        aliasSubject.map(Alias::objectId)
+                .flatMap(aliasId -> api.updateChatRoomName(aliasId, name))
+                .compose(Scheduler.defaultSchedulers())
+                .map(ChatRoom::name)
+                .subscribe(chatRoomName -> {
+                    if(view != null) view.displayChatRoomName(chatRoomName);
+                }, error -> {
+                    Timber.e(error, "failed to update chatroom name");
+                    if(view != null) view.displayChatRoomNameChangeError();
                 });
     }
 

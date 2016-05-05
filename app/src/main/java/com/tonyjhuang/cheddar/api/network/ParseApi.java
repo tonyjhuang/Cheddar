@@ -14,6 +14,7 @@ import com.google.gson.JsonSerializer;
 import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.request.FindAliasRequest;
@@ -23,6 +24,7 @@ import com.tonyjhuang.cheddar.api.network.request.JoinChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.LeaveChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.ReplayChatEventsRequest;
 import com.tonyjhuang.cheddar.api.network.request.SendMessageRequest;
+import com.tonyjhuang.cheddar.api.network.request.UpdateChatRoomNameRequest;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ChatEventPage;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventDeserializer;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventObjectHolder;
@@ -166,7 +168,14 @@ public class ParseApi {
      * for this user.
      */
     public Observable<List<ChatRoomInfo>> getChatRooms(String userId) {
-        return service.getChatRooms(GetChatRoomsRequest.create(userId));
+        return service.getChatRooms(new GetChatRoomsRequest(userId));
+    }
+
+    /**
+     * Update a ChatRoom's name.
+     */
+    public Observable<ChatRoom> updateChatRoomName(String aliasId, String name) {
+        return service.updateChatRoomName(new UpdateChatRoomNameRequest(aliasId, name, SUBKEY, PUBKEY));
     }
 
     /**

@@ -9,6 +9,13 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/action_name_room"
+        android:orderInCategory="100"
+        android:title="@string/chat_action_name_room"
+        app:showAsAction="never" />
+
+
+    <item
         android:id="@+id/action_report"
         android:orderInCategory="200"
         android:title="@string/chat_action_report"

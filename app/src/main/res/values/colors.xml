@@ -35,7 +35,7 @@
     <color name="chat_author_background_incoming">@color/colorPrimary</color>
 
     <color name="chat_text_incoming">@color/text_primary</color>
-    <color name="chat_text_background_incoming">#EFEFEF</color>
+    <color name="chat_text_background_incoming">#e9e9e9</color>
 
     <!-- outgoing -->
     <color name="chat_author_text_outgoing">@color/text_primary_light</color>

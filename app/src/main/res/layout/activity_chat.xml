@@ -71,7 +71,7 @@
         android:background="@color/chat_text_error_bg"
         android:gravity="center"
         android:padding="4dp"
-        android:text="@string/chat_network_connection_error"
+        android:text="@string/chat_error_network_connection_error"
         android:textColor="@color/text_primary_light"
         tools:ignore="MissingPrefix" />
 

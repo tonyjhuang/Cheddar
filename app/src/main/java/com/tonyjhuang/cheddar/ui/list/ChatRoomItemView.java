@@ -9,11 +9,9 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.res.ColorRes;
 import org.joda.time.DateTime;
 
 import java.util.Date;
@@ -48,6 +46,7 @@ public class ChatRoomItemView extends RelativeLayout {
     public void setChatRoomInfo(ChatRoomInfo info, String currentUserId) {
         recentMessageView.setText(info.chatEvent().displayBody());
         timestampView.setText(formatDate(info.chatEvent().updatedAt()));
+        groupNameView.setText(info.chatRoom().displayName());
 
         aliasDisplayView.setAlias(info.chatEvent().alias(),
                 currentUserId.equals(info.chatEvent().alias().userId()));
