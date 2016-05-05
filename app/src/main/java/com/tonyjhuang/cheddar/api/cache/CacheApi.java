@@ -71,6 +71,7 @@ public class CacheApi {
                     .equalTo("userId", currentUserId)
                     .equalTo("chatRoomId", chatRoomId)
                     .findFirst()))
+                    .doAfterTerminate(realm::close)
                     .map(RealmAlias::toValue);
         });
     }
