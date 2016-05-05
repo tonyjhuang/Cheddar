@@ -18,6 +18,7 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.request.FindAliasRequest;
+import com.tonyjhuang.cheddar.api.network.request.FindChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetActiveAliasesRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetChatRoomsRequest;
 import com.tonyjhuang.cheddar.api.network.request.JoinChatRoomRequest;
@@ -146,6 +147,10 @@ public class ParseApi {
      */
     public Observable<List<Alias>> getActiveAliases(String chatRoomId) {
         return service.getActiveAliases(new GetActiveAliasesRequest(chatRoomId));
+    }
+
+    public Observable<ChatRoom> findChatRoom(String chatRoomId) {
+        return service.findChatRoom(new FindChatRoomRequest(chatRoomId));
     }
 
     /**

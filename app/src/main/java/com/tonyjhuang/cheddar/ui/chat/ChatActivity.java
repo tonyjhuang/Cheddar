@@ -444,6 +444,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 return true;
             case R.id.action_name_room:
                 GetChatRoomNameDialog.show(this, chatRoomName, presenter::updateChatRoomName);
+                return true;
             case R.id.action_report:
                 showToast(R.string.report_coming_soon);
                 CheddarMetrics.trackReportUser(CheddarMetrics.ReportUserLifecycle.CLICKED);

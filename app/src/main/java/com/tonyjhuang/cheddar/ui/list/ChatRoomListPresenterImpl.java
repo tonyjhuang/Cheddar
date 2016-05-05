@@ -9,14 +9,11 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
 import com.tonyjhuang.cheddar.background.IntentFilters;
-import com.tonyjhuang.cheddar.ui.chat.ChatRoomPresenterImpl;
 import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
@@ -58,10 +55,6 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     ChatRoomListPushBroadcastReceiver pushReceiver;
     IntentFilter pushReceiverIntentFilter = IntentFilters.chatEventIntentFilter(100);
 
-    public ChatRoomListPresenterImpl() {
-        EventBus.getDefault().register(this);
-    }
-
     @Override
     public void setView(ChatRoomListView view) {
         this.view = view;
@@ -98,12 +91,6 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                 });
     }
 
-    @Subscribe
-    public void onLeaveChatRoomEvent(ChatRoomPresenterImpl.LeaveChatRoomEvent event) {
-        unsubscribe(chatRoomSubscription);
-        chatRoomSubscription = refreshChatList().publish().connect();
-    }
-
     @Override
     public void onJoinChatRoomClicked() {
         api.joinGroupChatRoom().compose(Scheduler.defaultSchedulers())
@@ -130,7 +117,6 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
 
     @Override
     public void onDestroy() {
-        EventBus.getDefault().unregister(this);
         unsubscribe(chatRoomSubscription);
         view = null;
     }

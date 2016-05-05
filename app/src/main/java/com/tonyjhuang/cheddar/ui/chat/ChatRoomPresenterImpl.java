@@ -23,7 +23,6 @@ import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -98,7 +97,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     /**
      * Subscription for updating the view with users joining/leaving the Chat Room.
      */
-    private Subscription activeAliasesSubscription;
+    private Subscription getActiveAliasesSubscription;
 
     /**
      * Caches the result of loading ChatEvent history in case the view has called
@@ -107,6 +106,13 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     private Subscription cacheHistoryChatEventSubscription;
     private BehaviorSubject<List<ChatEvent>> cacheHistoryChatEventSubject;
     private ChatRoomView view;
+
+    /**
+     * The stream of ChatRoom name changes.
+     */
+    private BehaviorSubject<String> chatRoomNameSubject;
+    private Subscription cacheChatRoomNameSubscription;
+    private Subscription chatRoomNameSubscription;
 
     /**
      * BroadcastReceiver for aborting push notification broadcasts.
@@ -219,14 +225,14 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                                 if (view != null) view.displayChatRoomName(chatRoom.name());
                             }, error -> Timber.e(error, "couldn't retrieve ChatRoom " + chatRoomId));
 
-                    if (activeAliasSubscription == null) {
+                    if (activeAliasSubscription == null || activeAliasSubscription.isUnsubscribed()) {
                         // Listen to ChatEvent stream for Presence events and get
                         // the updated list of active Aliases.
                         Observable<List<Alias>> aliasUpdates = chatEventObservable
                                 .filter(chatEvent -> chatEvent.type().equals(ChatEvent.ChatEventType.PRESENCE))
                                 .flatMap(chatEvent -> api.getActiveAliases(chatRoomId));
 
-                        activeAliasSubject = BehaviorSubject.create(new ArrayList<>());
+                        activeAliasSubject = BehaviorSubject.create();
                         activeAliasSubscription = api.getActiveAliases(chatRoomId)
                                 .concatWith(aliasUpdates)
                                 .compose(Scheduler.backgroundSchedulers())
@@ -234,12 +240,29 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     }
 
                     // Update View if number of active Aliases changes.
-                    activeAliasesSubscription = activeAliasSubject
+                    getActiveAliasesSubscription = activeAliasSubject
                             .compose(Scheduler.defaultSchedulers())
                             .subscribe(aliases -> {
                                 if (view != null)
                                     view.displayActiveAliases(aliases, alias.objectId());
-                            }, error -> Timber.e("error? " + error.toString()));
+                            }, error -> Timber.e(error, "couldn't get active aliases"));
+
+                    // Listen for CHANGE_ROOM_NAME ChatEvents.
+                    if (cacheChatRoomNameSubscription == null || cacheChatRoomNameSubscription.isUnsubscribed()) {
+                        chatRoomNameSubject = BehaviorSubject.create();
+                        cacheChatRoomNameSubscription = chatEventObservable
+                                .compose(Scheduler.backgroundSchedulers())
+                                .filter(chatEvent -> chatEvent.type().equals(ChatEvent.ChatEventType.CHANGE_ROOM_NAME))
+                                .map(ChatEvent::roomName)
+                                .subscribe(chatRoomNameSubject);
+                    }
+
+                    // Update View on new CHANGE_ROOM_NAME event.
+                    chatRoomNameSubscription = chatRoomNameSubject.compose(Scheduler.defaultSchedulers())
+                            .subscribe(name -> {
+                                if (view != null) view.displayChatRoomName(name);
+                            }, error -> Timber.e(error, "couldn't get chatroom name."));
+
                 }, error -> {
                     Timber.e("couldn't find current alias in onResume! " + error.toString());
                     // This generally happens if the alias was deleted on the backend.
@@ -316,7 +339,10 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         unsubscribe(chatEventSubscription);
 
         // Stop sending user join/leave events to View.
-        unsubscribe(activeAliasesSubscription);
+        unsubscribe(getActiveAliasesSubscription);
+
+        // Stop listening for ChatRoom name changes.
+        unsubscribe(chatRoomNameSubscription);
 
         // Restart ReplaySubject to avoid sending ChatEvents that have already
         // been replayed to the View in onResume().
@@ -420,7 +446,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     long lengthOfStay = new Date().getTime() - alias.createdAt().getTime();
                     CheddarMetrics.trackLeaveChatRoom(alias.chatRoomId(), lengthOfStay);
                     view.navigateToListView();
-                    EventBus.getDefault().post(new LeaveChatRoomEvent(alias.chatRoomId()));
                 }, error -> {
                     Timber.e("uhh");
                     Timber.e("couldn't find current alias to leave chatroom! " + error.toString());
@@ -435,10 +460,10 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .compose(Scheduler.defaultSchedulers())
                 .map(ChatRoom::name)
                 .subscribe(chatRoomName -> {
-                    if(view != null) view.displayChatRoomName(chatRoomName);
+                    if (view != null) view.displayChatRoomName(chatRoomName);
                 }, error -> {
                     Timber.e(error, "failed to update chatroom name");
-                    if(view != null) view.displayChatRoomNameChangeError();
+                    if (view != null) view.displayChatRoomNameChangeError();
                 });
     }
 
@@ -470,19 +495,13 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         unsubscribe(historyChatEventSubscription);
         unsubscribe(cacheHistoryChatEventSubscription);
         unsubscribe(activeAliasSubscription);
-        unsubscribe(activeAliasesSubscription);
+        unsubscribe(getActiveAliasesSubscription);
+        unsubscribe(chatRoomNameSubscription);
+        unsubscribe(cacheChatRoomNameSubscription);
         view = null;
     }
 
     private void unsubscribe(Subscription s) {
         if (s != null) s.unsubscribe();
-    }
-
-    public static class LeaveChatRoomEvent {
-        public String chatRoomId;
-
-        public LeaveChatRoomEvent(String chatRoomId) {
-            this.chatRoomId = chatRoomId;
-        }
     }
 }

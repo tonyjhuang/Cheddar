@@ -18,12 +18,14 @@ public class RealmChatEvent extends RealmObject implements ValueSource {
     private String type;
     private RealmAlias alias;
     private String body;
+    private String roomName;
 
     @Override
     public ChatEvent toValue() {
         MetaData metaData = MetaData.create(objectId, createdAt, updatedAt);
         return ChatEvent.create(metaData,
                 messageId,
+                roomName,
                 ChatEvent.ChatEventType.fromString(type),
                 alias.toValue(),
                 body);
@@ -83,5 +85,13 @@ public class RealmChatEvent extends RealmObject implements ValueSource {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 }

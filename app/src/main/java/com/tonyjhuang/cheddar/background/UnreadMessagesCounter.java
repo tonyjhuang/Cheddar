@@ -6,6 +6,8 @@ import com.tonyjhuang.cheddar.api.simplepersist.UnreadMessages;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 
+import java.util.Map;
+
 /**
  * Keeps track of the number of unread notifications for each chat room.
  * Persists across app closes.
@@ -25,7 +27,8 @@ public class UnreadMessagesCounter {
     }
 
     public int get(String chatRoomId) {
-        return persistApi.fetchUnreadMessages().messages().get(chatRoomId);
+        Map<String, Integer> map = persistApi.fetchUnreadMessages().messages();
+        return map.containsKey(chatRoomId) ? map.get(chatRoomId) : 0;
     }
 
     private void save(String chatRoomId, int value) {

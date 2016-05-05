@@ -3,7 +3,6 @@ package com.tonyjhuang.cheddar.ui.dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -19,6 +18,7 @@ import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 import rx.Observable;
 import rx.Subscription;
+import timber.log.Timber;
 
 /**
  * Created by tonyjhuang on 3/25/16.
@@ -77,13 +77,12 @@ public class LoadingDialog extends AlertDialog {
                     image.setImageDrawable(gifDrawable);
                     image.setVisibility(View.VISIBLE);
                     imageBackup.setVisibility(View.GONE);
-                }, e -> Log.e("DIALOG", e.toString()));
+                }, e -> Timber.e(e, "couldn't load gif."));
     }
 
     @Override
     public void dismiss() {
         super.dismiss();
-        Log.e("DIALOG", "dismiss");
         if (loadLoadingGifSubscription != null) {
             loadLoadingGifSubscription.unsubscribe();
         }
@@ -92,7 +91,6 @@ public class LoadingDialog extends AlertDialog {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.e("DIALOG", "dismiss");
         if (loadLoadingGifSubscription != null) {
             loadLoadingGifSubscription.unsubscribe();
         }

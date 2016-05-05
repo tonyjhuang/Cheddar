@@ -34,12 +34,13 @@ public abstract class ChatEvent implements Parcelable {
         String objectId = UUID.randomUUID().toString();
         Date now = new Date();
         MetaData metaData = MetaData.create(objectId, now, now);
-        return create(metaData, objectId, ChatEventType.MESSAGE, alias, body);
+        return create(metaData, objectId, null, ChatEventType.MESSAGE, alias, body);
     }
 
 
     public static ChatEvent create(MetaData metaData,
                                    String messageId,
+                                   String roomName,
                                    ChatEventType type,
                                    Alias alias,
                                    String body) {
@@ -47,6 +48,7 @@ public abstract class ChatEvent implements Parcelable {
                 metaData.createdAt(),
                 metaData.updatedAt(),
                 messageId,
+                roomName,
                 type,
                 alias,
                 body);
@@ -62,8 +64,10 @@ public abstract class ChatEvent implements Parcelable {
                 return alias().displayName() + ": " + body();
             case PRESENCE:
                 return body();
+            case CHANGE_ROOM_NAME:
+                return body();
             default:
-                return alias().displayName() + " send a message.";
+                return alias().displayName() + " sent a message.";
         }
     }
 
@@ -75,6 +79,9 @@ public abstract class ChatEvent implements Parcelable {
 
     @Nullable
     public abstract String messageId();
+
+    @Nullable
+    public abstract String roomName();
 
     public abstract ChatEventType type();
 
@@ -100,7 +107,7 @@ public abstract class ChatEvent implements Parcelable {
     }
 
     public enum ChatEventType {
-        MESSAGE, PRESENCE, UNKNOWN;
+        MESSAGE, PRESENCE, CHANGE_ROOM_NAME, UNKNOWN;
 
         public static final JsonDeserializer<ChatEventType> DESERIALIZER = new JsonDeserializer<ChatEventType>() {
             @Override

@@ -88,9 +88,7 @@ public class CheddarApi {
 
     public Observable<Alias> fetchAlias(String aliasId) {
         return parseApi.findAlias(aliasId)
-                .doOnNext(alias -> Timber.d("returning alias: " + alias))
-                .flatMap(cacheApi::persist)
-                .doOnNext(alias -> Timber.d("persisted.."));
+                .flatMap(cacheApi::persist);
     }
 
     public Observable<Alias> getAlias(String aliasId) {
@@ -104,12 +102,20 @@ public class CheddarApi {
     //******************************************************
 
     public Observable<ChatRoom> getChatRoom(String chatRoomId) {
-        return cacheApi.getChatRoom(chatRoomId);
+        return cacheApi.getChatRoom(chatRoomId)
+                .onExceptionResumeNext(
+                        parseApi.findChatRoom(chatRoomId).flatMap(cacheApi::persist));
     }
 
     public Observable<Alias> joinGroupChatRoom() {
         return getCurrentUser().map(User::objectId)
-                .flatMap(parseApi::joinGroupChatRoom);
+                .flatMap(parseApi::joinGroupChatRoom)
+                .flatMap(cacheApi::persist)
+                .flatMap(alias -> Observable.defer(() ->
+                        // Cache ChatRoom after joining.
+                        getChatRoom(alias.chatRoomId())
+                                .flatMap(cacheApi::persist)
+                                .map(chatRoom -> alias)));
     }
 
 
@@ -128,12 +134,11 @@ public class CheddarApi {
                 .flatMap(userId -> Observable.concat(
                         cacheApi.getChatRoomInfos(userId)
                                 .compose(sortChatRoomInfoList())
-                                .doOnNext(infos -> Timber.i("cached: " + infos.get(0).chatEvent()))
-                                .doOnError(error -> Timber.e(error, "couldn't get cached infolist"))
+                                .doOnNext(infos -> Timber.i("cached: " + infos.size()))
                                 .onExceptionResumeNext(Observable.empty()),
                         parseApi.getChatRooms(userId).flatMap(cacheApi::persistChatRoomInfos)
                                 .compose(sortChatRoomInfoList())
-                                .doOnNext(infos -> Timber.i("network: " + infos.get(0).chatEvent()))));
+                                .doOnNext(infos -> Timber.i("network: " + infos.size()))));
     }
 
     private Observable.Transformer<List<ChatRoomInfo>, List<ChatRoomInfo>> sortChatRoomInfoList() {
@@ -188,7 +193,7 @@ public class CheddarApi {
         return Observable.concat(
                 Observable.defer(() -> {
                     // Retrieve ChatEvents from cache IFF this is the first load.
-                    if(replayPagerToken == null) {
+                    if (replayPagerToken == null) {
                         return getAlias(aliasId).map(Alias::chatRoomId)
                                 .flatMap(chatRoomId -> cacheApi.getMostRecentChatEventsForChatRoom(chatRoomId, limit))
                                 .doOnNext(chatEvents -> Timber.i("cached chatEvents: %d", chatEvents.size()));

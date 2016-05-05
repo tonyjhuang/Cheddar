@@ -5,9 +5,8 @@ import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import java.util.Date;
 
 /**
- * Holder for MessageEvents for our Chat Adapter.
+ * Holder for ChatEvents for our ChatRoom adapter.
  * Contains the ChatEvent and some metadata around it.
- * Has either a Message OR a Presence.
  */
 public class ChatEventViewInfo {
 
@@ -25,7 +24,7 @@ public class ChatEventViewInfo {
     }
 
     /**
-     * Used for holding Presence ChatEvents that don't have a Direction or Status.
+     * Used for holding ChatEvents that don't have a Direction or Status.
      */
     public ChatEventViewInfo(ChatEvent chatEvent) {
         this(chatEvent, null, null);

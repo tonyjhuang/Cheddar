@@ -5,6 +5,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
+import com.tonyjhuang.cheddar.ui.chat.chatevent.ChangeRoomNameView;
+import com.tonyjhuang.cheddar.ui.chat.chatevent.ChangeRoomNameView_;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo.Direction;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo.Status;
@@ -30,6 +32,8 @@ public class ChatEventListAdapter extends BaseAdapter {
     private static final int MESSAGE_LEFT = 0;
     private static final int MESSAGE_RIGHT = 1;
     private static final int PRESENCE = 2;
+    private static final int CHANGE_ROOM_NAME = 3;
+
     /**
      * Used for determining the direction of new Messages.
      */
@@ -59,6 +63,9 @@ public class ChatEventListAdapter extends BaseAdapter {
                 case PRESENCE:
                     addPresence(chatEvent, addToEnd);
                     break;
+                case CHANGE_ROOM_NAME:
+                    addChangeRoomNameEvent(chatEvent, addToEnd);
+                    break;
                 default:
                     Timber.w("Encountered unrecognized ChatEvent: " + chatEvent.toString());
             }
@@ -66,11 +73,14 @@ public class ChatEventListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    private void addChangeRoomNameEvent(ChatEvent event, boolean addToEnd) {
+        addNewChatItemViewInfo(new ChatEventViewInfo(event), addToEnd);
+    }
+
     /**
      * Adds |presence| to the adapter by creating a new ChatEventViewInfo.
      */
     private void addPresence(ChatEvent presence, boolean addToEnd) {
-        Timber.d("adding new presence");
         addNewChatItemViewInfo(new ChatEventViewInfo(presence), addToEnd);
     }
 
@@ -204,16 +214,20 @@ public class ChatEventListAdapter extends BaseAdapter {
     @Override
     public int getItemViewType(int position) {
         ChatEventViewInfo info = getItem(position);
-        if (info.chatEvent.type().equals(ChatEvent.ChatEventType.MESSAGE)) {
-            return info.direction == Direction.INCOMING ? MESSAGE_LEFT : MESSAGE_RIGHT;
-        } else {
-            return PRESENCE;
+        switch (info.chatEvent.type()) {
+            case MESSAGE:
+                return info.direction == Direction.INCOMING ? MESSAGE_LEFT : MESSAGE_RIGHT;
+            case PRESENCE:
+                return PRESENCE;
+            case CHANGE_ROOM_NAME:
+            default:
+                return CHANGE_ROOM_NAME;
         }
     }
 
     @Override
     public int getViewTypeCount() {
-        return 3;
+        return 4;
     }
 
     @Override
@@ -235,6 +249,9 @@ public class ChatEventListAdapter extends BaseAdapter {
                 case PRESENCE:
                     convertView = PresenceView_.build(parent.getContext());
                     break;
+                case CHANGE_ROOM_NAME:
+                    convertView = ChangeRoomNameView_.build(parent.getContext());
+                    break;
                 default:
                     convertView = new View(parent.getContext());
             }
@@ -250,6 +267,11 @@ public class ChatEventListAdapter extends BaseAdapter {
             case PRESENCE:
                 PresenceView presenceView = (PresenceView) convertView;
                 presenceView.setPresenceInfo(info);
+                convertView.setVisibility(View.VISIBLE);
+                break;
+            case CHANGE_ROOM_NAME:
+                ChangeRoomNameView changeRoomNameView = (ChangeRoomNameView) convertView;
+                changeRoomNameView.setChangeRoomNameInfo(info);
                 convertView.setVisibility(View.VISIBLE);
                 break;
             default:
