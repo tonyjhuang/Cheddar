@@ -198,6 +198,7 @@ public class CheddarApi {
                     if (replayPagerToken == null) {
                         return getAlias(aliasId).map(Alias::chatRoomId)
                                 .flatMap(chatRoomId -> cacheApi.getMostRecentChatEventsForChatRoom(chatRoomId, limit))
+                                .compose(sortChatEventList())
                                 .doOnNext(chatEvents -> Timber.v("cached chatEvents: %d", chatEvents.size()));
                     } else {
                         return Observable.empty();
@@ -207,8 +208,15 @@ public class CheddarApi {
                         .doOnNext(response -> replayPagerToken = response.startTimeToken)
                         .map(response -> response.chatEvents)
                         .doOnNext(Collections::reverse)
+                        .compose(sortChatEventList())
                         .doOnNext(chatEvents -> Timber.v("network chatEvents: %d", chatEvents.size()))
                         .flatMap(cacheApi::persistChatEvents));
+    }
+
+
+    private Observable.Transformer<List<ChatEvent>, List<ChatEvent>> sortChatEventList() {
+        return o -> o.flatMap(Observable::from)
+                .toSortedList((ce1, ce2) -> ce2.updatedAt().compareTo(ce1.updatedAt()));
     }
 
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, Date start, Date end) {

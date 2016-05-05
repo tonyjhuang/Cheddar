@@ -137,11 +137,6 @@ public class CacheApi {
         return toJson(chatEvent).compose(persistJson(RealmChatEvent.class, chatEvent));
     }
 
-    public void forcePersist(ChatEvent chatEvent) {
-        Timber.d("persisting " + chatEvent);
-        forceSaveToDisk(RealmChatEvent.class, gson.toJson(chatEvent));
-    }
-
     /****************
      * ChatRoom
      ****************/
@@ -242,18 +237,13 @@ public class CacheApi {
      * Returns an Action1 that saves a JSON string to Realm.
      */
     private Action1<String> saveToDisk(Class clazz) {
-        return json -> forceSaveToDisk(clazz, json);
-    }
-
-    /**
-     * Save a JSON string to Realm.
-     */
-    private void forceSaveToDisk(Class clazz, String json) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        realm.createOrUpdateObjectFromJson(clazz, json);
-        realm.commitTransaction();
-        realm.close();
+        return json -> {
+            Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+            realm.createOrUpdateObjectFromJson(clazz, json);
+            realm.commitTransaction();
+            realm.close();
+        };
     }
 
     /**

@@ -63,7 +63,6 @@ public class AliasListDialog extends AlertDialog {
             TextView aliasName = (TextView) aliasView.findViewById(R.id.alias_name);
             TextView joinedAt = (TextView) aliasView.findViewById(R.id.joined_at);
 
-            Timber.d("a: %s, ua: %s", alias.userId(), currentUserId);
             aliasDisplay.setAlias(alias, alias.userId().equals(currentUserId));
             aliasName.setText(alias.name());
             joinedAt.setText(getContext().getString(R.string.chat_alias_timestamp,

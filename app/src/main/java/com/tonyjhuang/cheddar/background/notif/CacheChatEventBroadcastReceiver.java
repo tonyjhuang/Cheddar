@@ -25,9 +25,7 @@ public class CacheChatEventBroadcastReceiver extends BroadcastReceiver{
         Timber.d("onReceive!");
         if(intent.hasExtra("chatEvent")) {
             ChatEvent chatEvent = intent.getParcelableExtra("chatEvent");
-            cacheApi.forcePersist(chatEvent);
-            cacheApi.getMostRecentChatEventForChatRoom(chatEvent.alias().chatRoomId())
-                    .subscribe(ce -> Timber.i("ce: " + ce));
+            cacheApi.persist(chatEvent).publish().connect();
         }
     }
 
