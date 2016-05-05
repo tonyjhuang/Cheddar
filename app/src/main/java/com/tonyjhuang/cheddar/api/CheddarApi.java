@@ -103,8 +103,11 @@ public class CheddarApi {
 
     public Observable<ChatRoom> getChatRoom(String chatRoomId) {
         return cacheApi.getChatRoom(chatRoomId)
-                .onExceptionResumeNext(
-                        parseApi.findChatRoom(chatRoomId).flatMap(cacheApi::persist));
+                .onExceptionResumeNext(fetchChatRoom(chatRoomId));
+    }
+
+    public Observable<ChatRoom> fetchChatRoom(String chatRoomId) {
+        return parseApi.findChatRoom(chatRoomId).flatMap(cacheApi::persist);
     }
 
     public Observable<Alias> joinGroupChatRoom() {
@@ -147,7 +150,7 @@ public class CheddarApi {
     }
 
     public Observable<ChatRoom> updateChatRoomName(String aliasId, String name) {
-        return parseApi.updateChatRoomName(aliasId, name.trim())
+        return parseApi.updateChatRoomName(aliasId, name.trim().replace("\n", ""))
                 .flatMap(cacheApi::persist);
     }
 

@@ -135,6 +135,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void setAliasId(String aliasId) {
+        Timber.d("setAliasId");
         api.resetReplayChatEvents();
         chatEventObservable = api.getMessageStream(aliasId).publish();
         chatEventObservable.connect();
@@ -199,10 +200,12 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     @Override
     public void onResume() {
         if (!ConnectivityBroadcastReceiver.isConnected(context)) return;
+        Timber.d("onResume");
         init(context);
     }
 
     private void init(Context context) {
+        Timber.d("init");
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
@@ -249,11 +252,16 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                     // Listen for CHANGE_ROOM_NAME ChatEvents.
                     if (cacheChatRoomNameSubscription == null || cacheChatRoomNameSubscription.isUnsubscribed()) {
                         chatRoomNameSubject = BehaviorSubject.create();
-                        cacheChatRoomNameSubscription = chatEventObservable
-                                .compose(Scheduler.backgroundSchedulers())
-                                .filter(chatEvent -> chatEvent.type().equals(ChatEvent.ChatEventType.CHANGE_ROOM_NAME))
-                                .map(ChatEvent::roomName)
-                                .subscribe(chatRoomNameSubject);
+                        cacheChatRoomNameSubscription =
+                                Observable.concat(
+                                        // Get the latest ChatRoom name on start.
+                                        api.fetchChatRoom(chatRoomId).map(ChatRoom::name)
+                                                .compose(Scheduler.backgroundSchedulers()),
+                                        chatEventObservable
+                                                .compose(Scheduler.backgroundSchedulers())
+                                                .filter(chatEvent -> chatEvent.type().equals(ChatEvent.ChatEventType.CHANGE_ROOM_NAME))
+                                                .map(ChatEvent::roomName))
+                                        .subscribe(chatRoomNameSubject);
                     }
 
                     // Update View on new CHANGE_ROOM_NAME event.
