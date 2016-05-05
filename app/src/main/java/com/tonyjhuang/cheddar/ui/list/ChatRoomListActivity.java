@@ -58,7 +58,6 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
         getSupportActionBar().setTitle(R.string.list_title);
-
     }
 
     @Override

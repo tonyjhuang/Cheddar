@@ -3,12 +3,14 @@ package com.tonyjhuang.cheddar.background.notif;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.view.View;
 
 import com.tonyjhuang.cheddar.R;
@@ -110,12 +112,10 @@ public class CheddarNotificationService {
     }
 
     private PendingIntent getContentPendingIntent(Context context, String aliasId) {
-        return PendingIntent.getActivity(
-                context,
-                0,
-                ChatActivity_.intent(context).aliasId(aliasId).get(),
-                PendingIntent.FLAG_UPDATE_CURRENT
-        );
+        Intent chatIntent = ChatActivity_.intent(context).aliasId(aliasId).get();
+        return TaskStackBuilder.create(context)
+                .addNextIntentWithParentStack(chatIntent)
+                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     /**
