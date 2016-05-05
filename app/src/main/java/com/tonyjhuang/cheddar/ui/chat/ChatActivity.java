@@ -326,8 +326,9 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 if (firstVisibleItem == 0) {
                     presenter.loadMoreMessages();
                 }
+                Timber.d("lvp: %d, ac: %d", view.getLastVisiblePosition(), adapter.getCount());
                 if (view.getLastVisiblePosition() == adapter.getCount() - 1 + chatEventListView.getHeaderViewsCount()
-                        && newMessagesIndicator.getAlpha() == 1) {
+                        && newMessagesIndicator.getAlpha() > 0) {
                     showNewMessagesIndicator(false);
                 }
                 lastFirstVisibleItem = firstVisibleItem;
@@ -372,7 +373,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @Click(R.id.new_messages)
     public void onNewMessagesClick() {
-        chatEventListView.smoothScrollToPosition(adapter.getCount() - 1);
+        chatEventListView.smoothScrollToPosition(adapter.getCount() - 1 + chatEventListView.getHeaderViewsCount());
     }
 
     @Override
