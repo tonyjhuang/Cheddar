@@ -176,10 +176,16 @@ public class CheddarApi {
      */
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, int limit) {
         return Observable.concat(
-                Observable.empty(),
-                /*getAlias(aliasId).map(Alias::chatRoomId)
-                        .flatMap(chatRoomId -> cacheApi.getMostRecentChatEventsForChatRoom(chatRoomId, limit))
-                        .doOnNext(chatEvents -> Timber.i("cached chatEvents: %d", chatEvents.size())),*/
+                Observable.defer(() -> {
+                    // Retrieve ChatEvents from cache IFF this is the first load.
+                    if(replayPagerToken == null) {
+                        return getAlias(aliasId).map(Alias::chatRoomId)
+                                .flatMap(chatRoomId -> cacheApi.getMostRecentChatEventsForChatRoom(chatRoomId, limit))
+                                .doOnNext(chatEvents -> Timber.i("cached chatEvents: %d", chatEvents.size()));
+                    } else {
+                        return Observable.empty();
+                    }
+                }),
                 parseApi.pageChatEvents(aliasId, limit, replayPagerToken)
                         .doOnNext(response -> replayPagerToken = response.startTimeToken)
                         .map(response -> response.chatEvents)
