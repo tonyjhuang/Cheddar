@@ -5,6 +5,7 @@ import android.content.Context;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
+import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.Bean;
@@ -37,6 +38,11 @@ public class VerifyEmailPresenterImpl implements VerifyEmailPresenter {
      */
     private Subscription resendVerificationEmailSubscription;
 
+    /**
+     * Subscription for joining a new ChatRoom.
+     */
+    private Subscription joinGroupChatSubscription;
+
     private VerifyEmailView view;
 
     @Override
@@ -54,11 +60,25 @@ public class VerifyEmailPresenterImpl implements VerifyEmailPresenter {
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(emailVerified -> {
                     if (emailVerified) {
-                        if (view != null) view.navigateToListView();
+                        joinChatRoom();
                     } else {
                         if (view != null) view.showEmailNotVerified();
                     }
                 }, error -> Timber.e(error, "couldn't check verification status"));
+    }
+
+    private void joinChatRoom() {
+        if(view != null) view.showJoiningChatRoomLoading();
+        joinGroupChatSubscription = api.joinGroupChatRoom()
+                .compose(Scheduler.defaultSchedulers())
+                .map(Alias::objectId)
+                .subscribe(aliasId -> {
+                    Timber.v("joined chatroom. alias: %s", aliasId);
+                    if(view != null) view.navigateToChatView(aliasId);
+                }, error -> {
+                    Timber.e(error, "couldn't join chatroom?");
+                    if(view != null) view.showJoiningChatRoomFailed();
+                });
     }
 
     @Override
@@ -93,6 +113,7 @@ public class VerifyEmailPresenterImpl implements VerifyEmailPresenter {
     public void onPause() {
         unsubscribe(userEmailVerificationSubscription);
         unsubscribe(resendVerificationEmailSubscription);
+        unsubscribe(joinGroupChatSubscription);
     }
 
     @Override
@@ -100,6 +121,7 @@ public class VerifyEmailPresenterImpl implements VerifyEmailPresenter {
         view = null;
         unsubscribe(userEmailVerificationSubscription);
         unsubscribe(resendVerificationEmailSubscription);
+        unsubscribe(joinGroupChatSubscription);
     }
 
     private boolean isSubscribed(Subscription subscription) {

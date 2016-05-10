@@ -1,5 +1,7 @@
 package com.tonyjhuang.cheddar.api;
 
+import android.content.Context;
+
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.cache.CacheApi;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
@@ -11,9 +13,11 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
+import com.tonyjhuang.cheddar.background.notif.PushRegistrationIntentService_;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.Collections;
@@ -30,6 +34,8 @@ import timber.log.Timber;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class CheddarApi {
+    @RootContext
+    Context context;
     @Bean
     MessageApi messageApi;
     @Bean
@@ -73,38 +79,52 @@ public class CheddarApi {
                 .flatMap(cacheApi::persist);
     }
 
-    public Observable<User> resendCurrentUserVerificationEmail() {
+    /**
+     * Gets the current user's id or else emits a NoCurrentUserException.
+     */
+    private Observable<String> getCurrentUserId() {
         return Observable.defer(() -> {
             String currentUserId = prefs.currentUserId().getOr("");
             if (!currentUserId.isEmpty()) {
-                return parseApi.resendVerificationEmail(currentUserId);
+                return Observable.just(currentUserId);
             } else {
                 return Observable.error(new NoCurrentUserException());
             }
         });
     }
 
+    public Observable<User> resendCurrentUserVerificationEmail() {
+        return getCurrentUserId().flatMap(parseApi::resendVerificationEmail);
+    }
+
     public Observable<Boolean> isCurrentUserEmailVerified() {
-        return Observable.defer(() -> {
-            String currentUserId = prefs.currentUserId().getOr("");
-            if (currentUserId.isEmpty()) {
-                return Observable.just(false);
-            } else {
-                return parseApi.isUserEmailVerified(currentUserId);
-            }
-        }).doOnNext(emailVerified -> prefs.userEmailVerified().put(emailVerified));
+        return getCurrentUserId()
+                .flatMap(parseApi::isUserEmailVerified)
+                .onExceptionResumeNext(Observable.just(false))
+                .doOnNext(emailVerified -> prefs.userEmailVerified().put(emailVerified));
+    }
+
+    /**
+     * Retrieve the User with the specified id from the network.
+     */
+    public Observable<User> fetchUser(String userId) {
+        return parseApi.findUser(userId)
+                .flatMap(cacheApi::persist);
     }
 
     public Observable<User> getCurrentUser() {
+        return getCurrentUserId()
+                .flatMap(currentUserId -> cacheApi.getUser(currentUserId)
+                        .onExceptionResumeNext(fetchUser(currentUserId)));
+    }
+
+    public Observable<Void> logoutCurrentUser() {
         return Observable.defer(() -> {
-            if (!prefs.currentUserId().getOr("").isEmpty()) {
-                return cacheApi.getUser(prefs.currentUserId().get())
-                        .doOnError(error -> Timber.e(error.toString()))
-                        .doOnError(error -> prefs.currentUserId().remove())
-                        .onExceptionResumeNext(getCurrentUser());
-            } else {
-                return Observable.error(new NoCurrentUserException());
-            }
+            prefs.currentUserId().put("");
+            prefs.unreadMessages().put("");
+            prefs.pushChannels().put("");
+            PushRegistrationIntentService_.intent(context).unregisterAll();
+            return Observable.just(null);
         });
     }
 

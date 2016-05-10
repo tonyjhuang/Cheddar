@@ -10,6 +10,7 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
 import com.tonyjhuang.cheddar.background.IntentFilters;
+import com.tonyjhuang.cheddar.background.notif.PushRegistrationIntentService_;
 import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.Bean;
@@ -17,10 +18,12 @@ import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Action1;
 import timber.log.Timber;
 
 @EBean
@@ -37,28 +40,24 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
 
     @Pref
     CheddarPrefs_ prefs;
-
-    /**
-     * Subscription to refreshChatList.
-     */
-    private Subscription chatRoomSubscription;
-
-    /**
-     * Subscription to the push notification BroadcastReceiver.
-     */
-    private Subscription pushSubscription;
-
-    /**
-     * That view that this presenter is presenting with.
-     */
-    private ChatRoomListView view;
-
     /**
      * BroadcastReceiver that listens for incoming push notifications.
      */
     @Bean
     ChatRoomListPushBroadcastReceiver pushReceiver;
     IntentFilter pushReceiverIntentFilter = IntentFilters.chatEventIntentFilter(100);
+    /**
+     * Subscription to refreshChatList.
+     */
+    private Subscription chatRoomSubscription;
+    /**
+     * Subscription to the push notification BroadcastReceiver.
+     */
+    private Subscription pushSubscription;
+    /**
+     * That view that this presenter is presenting with.
+     */
+    private ChatRoomListView view;
 
     @Override
     public void setView(ChatRoomListView view) {
@@ -74,23 +73,31 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(chatEvent -> chatRoomSubscription = refreshChatList().publish().connect(),
                         error -> Timber.e(error, "huh?"));
+    }
 
+    private Action1<List<ChatRoomInfo>> registerForPush() {
+        return infoList -> {
+            List<String> chatRoomIds = new ArrayList<>();
+            for (ChatRoomInfo info : infoList) {
+                chatRoomIds.add(info.chatRoom().objectId());
+            }
+            PushRegistrationIntentService_.intent(context).registerAll(chatRoomIds);
+        };
     }
 
     /**
      * Fetch the list of ChatRoomInfos.
      */
     private Observable<Pair<User, List<ChatRoomInfo>>> refreshChatList() {
-        // Only subscribe if the list hasn't been loaded yet.
         return Observable.combineLatest(
                 api.getCurrentUser(),
-                api.getChatRooms(),
+                api.getChatRooms().doOnNext(registerForPush()),
                 Pair::new)
                 .compose(Scheduler.defaultSchedulers())
                 .doOnNext(result -> {
                     if (view != null) view.displayList(result.second, result.first.objectId());
                 }).doOnError(error -> {
-                    Timber.e("couldn't get list: " + error);
+                    Timber.e(error, "couldn't get list");
                     if (view != null) view.showGetListError();
                 });
     }
@@ -98,7 +105,6 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     @Override
     public void onJoinChatRoomClicked() {
         api.joinGroupChatRoom().compose(Scheduler.defaultSchedulers())
-                .doOnError(error -> Timber.e("uhoh: " + error))
                 .subscribe(alias -> {
                     unsubscribe(chatRoomSubscription);
                     chatRoomSubscription = refreshChatList().subscribe(result -> {
@@ -107,6 +113,7 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                             view.navigateToChatView(alias.objectId());
                         }
                     }, error -> {
+                        Timber.e(error, "Couldn't join chat room");
                         if (view != null) view.showJoinChatError();
                     });
                 });
@@ -128,7 +135,7 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     @Override
     public void debugReset() {
         api.debugReset().subscribe(aVoid -> {
-            if(view != null) view.navigateToSignUpView();
+            if (view != null) view.navigateToSignUpView();
         }, error -> Timber.e(error, "couldn't reset?"));
     }
 

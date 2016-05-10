@@ -5,7 +5,7 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import java.util.List;
 
 /**
- * Created by tonyjhuang on 4/14/16.
+ * View for the list of the current User's ChatRooms.
  */
 public interface ChatRoomListView {
 

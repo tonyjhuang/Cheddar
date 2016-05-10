@@ -21,6 +21,7 @@ import org.androidannotations.api.support.app.AbstractIntentService;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import timber.log.Timber;
@@ -42,6 +43,21 @@ public class PushRegistrationIntentService extends AbstractIntentService {
 
     public PushRegistrationIntentService() {
         super(PushRegistrationIntentService.class.getSimpleName());
+    }
+
+    @ServiceAction
+    void unregisterAll() {
+        for (String channel : persistApi.fetchGcmChannels().channels()) {
+            unregisterForPush(channel);
+        }
+    }
+
+    @ServiceAction
+    void registerAll(List<String> channels) {
+        Timber.d("registering for: " + channels);
+        for (String channel : channels) {
+            registerForPush(channel);
+        }
     }
 
     @ServiceAction

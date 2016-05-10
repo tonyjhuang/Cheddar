@@ -5,13 +5,17 @@ package com.tonyjhuang.cheddar.ui.login;
  * verify their email via email.
  */
 public interface VerifyEmailView {
-    void navigateToListView();
-
-    void showEmailNotVerified();
+    void navigateToChatView(String aliasId);
 
     void navigateToSignupView();
+
+    void showEmailNotVerified();
 
     void showResentEmailMessage(String message);
 
     void showResendEmailFailed();
+
+    void showJoiningChatRoomLoading();
+
+    void showJoiningChatRoomFailed();
 }

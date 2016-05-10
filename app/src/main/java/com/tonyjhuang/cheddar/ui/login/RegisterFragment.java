@@ -16,10 +16,16 @@ import java.util.regex.Pattern;
 @EFragment(R.layout.fragment_register)
 public class RegisterFragment extends Fragment {
 
+    /**
+     * DEBUG emails to test with
+     */
+    private static final String DEBUG_EMAIL_1 = "huang.to@husky.neu.edu";
+    private static final String DEBUG_EMAIL_2 = "tony.huang.jun@gmail.com";
+
     // regex adapted from
     // http://www.mkyong.com/regular-expressions/how-to-validate-email-address-with-regular-expression/
     private static final String EMAIL_PATTERN =
-            "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@husky.neu.edu$";
+            "^(([_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@husky.neu.edu)|(tony.huang.jun@gmail.com))$";
     /**
      * Verifies husky email addresses (...@husky.neu.edu)
      */
@@ -50,6 +56,19 @@ public class RegisterFragment extends Fragment {
 
     private boolean validateEmailAddress(CharSequence candidate) {
         return emailPattern.matcher(candidate).matches();
+    }
+
+    @Click(R.id.debug_email)
+    public void onDebugEmailClicked() {
+        if (!emailView.getText().toString().equals(DEBUG_EMAIL_1)) {
+            emailView.setText(DEBUG_EMAIL_1);
+        } else {
+            if (emailView.getText().toString().equals(DEBUG_EMAIL_2)) {
+                emailView.setText(DEBUG_EMAIL_1);
+            } else {
+                emailView.setText(DEBUG_EMAIL_2);
+            }
+        }
     }
 
     private void showToast(int stringRes) {

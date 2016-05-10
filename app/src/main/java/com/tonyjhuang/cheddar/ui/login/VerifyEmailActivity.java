@@ -1,7 +1,12 @@
 package com.tonyjhuang.cheddar.ui.login;
 
+import android.content.Intent;
+import android.support.v4.app.TaskStackBuilder;
+
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.R;
+import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
+import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.list.ChatRoomListActivity_;
 import com.tonyjhuang.cheddar.ui.onboard.OnboardActivity_;
 
@@ -13,8 +18,11 @@ import org.androidannotations.annotations.EActivity;
 @EActivity(R.layout.activity_verify_email)
 public class VerifyEmailActivity extends CheddarActivity implements VerifyEmailView {
 
+
     @Bean(VerifyEmailPresenterImpl.class)
     VerifyEmailPresenter presenter;
+
+    private LoadingDialog loadingDialog;
 
     @AfterInject
     public void afterInject() {
@@ -47,6 +55,24 @@ public class VerifyEmailActivity extends CheddarActivity implements VerifyEmailV
     }
 
     @Override
+    public void showJoiningChatRoomLoading() {
+        loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
+    }
+
+    @Override
+    public void showJoiningChatRoomFailed() {
+        if(loadingDialog != null) loadingDialog.dismiss();
+        showToast(R.string.onboard_error_join_chat);
+    }
+
+    @Override
+    public void navigateToChatView(String aliasId) {
+        Intent chatIntent = ChatActivity_.intent(this).aliasId(aliasId).get();
+        TaskStackBuilder.create(this)
+                .addNextIntentWithParentStack(chatIntent)
+                .startActivities();
+    }
+
     public void navigateToListView() {
         ChatRoomListActivity_.intent(this).start();
     }
