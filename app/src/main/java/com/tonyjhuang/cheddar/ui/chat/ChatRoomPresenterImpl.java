@@ -441,6 +441,13 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
     @Override
     public void leaveChatRoom() {
+        unsubscribe(activeAliasSubscription);
+        unsubscribe(getActiveAliasesSubscription);
+        unsubscribe(chatEventSubscription);
+        unsubscribe(cacheChatEventSubscription);
+        unsubscribe(cacheChatRoomNameSubscription);
+        unsubscribe(chatRoomNameSubscription);
+        unsubscribe(historyChatEventSubscription);
         api.resetReplayChatEvents();
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .doOnNext(alias -> unregisterForPush(context, alias.chatRoomId()))
