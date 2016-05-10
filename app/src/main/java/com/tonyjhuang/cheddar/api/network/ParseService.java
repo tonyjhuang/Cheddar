@@ -7,11 +7,13 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.request.FindAliasRequest;
 import com.tonyjhuang.cheddar.api.network.request.FindChatRoomRequest;
+import com.tonyjhuang.cheddar.api.network.request.FindUserRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetActiveAliasesRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetChatRoomsRequest;
 import com.tonyjhuang.cheddar.api.network.request.JoinChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.LeaveChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.ReplayChatEventsRequest;
+import com.tonyjhuang.cheddar.api.network.request.ResendVerificationEmailRequest;
 import com.tonyjhuang.cheddar.api.network.request.SendMessageRequest;
 import com.tonyjhuang.cheddar.api.network.request.UpdateChatRoomNameRequest;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventsResponse;
@@ -30,8 +32,14 @@ public interface ParseService {
     @POST("hello")
     Observable<String> test();
 
+    @POST("findUser")
+    Observable<User> findUser(@Body FindUserRequest body);
+
     @POST("registerNewUser")
     Observable<User> registerNewUser();
+
+    @POST("resendVerificationEmail")
+    Observable<User> resendVerificationEmail(@Body ResendVerificationEmailRequest body);
 
     @POST("findAlias")
     Observable<Alias> findAlias(@Body FindAliasRequest body);

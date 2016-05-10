@@ -61,6 +61,22 @@ public class CacheApi {
     }
 
     /****************
+     * ! DEBUG !
+     ****************/
+
+    public Observable<Void> debugReset() {
+        return Observable.defer(() -> {
+            Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+            realm.deleteAll();
+            realm.commitTransaction();
+            realm.close();
+            return Observable.just(null);
+        });
+    }
+
+
+    /****************
      * Alias
      ****************/
 

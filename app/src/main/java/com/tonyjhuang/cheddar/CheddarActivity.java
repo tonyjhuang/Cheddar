@@ -40,7 +40,7 @@ public abstract class CheddarActivity extends AppCompatActivity {
         if (ConnectivityBroadcastReceiver.getLastKnownConnected()) {
             api.getCurrentUser().compose(Scheduler.defaultSchedulers())
                     .doOnError(error -> {
-                        api.logout().publish().connect();
+                        api.debugReset().publish().connect();
                         navigateToOnboardView();
                     })
                     .publish().connect();

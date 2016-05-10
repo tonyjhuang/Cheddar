@@ -11,26 +11,29 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.MetaData;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.request.FindAliasRequest;
 import com.tonyjhuang.cheddar.api.network.request.FindChatRoomRequest;
+import com.tonyjhuang.cheddar.api.network.request.FindUserRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetActiveAliasesRequest;
 import com.tonyjhuang.cheddar.api.network.request.GetChatRoomsRequest;
 import com.tonyjhuang.cheddar.api.network.request.JoinChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.LeaveChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.ReplayChatEventsRequest;
+import com.tonyjhuang.cheddar.api.network.request.ResendVerificationEmailRequest;
 import com.tonyjhuang.cheddar.api.network.request.SendMessageRequest;
 import com.tonyjhuang.cheddar.api.network.request.UpdateChatRoomNameRequest;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ChatEventPage;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventDeserializer;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventObjectHolder;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ReplayChatEventsResponse;
-import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.EBean;
 
@@ -50,7 +53,6 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
-import timber.log.Timber;
 
 import static com.tonyjhuang.cheddar.api.message.MessageApi.PUBKEY;
 import static com.tonyjhuang.cheddar.api.message.MessageApi.SUBKEY;
@@ -123,16 +125,56 @@ public class ParseApi {
         return httpClient.build();
     }
 
-    public Observable<String> test() {
-        return service.test().compose(Scheduler.backgroundSchedulers());
+    public Observable<User> findUser(String userId) {
+        return service.findUser(new FindUserRequest(userId));
+    }
+
+    public Observable<Boolean> isUserEmailVerified(String userId) {
+        return findUser(userId).map(User::emailVerified);
+    }
+
+    public Observable<User> resendVerificationEmail(String userId) {
+        return service.resendVerificationEmail(new ResendVerificationEmailRequest(userId));
+    }
+
+    /**
+     * DEBUG.
+     * Deletes the current logged in user.
+     */
+    public Observable<Void> deleteCurrentUser() {
+        return Observable.defer(() -> {
+            try {
+                ParseUser.getCurrentUser().delete();
+                return Observable.just(null);
+            } catch (com.parse.ParseException e) {
+                return Observable.error(e);
+            }
+        });
     }
 
     /**
      * Registers a new user with the server.
      */
-    public Observable<User> registerNewUser() {
-        return service.registerNewUser()
-                .doOnNext(user -> Timber.d(user.toString()));
+    public Observable<User> registerNewUser(String email, String password) {
+        ParseUser.logOut();
+        ParseUser user = new ParseUser();
+        user.setUsername(email);
+        user.setPassword(password);
+        user.setEmail(email);
+
+        return Observable.create(subscriber ->
+                user.signUpInBackground(error -> {
+                    if (error == null && !subscriber.isUnsubscribed()) {
+                        MetaData metaData = MetaData.create(
+                                user.getObjectId(), user.getCreatedAt(), user.getUpdatedAt());
+                        subscriber.onNext(User.create(metaData, email, false));
+                        subscriber.onCompleted();
+                    } else {
+                        if (!subscriber.isUnsubscribed()) {
+                            subscriber.onError(error);
+                        }
+                    }
+                }));
     }
 
     /**

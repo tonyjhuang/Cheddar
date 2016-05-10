@@ -13,6 +13,8 @@ public interface ChatRoomListView {
 
     void navigateToChatView(String aliasId);
 
+    void navigateToSignUpView();
+
     void showJoinChatError();
 
     void showGetListError();

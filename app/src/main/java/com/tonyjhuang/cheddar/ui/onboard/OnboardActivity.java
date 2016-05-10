@@ -16,6 +16,7 @@ import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager;
 import com.tonyjhuang.cheddar.ui.customviews.ParalloidImageView;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
+import com.tonyjhuang.cheddar.ui.login.VerifyEmailActivity_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -132,17 +133,38 @@ public class OnboardActivity extends CheddarActivity implements OnboardView {
 
     @Override
     public void showJoinChatFailed() {
-        if (loadingDialog != null) loadingDialog.dismiss();
+        dismissLoadingDialog();
         showToast(R.string.onboard_error_join_chat);
     }
 
     @Override
     public void navigateToChatView(String aliasId) {
-        if (loadingDialog != null) loadingDialog.dismiss();
+        dismissLoadingDialog();
         Intent chatIntent = ChatActivity_.intent(this).aliasId(aliasId).get();
         TaskStackBuilder.create(this)
                 .addNextIntentWithParentStack(chatIntent)
                 .startActivities();
+    }
+
+    @Override
+    public void showRegisterUserLoadingDialog() {
+        loadingDialog = LoadingDialog.show(this, R.string.signup_register_loading);
+    }
+
+    @Override
+    public void showRegisterUserFailed() {
+        if(loadingDialog != null) loadingDialog.dismiss();
+        showToast(R.string.signup_register_failed);
+    }
+
+    @Override
+    public void navigateToVerifyEmailView(String userId) {
+        dismissLoadingDialog();
+        VerifyEmailActivity_.intent(this).start();
+    }
+    
+    private void dismissLoadingDialog() {
+        if (loadingDialog != null) loadingDialog.dismiss();
     }
 
     @Override

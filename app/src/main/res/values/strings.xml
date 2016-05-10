@@ -23,7 +23,16 @@
     <string name="alpha_warning">Thanks for testing cheddar! Things might break but you knew that already ;)</string>
     <string name="alpha_confirm">Ok, let me in!</string>
 
+    <!-- verify email -->
+    <string name="verify_email_not_verified">Please check your email for the verification link!</string>
+    <string name="verify_email_resent">Verification email has been resent to %1$s</string>
+    <string name="verify_email_error_resend_failed">Verification email could not be sent. Please try again.</string>
+
     <!-- signup -->
+    <string name="signup_error_email_invalid">Invalid email</string>
+    <string name="signup_error_password_invalid">Invalid password</string>
+    <string name="signup_register_loading">Registering user&#8230;</string>
+    <string name="signup_register_failed">Couldn\'t register user. Please try again.</string>
     <string name="signup_header">Signup</string>
     <string name="signup_progress_1">1 of 2</string>
     <string name="signup_progress_2">2 of 2</string>

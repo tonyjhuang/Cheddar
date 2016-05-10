@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.support.v4.util.Pair;
 
+import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
@@ -14,6 +15,7 @@ import com.tonyjhuang.cheddar.utils.Scheduler;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.List;
 
@@ -32,6 +34,9 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
 
     @Bean
     ParseApi pApi;
+
+    @Pref
+    CheddarPrefs_ prefs;
 
     /**
      * Subscription to refreshChatList.
@@ -120,6 +125,12 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
         view = null;
     }
 
+    @Override
+    public void debugReset() {
+        api.debugReset().subscribe(aVoid -> {
+            if(view != null) view.navigateToSignUpView();
+        }, error -> Timber.e(error, "couldn't reset?"));
+    }
 
     private void unsubscribe(Subscription s) {
         if (s != null) s.unsubscribe();

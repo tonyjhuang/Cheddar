@@ -15,11 +15,11 @@ public class RealmUser extends RealmObject implements ValueSource {
     private Date createdAt;
     private Date updatedAt;
     private String username;
-    private String password;
+    private boolean emailVerified;
 
     public User toValue() {
         MetaData metaData = MetaData.create(objectId, createdAt, updatedAt);
-        return User.create(metaData, username, password);
+        return User.create(metaData, username, emailVerified);
     }
 
     public String getObjectId() {
@@ -54,11 +54,11 @@ public class RealmUser extends RealmObject implements ValueSource {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public boolean isEmailVerified() {
+        return emailVerified;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 }

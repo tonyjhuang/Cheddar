@@ -14,11 +14,11 @@ public abstract class User {
 
     public static User create(MetaData metaData,
                               String userName,
-                              String password) {
+                              boolean emailVerified) {
         return new AutoValue_User(metaData.objectId(),
                 metaData.createdAt(),
                 metaData.updatedAt(),
-                userName, password);
+                userName, emailVerified);
     }
 
     public static TypeAdapter<User> typeAdapter(Gson gson) {
@@ -33,7 +33,7 @@ public abstract class User {
 
     public abstract String username();
 
-    public abstract String password();
+    public abstract boolean emailVerified();
 
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -5,7 +5,10 @@ package com.tonyjhuang.cheddar.ui.onboard;
  */
 public interface OnboardView {
 
+    void showRegisterUserLoadingDialog();
+    void showRegisterUserFailed();
     void showJoinChatLoadingDialog();
-    void navigateToChatView(String aliasId);
     void showJoinChatFailed();
+    void navigateToChatView(String aliasId);
+    void navigateToVerifyEmailView(String userId);
 }

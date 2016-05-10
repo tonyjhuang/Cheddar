@@ -155,7 +155,6 @@ dependencies {
 
     compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.parse:parse-android:1.+'
-    compile 'com.infstory:rxparse:2.0.1'
 
     compile 'io.reactivex:rxjava:1.1.1'
     compile 'io.reactivex:rxandroid:1.1.0'

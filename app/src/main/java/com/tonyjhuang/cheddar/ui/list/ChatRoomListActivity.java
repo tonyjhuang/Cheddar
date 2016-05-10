@@ -6,11 +6,11 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.tonyjhuang.cheddar.CheddarActivity;
-import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
+import com.tonyjhuang.cheddar.ui.onboard.OnboardActivity_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -18,11 +18,8 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.List;
-
-import io.realm.Realm;
 
 /**
  * Displays the list of chatrooms the user is currently in.
@@ -39,8 +36,6 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     @Bean(ChatRoomListPresenterImpl.class)
     ChatRoomListPresenter presenter;
 
-    @Pref
-    CheddarPrefs_ prefs;
     @Bean
     ChatRoomListAdapter adapter;
     /**
@@ -93,6 +88,12 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     }
 
     @Override
+    public void navigateToSignUpView() {
+        OnboardActivity_.intent(this).start();
+        finish();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         presenter.onResume();
@@ -129,14 +130,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
                 presenter.onJoinChatRoomClicked();
                 return true;
             case R.id.action_clear:
-                Realm realm = Realm.getDefaultInstance();
-                realm.beginTransaction();
-                realm.deleteAll();
-                realm.commitTransaction();
-                realm.close();
-                prefs.onboardShown().put(false);
-                prefs.currentUserId().put("");
-                finish();
+                presenter.debugReset();
         }
         return super.onOptionsItemSelected(item);
     }

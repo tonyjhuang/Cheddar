@@ -4,16 +4,18 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.tonyjhuang.cheddar.ui.login.RegisterFragment_;
+
 /**
- * Created by tonyjhuang on 2/9/16.
+ * Supplies fragments to the Onboard viewpager.
  */
 public class OnboardPagerAdapter extends FragmentPagerAdapter {
 
     private Fragment[] fragments = {
-            new OnboardActivity_.OnboardCheddarFragment_(),
-            new OnboardActivity_.OnboardMatchFragment_(),
-            new OnboardActivity_.OnboardGroupFragment_(),
-            new OnboardActivity_.AlphaWarningFragment_()
+            OnboardActivity_.OnboardCheddarFragment_.builder().build(),
+            OnboardActivity_.OnboardMatchFragment_.builder().build(),
+            OnboardActivity_.OnboardGroupFragment_.builder().build(),
+            RegisterFragment_.builder().build()
     };
 
     public OnboardPagerAdapter(FragmentManager fm) {
