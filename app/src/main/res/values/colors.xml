@@ -48,6 +48,6 @@
     <color name="chat_text_outgoing_sending">#D0FFFFFF</color>
 
     <!-- ui -->
-    <color name="ui_light_gray">#f3f3f3</color>
+    <color name="ui_light_gray">#FAFAFA</color>
     <color name="ui_medium_gray">#F0F0F0</color>
 </resources>

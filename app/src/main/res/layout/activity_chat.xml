@@ -34,7 +34,7 @@
         android:layout_above="@+id/message_input_divider"
         android:layout_below="@+id/toolbar_divider"
         android:alpha="0"
-        android:background="?android:colorBackground"
+        android:background="@color/ui_light_gray"
         android:clipToPadding="false"
         android:divider="@null"
         android:listSelector="@android:color/transparent"

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:background="?android:colorBackground"
-    android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/ui_light_gray"
     android:orientation="horizontal">
 
     <com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_
@@ -34,8 +34,8 @@
             android:layout_toStartOf="@+id/timestamp"
             android:ellipsize="end"
             android:singleLine="true"
-            tools:text="Group"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            tools:text="Group" />
 
         <TextView
             android:id="@+id/timestamp"
@@ -43,8 +43,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            tools:text="2/23"
-            android:textColor="@color/text_secondary" />
+            android:textColor="@color/text_secondary"
+            tools:text="2/23" />
 
         <TextView
             android:id="@+id/recent_message"
