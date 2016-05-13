@@ -34,7 +34,7 @@
     <string name="signup_register_loading">Registering&#8230;</string>
     <string name="signup_register_failed">Couldn\'t register user. Please try again.</string>
     <string name="signup_login_loading">Logging in&#8230;</string>
-    <string name="signup_login_failed">Login failed.</string>
+    <string name="signup_login_failed">Wrong email or password.</string>
     <string name="signup_header">Signup</string>
     <string name="signup_progress_1">1 of 2</string>
     <string name="signup_progress_2">2 of 2</string>
@@ -48,6 +48,7 @@
     <string name="signup_notice">This information will not be shared with other users.</string>
     <string name="signup_submit">Next</string>
     <string name="signup_verify_email">Thanks! Please check your inbox at %1$s for your verification link to finish.</string>
+    <string name="signup_error_network">Please check your network connection.</string>
 
     <!-- chat -->
     <string name="chat_join_chat">Joining chat&#8230;</string>

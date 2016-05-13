@@ -53,6 +53,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
+import timber.log.Timber;
 
 import static com.tonyjhuang.cheddar.api.message.MessageApi.PUBKEY;
 import static com.tonyjhuang.cheddar.api.message.MessageApi.SUBKEY;
@@ -155,7 +156,8 @@ public class ParseApi {
     /**
      * Registers a new user with the server.
      */
-    public Observable<User> registerNewUser(String email, String password) {
+    public Observable<User> registerUser(String email, String password) {
+        Timber.d("register %s", email);
         return Observable.create(subscriber -> {
             ParseUser.logOut();
             ParseUser user = new ParseUser();
@@ -175,14 +177,8 @@ public class ParseApi {
         });
     }
 
-    public Observable<Void> logout() {
-        return Observable.defer(() -> {
-            ParseUser.logOut();
-            return Observable.just(null);
-        });
-    }
-
     public Observable<User> login(String email, String password) {
+        Timber.d("login %s", email);
         return Observable.create(subscriber -> {
             ParseUser.logInInBackground(email, password, (user, error) -> {
                 if (subscriber.isUnsubscribed()) return;
@@ -193,6 +189,14 @@ public class ParseApi {
                     subscriber.onError(error);
                 }
             });
+        });
+    }
+
+    public Observable<Void> logout() {
+        Timber.d("logout");
+        return Observable.defer(() -> {
+            ParseUser.logOut();
+            return Observable.just(null);
         });
     }
 

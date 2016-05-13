@@ -21,7 +21,6 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 import rx.Subscription;
@@ -70,6 +69,13 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                         if (view != null) view.displayUserEmail(username);
                     }, error -> Timber.e(error, "couldnt get current user"));
         }
+        api.getCurrentUser().map(User::objectId)
+                .flatMap(api::fetchUser)
+                .compose(Scheduler.backgroundSchedulers())
+                .doOnError(error -> {
+                    Timber.e(error, "failed to get current user from network.");
+                    logout();
+                }).publish().connect();
     }
 
     @Override
@@ -82,9 +88,6 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                 .subscribe(chatEvent -> chatRoomSubscription = refreshChatList().publish().connect(),
                         error -> Timber.e(error, "huh?"));
 
-        Observable.empty().delay(3, TimeUnit.SECONDS)
-                .doOnTerminate(() -> PushRegistrationIntentService_.intent(context).onTokenRefresh().start())
-                .publish().connect();
     }
 
     /**
@@ -128,7 +131,17 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
 
     @Override
     public void logout() {
-        api.logoutCurrentUser()
+        Observable<List<String>> unregisterFromPush = api.getCurrentUser().map(User::objectId)
+                .flatMap(api::fetchChatRoomInfos)
+                .flatMap(Observable::from)
+                .map(i -> i.chatRoom().objectId())
+                .toList()
+                .doOnNext(ids -> PushRegistrationIntentService_.intent(context).unregisterAll(ids).start())
+                .compose(Scheduler.backgroundSchedulers());
+
+        unregisterFromPush
+                .onExceptionResumeNext(Observable.just(null))
+                .flatMap(result -> api.logoutCurrentUser())
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(result -> {
                     if (view != null) view.navigateToSignUpView();

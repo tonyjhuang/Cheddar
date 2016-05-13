@@ -180,6 +180,11 @@ public class OnboardActivity extends CheddarActivity implements OnboardView {
         ChatRoomListActivity_.intent(this).start();
     }
 
+    @Override
+    public void showNetworkConnectionError() {
+        showToast(R.string.signup_error_network);
+    }
+
     private void dismissLoadingDialog() {
         if (loadingDialog != null) loadingDialog.dismiss();
     }
@@ -188,11 +193,6 @@ public class OnboardActivity extends CheddarActivity implements OnboardView {
     protected void onResume() {
         super.onResume();
         presenter.onResume();
-    }
-
-    @Override
-    protected void navigateToOnboardView() {
-        // Override to no-op.
     }
 
     @Override

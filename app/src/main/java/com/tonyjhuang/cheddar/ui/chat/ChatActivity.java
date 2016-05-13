@@ -380,7 +380,6 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         super.onResume();
         presenter.onResume();
         showChangeLog(prefs);
-        checkCurrentUser(api);
         if (chatEventListView != null &&
                 adapter != null &&
                 chatEventListView.getLastVisiblePosition() == adapter.getCount() - 1) {

@@ -1,14 +1,18 @@
 package com.tonyjhuang.cheddar.ui.onboard;
 
+import android.content.Context;
+
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.api.models.value.User;
+import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
 import com.tonyjhuang.cheddar.ui.login.RegisterFragment;
 import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -22,6 +26,9 @@ import timber.log.Timber;
  */
 @EBean
 public class OnboardPresenterImpl implements OnboardPresenter {
+
+    @RootContext
+    Context context;
 
     @Bean
     CheddarApi api;
@@ -71,6 +78,11 @@ public class OnboardPresenterImpl implements OnboardPresenter {
     public void onRegisterUserRequestEvent(RegisterFragment.RegisterUserRequestEvent event) {
         if (isSubscribed(loginUserSubscription) || isSubscribed(registerUserSubscription)) return;
 
+        if(!ConnectivityBroadcastReceiver.isConnected(context)) {
+            if(view != null) view.showNetworkConnectionError();
+            return;
+        }
+
         if (view != null) view.showRegisterUserLoadingDialog();
 
         registerUserSubject = AsyncSubject.create();
@@ -104,6 +116,11 @@ public class OnboardPresenterImpl implements OnboardPresenter {
     public void onLoginUserRequestEvent(RegisterFragment.LoginUserRequestEvent event) {
         if (isSubscribed(loginUserSubscription) || isSubscribed(registerUserSubscription)) return;
 
+        if(!ConnectivityBroadcastReceiver.isConnected(context)) {
+            if(view != null) view.showNetworkConnectionError();
+            return;
+        }
+
         if (view != null) view.showLoginUserLoadingDialog();
 
         loginUserSubject = AsyncSubject.create();
@@ -126,7 +143,13 @@ public class OnboardPresenterImpl implements OnboardPresenter {
                     unsubscribe(loginUserSubjectSubscription);
                     prefs.currentUserId().put(user.objectId());
                     prefs.onboardShown().put(true);
-                    if (view != null) view.navigateToListView();
+                    if (view != null) {
+                        if(user.emailVerified()) {
+                            view.navigateToListView();
+                        } else {
+                            view.navigateToVerifyEmailView(user.objectId());
+                        }
+                    }
                 }, error -> {
                     Timber.e(error, "failed to login");
                     if (view != null) view.showLoginUserFailed();

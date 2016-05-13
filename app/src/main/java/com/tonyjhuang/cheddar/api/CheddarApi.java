@@ -13,7 +13,6 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
-import com.tonyjhuang.cheddar.background.notif.PushRegistrationIntentService_;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -82,7 +81,7 @@ public class CheddarApi {
     }
 
     public Observable<User> registerNewUser(String email, String password) {
-        return parseApi.registerNewUser(email, password)
+        return parseApi.registerUser(email, password)
                 .doOnNext(user -> prefs.currentUserId().put(user.objectId()))
                 .flatMap(cacheApi::persist);
     }
@@ -126,22 +125,29 @@ public class CheddarApi {
     public Observable<User> login(String email, String password) {
         Timber.d("%s, %s", email, password);
         return parseApi.login(email, password)
-                .flatMap(cacheApi::persist);
-    }
-
-    public Observable<Void> logoutCurrentUser() {
-        return fetchChatRoomInfos()
-                // Change list of ChatRoomInfos into a list of ChatRoom ids.
-                .flatMap(Observable::from).map(info -> info.chatRoom().objectId()).toList()
-                .doOnNext(chatRoomIds ->
-                        PushRegistrationIntentService_.intent(context).unregisterAll(chatRoomIds).start())
-                .doOnNext(result -> {
-                    // Log user out of prefs.
-                    prefs.currentUserId().put("");
+                .flatMap(cacheApi::persist)
+                .doOnNext(user -> {
+                    prefs.currentUserId().put(user.objectId());
+                    prefs.userEmailVerified().put(user.emailVerified());
                     prefs.unreadMessages().put("");
                     prefs.pushChannels().put("");
-                }).flatMap(result -> parseApi.logout());
+                });
     }
+
+    /**
+     * Unregister from all push notifications, logout current user.
+     */
+    public Observable<Void> logoutCurrentUser() {
+        return Observable.defer(() -> {
+            // Log user out of prefs.
+            prefs.currentUserId().put("");
+            prefs.userEmailVerified().put(false);
+            prefs.unreadMessages().put("");
+            prefs.pushChannels().put("");
+            return parseApi.logout();
+        });
+    }
+
 
     //******************************************************
     //                Aliases
@@ -205,15 +211,14 @@ public class CheddarApi {
                                 .doOnNext(infos -> Timber.v("cached: " + infos.size()))
                                 .onExceptionResumeNext(Observable.empty()),
                         // Network call.
-                        fetchChatRoomInfos()));
+                        fetchChatRoomInfos(userId)));
     }
 
-    public Observable<List<ChatRoomInfo>> fetchChatRoomInfos() {
-        return getCurrentUser().map(User::objectId)
-                .flatMap(userId -> parseApi.getChatRooms(userId)
-                        .doOnNext(infos -> Timber.v("network: " + infos.size()))
-                        .flatMap(infos -> cacheApi.persistChatRoomInfosForUserExclusive(userId, infos))
-                        .compose(sortChatRoomInfoList()));
+    public Observable<List<ChatRoomInfo>> fetchChatRoomInfos(String userId) {
+        return parseApi.getChatRooms(userId)
+                .doOnNext(infos -> Timber.v("network: " + infos.size()))
+                .flatMap(infos -> cacheApi.persistChatRoomInfosForUserExclusive(userId, infos))
+                .compose(sortChatRoomInfoList());
     }
 
     private Observable.Transformer<List<ChatRoomInfo>, List<ChatRoomInfo>> sortChatRoomInfoList() {

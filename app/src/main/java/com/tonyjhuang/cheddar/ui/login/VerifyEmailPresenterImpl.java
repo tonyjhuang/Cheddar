@@ -99,7 +99,7 @@ public class VerifyEmailPresenterImpl implements VerifyEmailPresenter {
 
     @Override
     public void logout() {
-        api.debugReset().subscribe(aVoid -> {
+        api.logoutCurrentUser().subscribe(aVoid -> {
             if (view != null) view.navigateToSignupView();
         }, error -> Timber.e(error, "couldnt logout"));
     }

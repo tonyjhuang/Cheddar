@@ -36,22 +36,6 @@ public abstract class CheddarActivity extends AppCompatActivity {
         }
     }
 
-    protected void checkCurrentUser(CheddarApi api) {
-        if (ConnectivityBroadcastReceiver.getLastKnownConnected()) {
-            api.getCurrentUser().compose(Scheduler.defaultSchedulers())
-                    .doOnError(error -> {
-                        api.debugReset().publish().connect();
-                        navigateToOnboardView();
-                    })
-                    .publish().connect();
-        }
-    }
-
-    protected void navigateToOnboardView() {
-        OnboardActivity_.intent(this).start();
-        finish();
-    }
-
     /**
      * Returns the version name or the empty string if it can't be retrieved.
      */
