@@ -80,15 +80,33 @@ public class CacheApi {
      * Alias
      ****************/
 
-    public Observable<Alias> getAliasForChatRoom(String currentUserId, String chatRoomId) {
+    public Observable<Alias> getAliasForChatRoom(String userId, String chatRoomId) {
         return Observable.defer(() -> {
             Realm realm = Realm.getDefaultInstance();
             return Observable.just(realm.copyFromRealm(realm.where(RealmAlias.class)
-                    .equalTo("userId", currentUserId)
+                    .equalTo("userId", userId)
                     .equalTo("chatRoomId", chatRoomId)
                     .findFirst()))
                     .doAfterTerminate(realm::close)
                     .map(RealmAlias::toValue);
+        });
+    }
+
+    /**
+     * Retrieve all active Aliases for the User with the given id.
+     */
+    public Observable<List<Alias>> getActiveAliasesForUser(String userId) {
+        return Observable.defer(() -> {
+            Realm realm = Realm.getDefaultInstance();
+            return Observable.just(realm.copyFromRealm(
+                    realm.where(RealmAlias.class)
+                            .equalTo("userId", userId)
+                            .equalTo("active", true)
+                            .findAll()))
+                    .flatMap(Observable::from)
+                    .map(RealmAlias::toValue)
+                    .toList()
+                    .doOnTerminate(realm::close);
         });
     }
 
@@ -201,8 +219,25 @@ public class CacheApi {
         });
     }
 
-    public Observable<List<ChatRoomInfo>> persistChatRoomInfos(List<ChatRoomInfo> infoList) {
-        return Observable.from(infoList).flatMap(this::persist).toList();
+    /**
+     * Persist the ChatRoomInfos in |infoList|, switch all active Aliases that aren't in
+     * |infoList| for |userId| to inactive. (That's the 'exclusive' part!)
+     */
+    public Observable<List<ChatRoomInfo>> persistChatRoomInfosForUserExclusive(
+            String userId, List<ChatRoomInfo> infoList) {
+        return getActiveAliasesForUser(userId)
+                .flatMap(Observable::from)
+                // Flip all found Aliases to inactive
+                .map(alias -> alias.withActive(false))
+                .map(this::persist)
+                .toList()
+                // Persist all updated Aliases to cache.
+                .flatMap(Observable::merge)
+                .toList()
+                // Ignore result, persist list of ChatRoomInfos to cache.
+                .flatMap(result -> Observable.from(infoList))
+                .flatMap(this::persist)
+                .toList();
     }
 
     public Observable<ChatRoomInfo> persist(ChatRoomInfo chatRoomInfo) {

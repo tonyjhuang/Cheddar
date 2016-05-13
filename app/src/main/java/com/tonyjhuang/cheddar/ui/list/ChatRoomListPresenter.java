@@ -10,6 +10,8 @@ public interface ChatRoomListPresenter extends Presenter<ChatRoomListView> {
 
     void onJoinChatRoomClicked();
 
+    void logout();
+
     void debugReset();
 
     void onResume();

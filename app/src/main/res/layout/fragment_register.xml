@@ -7,35 +7,41 @@
 
     <EditText
         android:id="@+id/email"
-        android:inputType="textEmailAddress"
-        android:hint="Husky Email"
-        android:text="huang.to@husky.neu.edu"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:hint="Husky Email"
+        android:inputType="textEmailAddress"
+        android:text="huang.to@husky.neu.edu" />
 
     <EditText
-        android:text="password"
         android:id="@+id/password"
-        android:inputType="textPassword"
-        android:hint="password"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:hint="password"
+        android:inputType="textPassword"
+        android:text="password" />
 
     <TextView
-        android:text="Password must be at least 6 characters"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Password must be at least 6 characters" />
 
     <Button
         android:id="@+id/register"
-        android:text="register"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="register" />
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="login" />
 
     <Button
         android:id="@+id/debug_email"
-        android:text="I'm feeling lucky"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="I'm feeling lucky" />
 
 </LinearLayout>

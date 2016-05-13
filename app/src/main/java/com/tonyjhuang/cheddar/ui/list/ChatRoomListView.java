@@ -11,6 +11,8 @@ public interface ChatRoomListView {
 
     void displayList(List<ChatRoomInfo> infoList, String currentUserId);
 
+    void displayUserEmail(String email);
+
     void navigateToChatView(String aliasId);
 
     void navigateToSignUpView();
@@ -18,4 +20,6 @@ public interface ChatRoomListView {
     void showJoinChatError();
 
     void showGetListError();
+
+    void showLogoutError();
 }

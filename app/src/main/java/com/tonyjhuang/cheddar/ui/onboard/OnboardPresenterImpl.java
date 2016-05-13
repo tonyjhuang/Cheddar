@@ -31,12 +31,18 @@ public class OnboardPresenterImpl implements OnboardPresenter {
 
 
     /**
-     * Use an AsyncSubject here so that if the network call returns
-     * while the view is paused, we can return the cached value on resume.
+     * Use an AsyncSubject to cache the result of the register network call.
      */
-    private Subscription registerUserCachedSubscription;
+    private Subscription registerUserSubjectSubscription;
     private AsyncSubject<User> registerUserSubject;
     private Subscription registerUserSubscription;
+
+    /**
+     * Use an AsyncSubject to cache the result of the login network call.
+     */
+    private Subscription loginUserSubjectSubscription;
+    private AsyncSubject<User> loginUserSubject;
+    private Subscription loginUserSubscription;
 
     /**
      * The view we're presenting to.
@@ -50,30 +56,28 @@ public class OnboardPresenterImpl implements OnboardPresenter {
 
     @Subscribe
     public void onJoinChatEvent(OnboardActivity.AlphaWarningFragment.JoinChatEvent event) {
-        if(view != null) view.showJoinChatLoadingDialog();
+        if (view != null) view.showJoinChatLoadingDialog();
         api.joinGroupChatRoom().compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
                     CheddarMetrics.trackJoinChatRoom(alias.chatRoomId());
                     prefs.onboardShown().put(true);
-                    if(view != null) view.navigateToChatView(alias.objectId());
+                    if (view != null) view.navigateToChatView(alias.objectId());
                 }, error -> {
-                    if(view != null) view.showJoinChatFailed();
+                    if (view != null) view.showJoinChatFailed();
                 });
     }
 
     @Subscribe
     public void onRegisterUserRequestEvent(RegisterFragment.RegisterUserRequestEvent event) {
-        if(registerUserCachedSubscription != null && !registerUserCachedSubscription.isUnsubscribed()) {
-            // Don't allow multiple registrations.
-            return;
-        }
+        if (isSubscribed(loginUserSubscription) || isSubscribed(registerUserSubscription)) return;
 
-        if(view != null) view.showRegisterUserLoadingDialog();
+        if (view != null) view.showRegisterUserLoadingDialog();
 
         registerUserSubject = AsyncSubject.create();
-        registerUserCachedSubscription = api.registerNewUser(event.email, event.password)
+        registerUserSubjectSubscription = api.registerNewUser(event.email, event.password)
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(registerUserSubject);
+
         subscribeToRegisterUserSubject();
     }
 
@@ -81,25 +85,61 @@ public class OnboardPresenterImpl implements OnboardPresenter {
      * Subscribe to our register user AsyncSubject.
      */
     private void subscribeToRegisterUserSubject() {
+        if (registerUserSubject == null) registerUserSubject = AsyncSubject.create();
         registerUserSubscription = registerUserSubject
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(user -> {
-                    unsubscribe(registerUserCachedSubscription);
+                    unsubscribe(registerUserSubjectSubscription);
+                    prefs.currentUserId().put(user.objectId());
                     prefs.onboardShown().put(true);
-                    if(view != null) view.navigateToVerifyEmailView(user.objectId());
+                    if (view != null) view.navigateToVerifyEmailView(user.objectId());
                 }, error -> {
                     Timber.e(error, "failed to register user");
-                    if(view != null) view.showRegisterUserFailed();
-                    unsubscribe(registerUserCachedSubscription);
+                    if (view != null) view.showRegisterUserFailed();
+                    unsubscribe(registerUserSubjectSubscription);
+                });
+    }
+
+    @Subscribe
+    public void onLoginUserRequestEvent(RegisterFragment.LoginUserRequestEvent event) {
+        if (isSubscribed(loginUserSubscription) || isSubscribed(registerUserSubscription)) return;
+
+        if (view != null) view.showLoginUserLoadingDialog();
+
+        loginUserSubject = AsyncSubject.create();
+        loginUserSubjectSubscription = api.login(event.email, event.password)
+                .compose(Scheduler.backgroundSchedulers())
+                .subscribe(loginUserSubject);
+
+        subscribeToLoginUserSubject();
+    }
+
+    /**
+     * Subscribe to our login user AsyncSubject.
+     */
+    private void subscribeToLoginUserSubject() {
+        if (loginUserSubject == null) loginUserSubject = AsyncSubject.create();
+        loginUserSubscription = loginUserSubject
+                .compose(Scheduler.defaultSchedulers())
+                .subscribe(user -> {
+                    unsubscribe(loginUserSubjectSubscription);
+                    prefs.currentUserId().put(user.objectId());
+                    prefs.onboardShown().put(true);
+                    if (view != null) view.navigateToListView();
+                }, error -> {
+                    Timber.e(error, "failed to login");
+                    if (view != null) view.showLoginUserFailed();
+                    unsubscribe(loginUserSubjectSubscription);
                 });
     }
 
     @Override
     public void onResume() {
         EventBus.getDefault().register(this);
-        if(registerUserCachedSubscription != null &&
-                !registerUserCachedSubscription.isUnsubscribed()) {
+        if (isSubscribed(registerUserSubjectSubscription)) {
             subscribeToRegisterUserSubject();
+        } else if (isSubscribed(loginUserSubjectSubscription)) {
+            subscribeToLoginUserSubject();
         }
     }
 
@@ -107,18 +147,23 @@ public class OnboardPresenterImpl implements OnboardPresenter {
     public void onPause() {
         EventBus.getDefault().unregister(this);
         unsubscribe(registerUserSubscription);
+        unsubscribe(loginUserSubscription);
     }
 
     @Override
     public void onDestroy() {
-        unsubscribe(registerUserCachedSubscription);
-        unsubscribe(registerUserSubscription);
+        unsubscribe(registerUserSubjectSubscription);
+        unsubscribe(loginUserSubjectSubscription);
         view = null;
     }
 
     private void unsubscribe(Subscription subscription) {
-        if(subscription != null) {
+        if (subscription != null) {
             subscription.unsubscribe();
         }
+    }
+
+    private boolean isSubscribed(Subscription subscription) {
+        return subscription != null && !subscription.isUnsubscribed();
     }
 }

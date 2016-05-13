@@ -34,7 +34,6 @@ import org.androidannotations.annotations.res.DimensionRes;
 import timber.log.Timber;
 
 /**
- * Created by tonyjhuang on 3/15/16.
  * Handles creating and launching system notifications for api objects.
  */
 @EBean
@@ -62,6 +61,11 @@ public class CheddarNotificationService {
     @Bean
     UnreadMessagesCounter unreadMessagesCounter;
 
+
+    /**
+     * TODO: Check that this ChatEvent matches a ChatRoom that the current User
+     * TODO: has an Alias for.
+     */
     public void createOrUpdateChatEventNotification(Context context, ChatEvent chatEvent) {
         String chatRoomId = chatEvent.alias().chatRoomId();
         String contentText = chatEvent.displayBody();

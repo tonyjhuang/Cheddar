@@ -31,8 +31,10 @@
     <!-- signup -->
     <string name="signup_error_email_invalid">Invalid email</string>
     <string name="signup_error_password_invalid">Invalid password</string>
-    <string name="signup_register_loading">Registering user&#8230;</string>
+    <string name="signup_register_loading">Registering&#8230;</string>
     <string name="signup_register_failed">Couldn\'t register user. Please try again.</string>
+    <string name="signup_login_loading">Logging in&#8230;</string>
+    <string name="signup_login_failed">Login failed.</string>
     <string name="signup_header">Signup</string>
     <string name="signup_progress_1">1 of 2</string>
     <string name="signup_progress_2">2 of 2</string>
@@ -81,7 +83,10 @@
 
     <!-- list -->
     <string name="list_title">Messages</string>
+    <string name="list_logout">Logging out&#8230;</string>
     <string name="list_action_join">Join new chat</string>
+    <string name="list_action_logout">Logout</string>
+    <string name="list_error_logout">Couldn\'t log out. Try again?</string>
     <string name="list_error_join_chat">Couldn\'t join new chat.</string>
     <string name="list_error_get_list">Couldn\'t load messages.</string>
 

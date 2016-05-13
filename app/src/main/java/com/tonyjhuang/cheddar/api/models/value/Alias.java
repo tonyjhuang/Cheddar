@@ -47,6 +47,8 @@ public abstract class Alias implements Parcelable{
 
     public abstract boolean active();
 
+    public abstract Alias withActive(boolean active);
+
     public abstract String chatRoomId();
 
     public abstract String userId();

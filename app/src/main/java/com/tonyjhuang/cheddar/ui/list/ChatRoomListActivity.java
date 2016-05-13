@@ -4,6 +4,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.R;
@@ -33,13 +34,17 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     @ViewById(R.id.room_list_view)
     ListView listView;
 
+    @ViewById(R.id.debug_email)
+    TextView debugEmailView;
+
     @Bean(ChatRoomListPresenterImpl.class)
     ChatRoomListPresenter presenter;
 
     @Bean
     ChatRoomListAdapter adapter;
+
     /**
-     * Loading indicator to display while joining a new ChatRoom.
+     * Loading indicator to display while performing a long running process.
      */
     private LoadingDialog loadingDialog;
 
@@ -62,7 +67,11 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
             listView.setAdapter(adapter);
         }
         adapter.setInfoList(infoList);
+    }
 
+    @Override
+    public void displayUserEmail(String email) {
+        debugEmailView.setText(email);
     }
 
     @ItemClick(R.id.room_list_view)
@@ -72,13 +81,13 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
 
     @Override
     public void navigateToChatView(String aliasId) {
-        if (loadingDialog != null) loadingDialog.dismiss();
+        dismissLoadingDialog();
         ChatActivity_.intent(this).aliasId(aliasId).start();
     }
 
     @Override
     public void showJoinChatError() {
-        if (loadingDialog != null) loadingDialog.dismiss();
+        dismissLoadingDialog();
         showToast(R.string.list_error_join_chat);
     }
 
@@ -88,9 +97,20 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     }
 
     @Override
+    public void showLogoutError() {
+        dismissLoadingDialog();
+        showToast(R.string.list_error_logout);
+    }
+
+    @Override
     public void navigateToSignUpView() {
         OnboardActivity_.intent(this).start();
         finish();
+    }
+
+    private void dismissLoadingDialog() {
+        if (loadingDialog != null) loadingDialog.dismiss();
+
     }
 
     @Override
@@ -129,8 +149,13 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
                 loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
                 presenter.onJoinChatRoomClicked();
                 return true;
+            case R.id.action_logout:
+                loadingDialog = LoadingDialog.show(this, R.string.list_logout);
+                presenter.logout();
+                return true;
             case R.id.action_clear:
                 presenter.debugReset();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

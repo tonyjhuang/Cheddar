@@ -156,25 +156,53 @@ public class ParseApi {
      * Registers a new user with the server.
      */
     public Observable<User> registerNewUser(String email, String password) {
-        ParseUser.logOut();
-        ParseUser user = new ParseUser();
-        user.setUsername(email);
-        user.setPassword(password);
-        user.setEmail(email);
+        return Observable.create(subscriber -> {
+            ParseUser.logOut();
+            ParseUser user = new ParseUser();
+            user.setUsername(email);
+            user.setPassword(password);
+            user.setEmail(email);
 
-        return Observable.create(subscriber ->
-                user.signUpInBackground(error -> {
-                    if (error == null && !subscriber.isUnsubscribed()) {
-                        MetaData metaData = MetaData.create(
-                                user.getObjectId(), user.getCreatedAt(), user.getUpdatedAt());
-                        subscriber.onNext(User.create(metaData, email, false));
-                        subscriber.onCompleted();
-                    } else {
-                        if (!subscriber.isUnsubscribed()) {
-                            subscriber.onError(error);
-                        }
-                    }
-                }));
+            user.signUpInBackground(error -> {
+                if (subscriber.isUnsubscribed()) return;
+                if (error == null) {
+                    subscriber.onNext(toUser(user));
+                    subscriber.onCompleted();
+                } else {
+                    subscriber.onError(error);
+                }
+            });
+        });
+    }
+
+    public Observable<Void> logout() {
+        return Observable.defer(() -> {
+            ParseUser.logOut();
+            return Observable.just(null);
+        });
+    }
+
+    public Observable<User> login(String email, String password) {
+        return Observable.create(subscriber -> {
+            ParseUser.logInInBackground(email, password, (user, error) -> {
+                if (subscriber.isUnsubscribed()) return;
+                if (user != null) {
+                    subscriber.onNext(toUser(user));
+                    subscriber.onCompleted();
+                } else {
+                    subscriber.onError(error);
+                }
+            });
+        });
+    }
+
+    /**
+     * Translate a ParseUser into a our value type User.
+     */
+    private User toUser(ParseUser parseUser) {
+        MetaData metaData = MetaData.create(
+                parseUser.getObjectId(), parseUser.getCreatedAt(), parseUser.getUpdatedAt());
+        return User.create(metaData, parseUser.getUsername(), false);
     }
 
     /**

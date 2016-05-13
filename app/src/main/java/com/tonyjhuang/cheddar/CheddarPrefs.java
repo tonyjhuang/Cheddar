@@ -7,8 +7,6 @@ public interface CheddarPrefs {
 
     String gcmRegistrationToken();
 
-    String activeAlias();
-
     String currentUserId();
 
     boolean userEmailVerified();

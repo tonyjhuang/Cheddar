@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.support.v4.util.Pair;
 
+import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
@@ -62,6 +63,13 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     @Override
     public void setView(ChatRoomListView view) {
         this.view = view;
+        if (BuildConfig.DEBUG) {
+            api.getCurrentUser().compose(Scheduler.defaultSchedulers())
+                    .map(User::username)
+                    .subscribe(username -> {
+                        if (view != null) view.displayUserEmail(username);
+                    }, error -> Timber.e(error, "couldnt get current user"));
+        }
     }
 
     @Override
@@ -117,6 +125,16 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                         if (view != null) view.showJoinChatError();
                     });
                 });
+    }
+
+    @Override
+    public void logout() {
+        api.logoutCurrentUser().subscribe(result -> {
+            if (view != null) view.navigateToSignUpView();
+        }, error -> {
+            if(view != null) view.showLogoutError();
+            Timber.e(error, "failed to logout");
+        });
     }
 
     @Override

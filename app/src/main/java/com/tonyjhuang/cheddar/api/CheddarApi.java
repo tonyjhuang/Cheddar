@@ -73,11 +73,24 @@ public class CheddarApi {
     //                Users
     //******************************************************
 
+    /**
+     * Retrieve the User with the specified id from the network.
+     */
+    public Observable<User> fetchUser(String userId) {
+        return parseApi.findUser(userId)
+                .flatMap(cacheApi::persist);
+    }
+
     public Observable<User> registerNewUser(String email, String password) {
         return parseApi.registerNewUser(email, password)
                 .doOnNext(user -> prefs.currentUserId().put(user.objectId()))
                 .flatMap(cacheApi::persist);
     }
+
+
+    //******************************************************
+    //                Current User
+    //******************************************************
 
     /**
      * Gets the current user's id or else emits a NoCurrentUserException.
@@ -93,6 +106,12 @@ public class CheddarApi {
         });
     }
 
+    public Observable<User> getCurrentUser() {
+        return getCurrentUserId()
+                .flatMap(currentUserId -> cacheApi.getUser(currentUserId)
+                        .onExceptionResumeNext(fetchUser(currentUserId)));
+    }
+
     public Observable<User> resendCurrentUserVerificationEmail() {
         return getCurrentUserId().flatMap(parseApi::resendVerificationEmail);
     }
@@ -104,33 +123,23 @@ public class CheddarApi {
                 .doOnNext(emailVerified -> prefs.userEmailVerified().put(emailVerified));
     }
 
-    /**
-     * Retrieve the User with the specified id from the network.
-     */
-    public Observable<User> fetchUser(String userId) {
-        return parseApi.findUser(userId)
+    public Observable<User> login(String email, String password) {
+        return parseApi.login(email, password)
                 .flatMap(cacheApi::persist);
     }
 
-    public Observable<User> getCurrentUser() {
-        return getCurrentUserId()
-                .flatMap(currentUserId -> cacheApi.getUser(currentUserId)
-                        .onExceptionResumeNext(fetchUser(currentUserId)));
-    }
-
     public Observable<Void> logoutCurrentUser() {
-        return Observable.defer(() -> {
-            prefs.currentUserId().put("");
-            prefs.unreadMessages().put("");
-            prefs.pushChannels().put("");
-            PushRegistrationIntentService_.intent(context).unregisterAll();
-            return Observable.just(null);
-        });
-    }
-
-    public Observable<Alias> getAliasForChatRoom(String chatRoomId) {
-        return getCurrentUser().map(User::objectId)
-                .flatMap(userId -> cacheApi.getAliasForChatRoom(userId, chatRoomId));
+        return fetchChatRooms()
+                // Change list of ChatRoomInfos into a list of ChatRoom ids.
+                .flatMap(Observable::from).map(info -> info.chatRoom().objectId()).toList()
+                .doOnNext(chatRoomIds ->
+                        PushRegistrationIntentService_.intent(context).unregisterAll(chatRoomIds).start())
+                .doOnNext(result -> {
+                    // Log user out of prefs.
+                    prefs.currentUserId().put("");
+                    prefs.unreadMessages().put("");
+                    prefs.pushChannels().put("");
+                }).flatMap(result -> parseApi.logout());
     }
 
     //******************************************************
@@ -148,9 +157,9 @@ public class CheddarApi {
                 .onExceptionResumeNext(fetchAlias(aliasId));
     }
 
-    public Observable<ChatRoom> getChatRoom(String chatRoomId) {
-        return cacheApi.getChatRoom(chatRoomId)
-                .onExceptionResumeNext(fetchChatRoom(chatRoomId));
+    public Observable<Alias> getAliasForChatRoom(String chatRoomId) {
+        return getCurrentUser().map(User::objectId)
+                .flatMap(userId -> cacheApi.getAliasForChatRoom(userId, chatRoomId));
     }
 
     //******************************************************
@@ -159,6 +168,11 @@ public class CheddarApi {
 
     public Observable<ChatRoom> fetchChatRoom(String chatRoomId) {
         return parseApi.findChatRoom(chatRoomId).flatMap(cacheApi::persist);
+    }
+
+    public Observable<ChatRoom> getChatRoom(String chatRoomId) {
+        return cacheApi.getChatRoom(chatRoomId)
+                .onExceptionResumeNext(fetchChatRoom(chatRoomId));
     }
 
     public Observable<Alias> joinGroupChatRoom() {
@@ -189,9 +203,16 @@ public class CheddarApi {
                                 .compose(sortChatRoomInfoList())
                                 .doOnNext(infos -> Timber.v("cached: " + infos.size()))
                                 .onExceptionResumeNext(Observable.empty()),
-                        parseApi.getChatRooms(userId).flatMap(cacheApi::persistChatRoomInfos)
-                                .compose(sortChatRoomInfoList())
-                                .doOnNext(infos -> Timber.v("network: " + infos.size()))));
+                        // Network call.
+                        fetchChatRooms()));
+    }
+
+    public Observable<List<ChatRoomInfo>> fetchChatRooms() {
+        return getCurrentUser().map(User::objectId)
+                .flatMap(userId -> parseApi.getChatRooms(userId)
+                        .flatMap(infos -> cacheApi.persistChatRoomInfosForUserExclusive(userId, infos))
+                        .compose(sortChatRoomInfoList())
+                        .doOnNext(infos -> Timber.v("network: " + infos.size())));
     }
 
     private Observable.Transformer<List<ChatRoomInfo>, List<ChatRoomInfo>> sortChatRoomInfoList() {

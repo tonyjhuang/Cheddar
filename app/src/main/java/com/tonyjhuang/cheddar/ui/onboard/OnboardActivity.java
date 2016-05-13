@@ -16,6 +16,7 @@ import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.ParallaxorViewPager;
 import com.tonyjhuang.cheddar.ui.customviews.ParalloidImageView;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
+import com.tonyjhuang.cheddar.ui.list.ChatRoomListActivity_;
 import com.tonyjhuang.cheddar.ui.login.VerifyEmailActivity_;
 
 import org.androidannotations.annotations.AfterInject;
@@ -153,7 +154,7 @@ public class OnboardActivity extends CheddarActivity implements OnboardView {
 
     @Override
     public void showRegisterUserFailed() {
-        if(loadingDialog != null) loadingDialog.dismiss();
+        if (loadingDialog != null) loadingDialog.dismiss();
         showToast(R.string.signup_register_failed);
     }
 
@@ -162,7 +163,23 @@ public class OnboardActivity extends CheddarActivity implements OnboardView {
         dismissLoadingDialog();
         VerifyEmailActivity_.intent(this).start();
     }
-    
+
+    @Override
+    public void showLoginUserLoadingDialog() {
+        loadingDialog = LoadingDialog.show(this, R.string.signup_login_loading);
+    }
+
+    @Override
+    public void showLoginUserFailed() {
+        if (loadingDialog != null) loadingDialog.dismiss();
+        showToast(R.string.signup_login_failed);
+    }
+
+    @Override
+    public void navigateToListView() {
+        ChatRoomListActivity_.intent(this).start();
+    }
+
     private void dismissLoadingDialog() {
         if (loadingDialog != null) loadingDialog.dismiss();
     }

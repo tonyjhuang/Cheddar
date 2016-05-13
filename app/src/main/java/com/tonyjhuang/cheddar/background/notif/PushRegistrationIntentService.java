@@ -46,8 +46,11 @@ public class PushRegistrationIntentService extends AbstractIntentService {
     }
 
     @ServiceAction
-    void unregisterAll() {
-        for (String channel : persistApi.fetchGcmChannels().channels()) {
+    void unregisterAll(List<String> channels) {
+        Timber.d("unregister");
+        Timber.d(persistApi.fetchGcmChannels().toString());
+        for (String channel : channels) {
+            Timber.d("unregistering for %s", channel);
             unregisterForPush(channel);
         }
     }
@@ -87,7 +90,9 @@ public class PushRegistrationIntentService extends AbstractIntentService {
             showUnregistrationFailedError();
         } else {
             removeRegisteredChannel(channel);
-            messageApi.unregisterForPushNotifications(channel, token).publish().connect();
+            messageApi.unregisterForPushNotifications(channel, token)
+                    .doOnNext(result -> Timber.d("result for %s: " + result, channel))
+                    .publish().connect();
         }
     }
 

@@ -38,24 +38,40 @@ public class RegisterFragment extends Fragment {
 
     @Click(R.id.register)
     public void onRegisterClicked() {
-        CharSequence email = emailView.getText();
-        CharSequence password = passwordView.getText();
-        if (!validateEmailAddress(email)) {
+        String email = emailView.getText().toString();
+        String password = passwordView.getText().toString();
+
+        if(!validateFields(email, password)) return;
+
+        EventBus.getDefault().post(new RegisterUserRequestEvent(email, password));
+    }
+
+    @Click(R.id.login)
+    public void onLoginClicked() {
+        String email = emailView.getText().toString();
+        String password = passwordView.getText().toString();
+
+        if(!validateFields(email, password)) return;
+
+        EventBus.getDefault().post(new LoginUserRequestEvent(email, password));
+    }
+
+    /**
+     * Test email and password for validity, display errors if necessary,
+     * returns true if both fields are valid.
+     */
+    private boolean validateFields(String email, String password) {
+        if (!emailPattern.matcher(email).matches()) {
             showToast(R.string.signup_error_email_invalid);
-            return;
+            return false;
         }
 
         if (password.length() < 6) {
             showToast(R.string.signup_error_password_invalid);
-            return;
+            return false;
         }
 
-        EventBus.getDefault().post(
-                new RegisterUserRequestEvent(email.toString(), password.toString()));
-    }
-
-    private boolean validateEmailAddress(CharSequence candidate) {
-        return emailPattern.matcher(candidate).matches();
+        return true;
     }
 
     @Click(R.id.debug_email)
@@ -73,6 +89,16 @@ public class RegisterFragment extends Fragment {
 
     private void showToast(int stringRes) {
         Toast.makeText(getContext(), stringRes, Toast.LENGTH_SHORT).show();
+    }
+
+    public static class LoginUserRequestEvent {
+        public String email;
+        public String password;
+
+        public LoginUserRequestEvent(String email, String password) {
+            this.email = email;
+            this.password = password;
+        }
     }
 
     public static class RegisterUserRequestEvent {

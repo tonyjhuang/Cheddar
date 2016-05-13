@@ -326,7 +326,6 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 if (firstVisibleItem == 0) {
                     presenter.loadMoreMessages();
                 }
-                Timber.d("lvp: %d, ac: %d", view.getLastVisiblePosition(), adapter.getCount());
                 if (view.getLastVisiblePosition() == adapter.getCount() - 1 + chatEventListView.getHeaderViewsCount()
                         && newMessagesIndicator.getAlpha() > 0) {
                     showNewMessagesIndicator(false);

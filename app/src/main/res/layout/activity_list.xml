@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/ui_medium_gray">
 
     <android.support.v7.widget.Toolbar
@@ -24,6 +25,17 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar_divider"
         android:background="@color/ui_medium_gray"
+        android:paddingBottom="16dp"
+        android:clipToPadding="false"
         android:divider="@null" />
+
+    <TextView
+        android:id="@+id/debug_email"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        tools:text="email@sample.com"
+        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </RelativeLayout>
