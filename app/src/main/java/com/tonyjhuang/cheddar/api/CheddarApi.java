@@ -124,12 +124,13 @@ public class CheddarApi {
     }
 
     public Observable<User> login(String email, String password) {
+        Timber.d("%s, %s", email, password);
         return parseApi.login(email, password)
                 .flatMap(cacheApi::persist);
     }
 
     public Observable<Void> logoutCurrentUser() {
-        return fetchChatRooms()
+        return fetchChatRoomInfos()
                 // Change list of ChatRoomInfos into a list of ChatRoom ids.
                 .flatMap(Observable::from).map(info -> info.chatRoom().objectId()).toList()
                 .doOnNext(chatRoomIds ->
@@ -196,7 +197,7 @@ public class CheddarApi {
                 .flatMap(cacheApi::persistAliases);
     }
 
-    public Observable<List<ChatRoomInfo>> getChatRooms() {
+    public Observable<List<ChatRoomInfo>> getChatRoomInfos() {
         return getCurrentUser().map(User::objectId)
                 .flatMap(userId -> Observable.concat(
                         cacheApi.getChatRoomInfos(userId)
@@ -204,15 +205,15 @@ public class CheddarApi {
                                 .doOnNext(infos -> Timber.v("cached: " + infos.size()))
                                 .onExceptionResumeNext(Observable.empty()),
                         // Network call.
-                        fetchChatRooms()));
+                        fetchChatRoomInfos()));
     }
 
-    public Observable<List<ChatRoomInfo>> fetchChatRooms() {
+    public Observable<List<ChatRoomInfo>> fetchChatRoomInfos() {
         return getCurrentUser().map(User::objectId)
                 .flatMap(userId -> parseApi.getChatRooms(userId)
+                        .doOnNext(infos -> Timber.v("network: " + infos.size()))
                         .flatMap(infos -> cacheApi.persistChatRoomInfosForUserExclusive(userId, infos))
-                        .compose(sortChatRoomInfoList())
-                        .doOnNext(infos -> Timber.v("network: " + infos.size())));
+                        .compose(sortChatRoomInfoList()));
     }
 
     private Observable.Transformer<List<ChatRoomInfo>, List<ChatRoomInfo>> sortChatRoomInfoList() {
@@ -235,10 +236,10 @@ public class CheddarApi {
     }
 
     //******************************************************
-    //                Messages
+    //                MessageApi
     //******************************************************
 
-    public Observable<ChatEvent> getMessageStream(String aliasId) {
+    public Observable<ChatEvent> getChatEventStream(String aliasId) {
         return getAlias(aliasId).map(Alias::chatRoomId)
                 .flatMap(messageApi::subscribe)
                 .filter(o -> o instanceof MessageApiChatEventHolder)
@@ -247,7 +248,7 @@ public class CheddarApi {
                 .flatMap(cacheApi::persist);
     }
 
-    public Observable<Void> endMessageStream(String aliasId) {
+    public Observable<Void> endChatEventStream(String aliasId) {
         return getAlias(aliasId)
                 .map(Alias::chatRoomId)
                 .flatMap(messageApi::unsubscribe);
@@ -280,7 +281,7 @@ public class CheddarApi {
                         .map(response -> response.chatEvents)
                         .doOnNext(Collections::reverse)
                         .compose(sortChatEventList())
-                        .doOnNext(chatEvents -> Timber.v("network chatEvents: %d", chatEvents.size()))
+                        .doOnNext(chatEvents -> Timber.v("network chatEvents: " + chatEvents))
                         .flatMap(cacheApi::persistChatEvents));
     }
 
@@ -294,6 +295,10 @@ public class CheddarApi {
                 .flatMap(cacheApi::persistChatEvents);
     }
 
+    //******************************************************
+    //                Miscellaneous
+    //******************************************************
+
     /**
      * Send Feedback from a non-chat context.
      */
@@ -305,10 +310,6 @@ public class CheddarApi {
                 .setFeedback(feedback);
         return feedbackApi.sendFeedback(builder.build());
     }
-
-    //******************************************************
-    //                Miscellaneous
-    //******************************************************
 
     /**
      * Send feedback from the chat context.

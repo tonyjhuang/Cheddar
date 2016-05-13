@@ -85,7 +85,7 @@ public class OnboardPresenterImpl implements OnboardPresenter {
      * Subscribe to our register user AsyncSubject.
      */
     private void subscribeToRegisterUserSubject() {
-        if (registerUserSubject == null) registerUserSubject = AsyncSubject.create();
+        if (registerUserSubject == null) return;
         registerUserSubscription = registerUserSubject
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(user -> {
@@ -118,10 +118,11 @@ public class OnboardPresenterImpl implements OnboardPresenter {
      * Subscribe to our login user AsyncSubject.
      */
     private void subscribeToLoginUserSubject() {
-        if (loginUserSubject == null) loginUserSubject = AsyncSubject.create();
+        if (loginUserSubject == null) return;
         loginUserSubscription = loginUserSubject
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(user -> {
+                    Timber.d("user: " + user);
                     unsubscribe(loginUserSubjectSubscription);
                     prefs.currentUserId().put(user.objectId());
                     prefs.onboardShown().put(true);

@@ -61,11 +61,6 @@ public class CheddarNotificationService {
     @Bean
     UnreadMessagesCounter unreadMessagesCounter;
 
-
-    /**
-     * TODO: Check that this ChatEvent matches a ChatRoom that the current User
-     * TODO: has an Alias for.
-     */
     public void createOrUpdateChatEventNotification(Context context, ChatEvent chatEvent) {
         String chatRoomId = chatEvent.alias().chatRoomId();
         String contentText = chatEvent.displayBody();
@@ -73,6 +68,8 @@ public class CheddarNotificationService {
         api.getAliasForChatRoom(chatRoomId)
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(currentUserAlias -> {
+                    if(currentUserAlias.equals(chatEvent.alias())) return;
+
                     NotificationCompat.Builder builder = getBuilder(context, currentUserAlias.objectId())
                             .setLargeIcon(getAuthorBitmap(context, chatEvent.alias()))
                             .setContentText(StringUtils.boldSubstring(contentText, chatEvent.alias().displayName()))

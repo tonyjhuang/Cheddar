@@ -119,6 +119,7 @@ public class CacheApi {
     }
 
     public Observable<Alias> persist(Alias alias) {
+        Timber.i("persisting alias: " + alias);
         return toJson(alias).compose(persistJson(RealmAlias.class, alias));
     }
 
@@ -214,7 +215,7 @@ public class CacheApi {
                             getMostRecentChatEventForChatRoom(a.chatRoomId()),
                             ChatRoomInfo::create))
                     .toList()
-                    .doOnNext(infos -> Timber.v("cached infos: " + infos))
+                    .doOnNext(infos -> Timber.v("cached infos: " + gson.toJson(infos)))
                     .doAfterTerminate(realm::close);
         });
     }

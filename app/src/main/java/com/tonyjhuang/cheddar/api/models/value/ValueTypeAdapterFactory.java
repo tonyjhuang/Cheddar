@@ -7,8 +7,6 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 
-import timber.log.Timber;
-
 /**
  * Created by tonyjhuang on 4/27/16.
  */
@@ -30,7 +28,7 @@ public class ValueTypeAdapterFactory implements TypeAdapterFactory {
             Method typeAdapterMethod = rawType.getDeclaredMethod("typeAdapter", Gson.class);
             return (TypeAdapter<T>) typeAdapterMethod.invoke(null, gson);
         } catch (Exception e) {
-            Timber.v("couldn't invoke static typeAdapter method on " + rawType + ": " + e);
+            //Timber.v("couldn't invoke static typeAdapter method on " + rawType + ": " + e);
             return gson.getDelegateAdapter(this, type).nullSafe();
         }
     }

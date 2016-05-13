@@ -3,7 +3,7 @@ package com.tonyjhuang.cheddar.background.notif;
 import com.google.android.gms.iid.InstanceIDListenerService;
 
 /**
- * Created by tonyjhuang on 3/1/16.
+ * Listens for InstanceID expiry events.
  */
 public class CheddarInstanceIDListenerService extends InstanceIDListenerService {
     @Override

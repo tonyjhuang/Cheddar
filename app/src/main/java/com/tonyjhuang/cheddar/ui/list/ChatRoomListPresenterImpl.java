@@ -21,10 +21,10 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action1;
 import timber.log.Timber;
 
 @EBean
@@ -81,16 +81,10 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(chatEvent -> chatRoomSubscription = refreshChatList().publish().connect(),
                         error -> Timber.e(error, "huh?"));
-    }
 
-    private Action1<List<ChatRoomInfo>> registerForPush() {
-        return infoList -> {
-            List<String> chatRoomIds = new ArrayList<>();
-            for (ChatRoomInfo info : infoList) {
-                chatRoomIds.add(info.chatRoom().objectId());
-            }
-            PushRegistrationIntentService_.intent(context).registerAll(chatRoomIds);
-        };
+        Observable.empty().delay(3, TimeUnit.SECONDS)
+                .doOnTerminate(() -> PushRegistrationIntentService_.intent(context).onTokenRefresh().start())
+                .publish().connect();
     }
 
     /**
@@ -99,8 +93,13 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     private Observable<Pair<User, List<ChatRoomInfo>>> refreshChatList() {
         return Observable.combineLatest(
                 api.getCurrentUser(),
-                api.getChatRooms().doOnNext(registerForPush()),
-                Pair::new)
+                api.getChatRoomInfos().doOnNext(infoList -> {
+                    List<String> chatRoomIds = new ArrayList<>();
+                    for (ChatRoomInfo info : infoList) {
+                        chatRoomIds.add(info.chatRoom().objectId());
+                    }
+                    PushRegistrationIntentService_.intent(context).registerAll(chatRoomIds).start();
+                }), Pair::new)
                 .compose(Scheduler.defaultSchedulers())
                 .doOnNext(result -> {
                     if (view != null) view.displayList(result.second, result.first.objectId());
@@ -129,12 +128,14 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
 
     @Override
     public void logout() {
-        api.logoutCurrentUser().subscribe(result -> {
-            if (view != null) view.navigateToSignUpView();
-        }, error -> {
-            if(view != null) view.showLogoutError();
-            Timber.e(error, "failed to logout");
-        });
+        api.logoutCurrentUser()
+                .compose(Scheduler.defaultSchedulers())
+                .subscribe(result -> {
+                    if (view != null) view.navigateToSignUpView();
+                }, error -> {
+                    if (view != null) view.showLogoutError();
+                    Timber.e(error, "failed to logout");
+                });
     }
 
     @Override

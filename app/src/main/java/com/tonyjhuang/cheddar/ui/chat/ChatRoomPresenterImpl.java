@@ -137,7 +137,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     public void setAliasId(String aliasId) {
         Timber.d("setAliasId");
         api.resetReplayChatEvents();
-        chatEventObservable = api.getMessageStream(aliasId).publish();
+        chatEventObservable = api.getChatEventStream(aliasId).publish();
         chatEventObservable.connect();
 
         // Make sure we have an active Alias from the server.
@@ -200,12 +200,10 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     @Override
     public void onResume() {
         if (!ConnectivityBroadcastReceiver.isConnected(context)) return;
-        Timber.d("onResume");
         init(context);
     }
 
     private void init(Context context) {
-        Timber.d("init");
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
@@ -455,7 +453,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .flatMap(api::leaveChatRoom)
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
-                    api.endMessageStream(alias.objectId()).publish().connect();
+                    api.endChatEventStream(alias.objectId()).publish().connect();
                     long lengthOfStay = new Date().getTime() - alias.createdAt().getTime();
                     CheddarMetrics.trackLeaveChatRoom(alias.chatRoomId(), lengthOfStay);
                     view.navigateToListView();
@@ -503,7 +501,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
     public void onDestroy() {
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .map(Alias::objectId)
-                .flatMap(api::endMessageStream)
+                .flatMap(api::endChatEventStream)
                 .doOnNext(result -> Timber.d("ended message stream"))
                 .doOnError(error -> Timber.e(error, "uh oh"))
                 .publish().connect();

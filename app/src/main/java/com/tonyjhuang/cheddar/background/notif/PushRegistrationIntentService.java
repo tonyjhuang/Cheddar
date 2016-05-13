@@ -27,7 +27,7 @@ import java.util.Set;
 import timber.log.Timber;
 
 /**
- * Created by tonyjhuang on 3/1/16.
+ * Register this device for a pubnub channel.
  */
 @EIntentService
 public class PushRegistrationIntentService extends AbstractIntentService {
@@ -47,8 +47,6 @@ public class PushRegistrationIntentService extends AbstractIntentService {
 
     @ServiceAction
     void unregisterAll(List<String> channels) {
-        Timber.d("unregister");
-        Timber.d(persistApi.fetchGcmChannels().toString());
         for (String channel : channels) {
             Timber.d("unregistering for %s", channel);
             unregisterForPush(channel);
@@ -109,11 +107,6 @@ public class PushRegistrationIntentService extends AbstractIntentService {
         }
     }
 
-    private Set<String> getRegisteredChannels() {
-        GcmChannels channels = persistApi.fetchGcmChannels();
-        return channels == null ? new HashSet<>() : channels.channels();
-    }
-
     private void addRegisteredChannel(String channel) {
         Set<String> registeredChannels = getRegisteredChannels();
         registeredChannels.add(channel);
@@ -124,6 +117,12 @@ public class PushRegistrationIntentService extends AbstractIntentService {
         Set<String> registeredChannels = getRegisteredChannels();
         registeredChannels.remove(channel);
         saveRegisteredChannels(registeredChannels);
+    }
+
+    private Set<String> getRegisteredChannels() {
+        GcmChannels channels = persistApi.fetchGcmChannels();
+        Timber.d("getRegisteredChannels " + channels);
+        return channels == null ? new HashSet<>() : channels.channels();
     }
 
     private void saveRegisteredChannels(Set<String> registeredChannels) {
