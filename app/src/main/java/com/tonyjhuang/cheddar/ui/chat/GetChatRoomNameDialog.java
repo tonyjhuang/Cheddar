@@ -28,7 +28,7 @@ public class GetChatRoomNameDialog {
                         callback.onSuccess(name);
                     }
                 })
-                .setNegativeButton(R.string.chat_name_dialog_cancel, null);
+                .setNegativeButton(R.string.common_cancel, null);
         builder.show();
     }
 

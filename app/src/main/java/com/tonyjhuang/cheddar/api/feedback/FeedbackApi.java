@@ -45,7 +45,7 @@ public class FeedbackApi {
     }
 
     public static class FeedbackInfo {
-        String versionName;
+        String versionName = "???";
         String userId;
         String aliasName;
         String chatRoomId;
@@ -53,10 +53,12 @@ public class FeedbackApi {
         String feedback;
 
         public String toString() {
-            return String.format(
-                    "\nVersionName: %s\nUserId: %s\nChatRoomId: %s\nAliasName: %s\n%s: %s"
-                            + "\n-----------------------",
-                    versionName, userId, chatRoomId, aliasName, name, feedback);
+            StringBuilder sb = new StringBuilder(String.format("\nVersionName: %s\n", versionName));
+            if (userId != null) sb.append(String.format("User Id: %s\n", userId));
+            if (chatRoomId != null) sb.append(String.format("ChatRoom Id: %s\n", chatRoomId));
+            if (aliasName != null) sb.append(String.format("Alias name: %s\n", aliasName));
+            if (feedback != null) sb.append(String.format("%s: %s\n", name, feedback));
+            return sb.toString();
         }
 
         public static class Builder {

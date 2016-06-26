@@ -30,7 +30,7 @@ public class FeedbackDialog {
                         callback.onFeedback(nameInput.getText().toString(), feedback);
                     }
                 })
-                .setNegativeButton(R.string.feedback_cancel, null);
+                .setNegativeButton(R.string.common_cancel, null);
         builder.show();
         CheddarMetrics.trackFeedback(CheddarMetrics.FeedbackLifecycle.OPENED);
     }

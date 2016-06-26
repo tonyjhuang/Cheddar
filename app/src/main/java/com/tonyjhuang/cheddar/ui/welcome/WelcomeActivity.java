@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.ViewPager;
-import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.flyco.pageindicator.anim.select.ZoomInEnter;
@@ -29,7 +29,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
-@EActivity(R.layout.activity_main)
+@EActivity(R.layout.activity_welcome)
 public class WelcomeActivity extends CheddarActivity implements WelcomeView {
 
     @ViewById(R.id.pager_layout)
@@ -38,17 +38,14 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView {
     @ViewById(R.id.view_pager)
     ParallaxorViewPager viewPager;
 
-    @ViewById
-    ParalloidImageView background;
+    @ViewById(R.id.background)
+    ParalloidImageView backgroundView;
 
     @ViewById(R.id.pager_indicator)
-    FlycoPageIndicaor indicator;
-
-    @ViewById(R.id.debug_label)
-    View debugLabel;
+    FlycoPageIndicaor pagerIndicatorView;
 
     @ViewById(R.id.husky)
-    View huskyView;
+    ImageView huskyView;
 
     @ViewById(R.id.version)
     TextView versionView;
@@ -70,41 +67,26 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView {
     @AfterViews
     void afterViews() {
         if (BuildConfig.DEBUG) {
-            debugLabel.setVisibility(View.VISIBLE);
-            versionView.setText(getVersionName());
+            versionView.setText(String.format("DEBUG %s", getVersionName()));
         }
 
         ViewPager.OnPageChangeListener pageListener = new ViewPager.SimpleOnPageChangeListener() {
-
-            // last page selected.
-            int prevPosition = 0;
-
             @Override
             public void onPageSelected(int position) {
                 int end = onboardAdapter.getCount() - 1;
-
-                if (position == end) {
-                    indicator.animate().alpha(0);
-                    huskyView.animate().setDuration(100).yBy(huskyView.getHeight());
-                } else {
-                    indicator.animate().alpha(1);
-                }
-
-                if (position == end - 1 && prevPosition == end) {
-                    huskyView.animate().setDuration(100).yBy(-huskyView.getHeight());
-                }
-
-                prevPosition = position;
+                pagerIndicatorView.animate().alpha(position == end ? 0 : 1);
             }
         };
 
         boolean shouldShowOnboard = !prefs.onboardShown().getOr(false);
         onboardAdapter = new WelcomePagerAdapter(getSupportFragmentManager(), shouldShowOnboard);
         viewPager.setAdapter(onboardAdapter);
-        viewPager.setOffscreenPageLimit(1);
-        indicator.setSelectAnimClass(ZoomInEnter.class).setViewPager(viewPager);
-        viewPager.addParalloid(background);
         viewPager.addOnPageChangeListener(pageListener);
+        if (onboardAdapter.getCount() > 1) {
+            pagerIndicatorView.setSelectAnimClass(ZoomInEnter.class).setViewPager(viewPager);
+            viewPager.setOffscreenPageLimit(1);
+            viewPager.addParalloid(backgroundView);
+        }
         pagerLayout.refresh();
     }
 
@@ -153,7 +135,7 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView {
     @Override
     public void showLoginUserFailed() {
         if (loadingDialog != null) loadingDialog.dismiss();
-        showToast(R.string.welcome_login_failed);
+        showToast(R.string.welcome_error_credentials);
     }
 
     @Override
@@ -168,6 +150,16 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView {
 
     private void dismissLoadingDialog() {
         if (loadingDialog != null) loadingDialog.dismiss();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment currentFragment = onboardAdapter.getItem(viewPager.getCurrentItem());
+        if (currentFragment instanceof BackButtonHandler) {
+            if (!((BackButtonHandler) currentFragment).handleBackPress()) {
+                super.onBackPressed();
+            }
+        }
     }
 
     @Override

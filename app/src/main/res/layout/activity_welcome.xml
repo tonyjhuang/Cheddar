@@ -43,17 +43,9 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="-1dp"
         android:layout_marginLeft="16dp"
+        android:alpha="0.9"
+        android:scaleType="centerInside"
         android:src="@drawable/husky_talk" />
-
-    <TextView
-        android:id="@+id/debug_label"
-        fontPath="Effra-Medium.ttf"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="DEBUG"
-        android:textSize="20sp"
-        android:visibility="gone"
-        tools:ignore="MissingPrefix" />
 
     <TextView
         android:id="@+id/version"

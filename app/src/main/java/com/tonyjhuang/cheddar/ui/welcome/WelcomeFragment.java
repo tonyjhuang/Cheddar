@@ -17,7 +17,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.regex.Pattern;
 
 @EFragment(R.layout.fragment_welcome)
-public class WelcomeFragment extends Fragment {
+public class WelcomeFragment extends Fragment implements BackButtonHandler {
 
     @ViewById(R.id.welcome_layout)
     ViewGroup welcomeLayoutGroup;
@@ -52,6 +52,15 @@ public class WelcomeFragment extends Fragment {
     @Click({R.id.welcome_register, R.id.login_register})
     public void onShowRegisterLayoutClicked() {
         showLayoutGroupView(LayoutGroupViewType.REGISTER);
+    }
+
+    @Click(R.id.register_different_school)
+    public void onRegisterDifferentSchoolClicked() {
+        showLayoutGroupView(LayoutGroupViewType.WELCOME);
+        DifferentSchoolDialog.getSchoolAndEmail(getContext(), (school, email) -> {
+            showToast(R.string.different_school_thanks);
+            EventBus.getDefault().post(new RegisterDifferentSchoolEvent(school, email));
+        });
     }
 
     @Click(R.id.register_register)
@@ -100,21 +109,32 @@ public class WelcomeFragment extends Fragment {
     }
 
     private boolean isViewGroupVisible(ViewGroup viewGroup) {
-        return viewGroup.getVisibility() == View.VISIBLE;
+        return viewGroup != null && viewGroup.getVisibility() == View.VISIBLE;
     }
 
     private LayoutGroupViewType getCurrentVisibleLayoutGroupViewType() {
-        if (isViewGroupVisible(welcomeLayoutGroup)) {
-            return LayoutGroupViewType.WELCOME;
+        if (isViewGroupVisible(registerLayoutGroup)) {
+            return LayoutGroupViewType.REGISTER;
         } else if (isViewGroupVisible(loginLayoutGroup))
             return LayoutGroupViewType.LOGIN;
         else {
-            return LayoutGroupViewType.REGISTER;
+            return LayoutGroupViewType.WELCOME;
         }
     }
 
     private void showToast(int stringRes) {
         Toast.makeText(getContext(), stringRes, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean handleBackPress() {
+        switch (getCurrentVisibleLayoutGroupViewType()) {
+            case WELCOME:
+                return false;
+            default:
+                showLayoutGroupView(LayoutGroupViewType.WELCOME);
+                return true;
+        }
     }
 
     private enum LayoutGroupViewType {
@@ -138,6 +158,16 @@ public class WelcomeFragment extends Fragment {
         public RequestRegisterEvent(String username, String password) {
             this.username = username;
             this.password = password;
+        }
+    }
+
+    public static class RegisterDifferentSchoolEvent {
+        public String school;
+        public String email;
+
+        public RegisterDifferentSchoolEvent(String school, String email) {
+            this.school = school;
+            this.email = email;
         }
     }
 

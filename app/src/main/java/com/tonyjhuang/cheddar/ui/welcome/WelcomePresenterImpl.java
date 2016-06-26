@@ -1,6 +1,7 @@
 package com.tonyjhuang.cheddar.ui.welcome;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
@@ -63,8 +64,8 @@ public class WelcomePresenterImpl implements WelcomePresenter {
     public void onRequestRegisterEvent(WelcomeFragment.RequestRegisterEvent event) {
         if (isSubscribed(loginUserSubscription) || isSubscribed(registerUserSubscription)) return;
 
-        if(!ConnectivityBroadcastReceiver.isConnected(context)) {
-            if(view != null) view.showNetworkConnectionError();
+        if (!ConnectivityBroadcastReceiver.isConnected(context)) {
+            if (view != null) view.showNetworkConnectionError();
             return;
         }
 
@@ -101,8 +102,8 @@ public class WelcomePresenterImpl implements WelcomePresenter {
     public void onRequestLoginEvent(WelcomeFragment.RequestLoginEvent event) {
         if (isSubscribed(loginUserSubscription) || isSubscribed(registerUserSubscription)) return;
 
-        if(!ConnectivityBroadcastReceiver.isConnected(context)) {
-            if(view != null) view.showNetworkConnectionError();
+        if (!ConnectivityBroadcastReceiver.isConnected(context)) {
+            if (view != null) view.showNetworkConnectionError();
             return;
         }
 
@@ -129,7 +130,7 @@ public class WelcomePresenterImpl implements WelcomePresenter {
                     prefs.onboardShown().put(true);
                     if (view != null) {
                         Timber.d("logged in user: " + user);
-                        if(user.emailVerified()) {
+                        if (user.emailVerified()) {
                             view.navigateToListView();
                         } else {
                             view.navigateToVerifyEmailView(user.objectId());
@@ -140,6 +141,20 @@ public class WelcomePresenterImpl implements WelcomePresenter {
                     if (view != null) view.showLoginUserFailed();
                     unsubscribe(loginUserSubjectSubscription);
                 });
+    }
+
+    @Subscribe
+    public void OnRegisterDifferentSchoolEvent(WelcomeFragment.RegisterDifferentSchoolEvent event) {
+        try {
+            String versionName = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0).versionName;
+            api.registerDifferentSchool(versionName, event.school, event.email)
+                    .compose(Scheduler.backgroundSchedulers())
+                    .publish().connect();
+        } catch (PackageManager.NameNotFoundException e) {
+            Timber.e("couldn't get versionName: " + e);
+        }
+
     }
 
     @Override

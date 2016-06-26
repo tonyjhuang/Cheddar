@@ -329,6 +329,14 @@ public class CheddarApi {
         return feedbackApi.sendFeedback(builder.build());
     }
 
+    public Observable<String> registerDifferentSchool(String versionName, String school, String email) {
+        FeedbackApi.FeedbackInfo.Builder builder = new FeedbackApi.FeedbackInfo.Builder()
+                .setVersionName(versionName)
+                .setName("University request")
+                .setFeedback(String.format("School: %s, Email: %s", school, email));
+        return feedbackApi.sendFeedback(builder.build());
+    }
+
     /**
      * Thrown when a method that requires a logged in user is called and there is none.
      */

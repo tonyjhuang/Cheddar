@@ -3,7 +3,6 @@ package com.tonyjhuang.cheddar.ui.customviews;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -15,6 +14,9 @@ import com.tonyjhuang.cheddar.R;
 public class ParalloidImageView extends ImageView implements ParallaxorViewPager.Paralloid {
 
     private float parallaxAmount;
+
+    private float initialLeftMargin = 0;
+    private float initialRightMargin = 0;
 
     public ParalloidImageView(Context context) {
         this(context, null);
@@ -37,6 +39,13 @@ public class ParalloidImageView extends ImageView implements ParallaxorViewPager
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+
+        ViewGroup.LayoutParams lp = getLayoutParams();
+        if (lp instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
+            initialLeftMargin = mlp.leftMargin;
+            initialRightMargin = mlp.rightMargin;
+        }
         parallaxBy(0);
     }
 
@@ -46,10 +55,10 @@ public class ParalloidImageView extends ImageView implements ParallaxorViewPager
         ViewGroup.LayoutParams lp = getLayoutParams();
         if (lp instanceof ViewGroup.MarginLayoutParams) {
             ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
-            setLeftMargin(mlp, parallaxFactor * parallaxAmount);
-            setTopMargin(mlp, 0);
-            setRightMargin(mlp, (1 - parallaxFactor) * parallaxAmount);
-            setBottomMargin(mlp, 0);
+            setLeftMargin(mlp, initialLeftMargin + parallaxFactor * parallaxAmount);
+            setTopMargin(mlp, mlp.topMargin);
+            setRightMargin(mlp, initialRightMargin + (1 - parallaxFactor) * parallaxAmount);
+            setBottomMargin(mlp, mlp.bottomMargin);
         }
         setLayoutParams(lp);
     }

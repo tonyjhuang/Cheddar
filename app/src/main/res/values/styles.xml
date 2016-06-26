@@ -7,6 +7,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColor">@color/text_primary</item>
+        <item name="alertDialogTheme">@style/StyledAlertDialog</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -26,5 +27,9 @@
     <style name="WelcomeButton">
         <item name="android:textSize">18sp</item>
         <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="StyledAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 </resources>

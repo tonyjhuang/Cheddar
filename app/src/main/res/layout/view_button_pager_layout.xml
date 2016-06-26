@@ -8,6 +8,8 @@
         android:id="@+id/pager_left"
         android:layout_width="56dp"
         android:layout_height="46dp"
+        android:visibility="gone"
+        android:alpha="0"
         android:layout_centerVertical="true"
         android:paddingBottom="10dp"
         android:paddingLeft="32dp"
@@ -16,6 +18,8 @@
         android:src="@drawable/pager_left" />
 
     <ImageView
+        android:visibility="gone"
+        android:alpha="0"
         android:id="@+id/pager_right"
         android:layout_width="56dp"
         android:layout_height="46dp"

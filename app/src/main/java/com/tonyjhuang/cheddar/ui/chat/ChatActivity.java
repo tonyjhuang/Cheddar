@@ -459,7 +459,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 .setTitle("Leave group chat")
                 .setMessage("Are you sure?")
                 .setPositiveButton(R.string.chat_leave_confirm, ((dialog, which) -> leaveChatRoom()))
-                .setNegativeButton(R.string.chat_leave_cancel, null)
+                .setNegativeButton(R.string.common_cancel, null)
                 .show();
     }
 

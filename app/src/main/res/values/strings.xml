@@ -1,12 +1,16 @@
 <resources>
+
+    <!-- app -->
     <string name="app_name">Cheddar</string>
     <string name="app_name_lowercase">cheddar</string>
     <string name="app_name_uppercase_period">CHEDDAR.</string>
     <string name="app_name_uppercase">CHEDDAR</string>
     <string name="app_tagline">Make a friend. Find a date. Troll.</string>
     <string name="app_value_prop">Anonymous group messaging for Northeastern</string>
-    <string name="action_settings">Settings</string>
-    <string name="section_format">Hello World from section: %1$d</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_submit">Submit</string>
 
     <!-- onboard -->
     <string name="onboard_cheddar_value_prop_1">Anonymous group</string>
@@ -17,11 +21,15 @@
     <string name="onboard_group_value_prop_2">5 group chats at once</string>
     <string name="onboard_error_join_chat">Couldn\'t join chat.. Try again?</string>
 
-    <!-- alpha -->
-    <string name="alpha_header">alpha</string>
-    <string name="alpha_warning_header">Warning!</string>
-    <string name="alpha_warning">Thanks for testing cheddar! Things might break but you knew that already ;)</string>
-    <string name="alpha_confirm">Ok, let me in!</string>
+    <!-- different school -->
+    <string name="different_school_header">Coming soon!</string>
+    <string name="different_school_subheader">Enter your school name and email to get notified when Cheddar launches at your university!</string>
+    <string name="different_school_school_hint">University</string>
+    <string name="different_school_email_hint">Email</string>
+    <string name="different_school_thanks">Thanks! Check your email for future updates on Cheddar</string>
+    <string name="different_school_error_school">Please enter your university name</string>
+    <string name="different_school_error_email_missing">Please enter your email</string>
+    <string name="different_school_error_email_invalid">Invalid email</string>
 
     <!-- verify email -->
     <string name="verify_email_not_verified">Please check your email for the verification link!</string>
@@ -38,14 +46,14 @@
     <string name="welcome_action_switch_to_register">Need to register an account?</string>
     <string name="welcome_action_different_school">Change school</string>
     <string name="welcome_register_loading">Registering&#8230;</string>
-    <string name="welcome_register_failed">Couldn\'t register user. Please try again.</string>
+    <string name="welcome_register_failed">Couldn\'t register user. Please try again</string>
     <string name="welcome_login_loading">Logging in&#8230;</string>
-    <string name="welcome_login_failed">Wrong email or password.</string>
     <string name="welcome_error_email_invalid">Invalid email</string>
     <string name="welcome_error_email_nonhusky">Email must be a husky email address</string>
+    <string name="welcome_error_credentials">Wrong email or password</string>
     <string name="welcome_error_password_length">Password must be at least 6 characters</string>
-    <string name="welcome_error_mismatch_password">Passwords don\'t match.</string>
-    <string name="welcome_error_network">Please check your network connection.</string>
+    <string name="welcome_error_mismatch_password">Passwords don\'t match</string>
+    <string name="welcome_error_network">Please check your network connection</string>
 
     <!-- chat -->
     <string name="chat_join_chat">Joining chat&#8230;</string>
@@ -61,7 +69,6 @@
     <string name="chat_action_report">Report User</string>
     <string name="chat_action_leave">Leave Chat</string>
     <string name="chat_leave_confirm">Leave</string>
-    <string name="chat_leave_cancel">Cancel</string>
     <string name="chat_leave_chat">Leaving chat&#8230;</string>
     <string name="chat_alias_list_header">Members</string>
     <string name="chat_alias_timestamp">Joined %1$s</string>
@@ -76,7 +83,6 @@
     <string name="chat_name_name_hint">Name</string>
     <string name="chat_name_dialog_title">Rename Room</string>
     <string name="chat_name_dialog_ok">Set</string>
-    <string name="chat_name_dialog_cancel">Cancel</string>
     <string name="chat_name_dialog_error_empty">Room name can\'t be empty!</string>
 
     <!-- list -->
@@ -100,7 +106,6 @@
     <string name="feedback_thanks">Thanks for your feedback!</string>
     <string name="feedback_empty">Please write some feedback first!</string>
     <string name="feedback_confirm">Send</string>
-    <string name="feedback_cancel">Cancel</string>
 
     <!-- report -->
     <string name="report_coming_soon">Coming soon!</string>

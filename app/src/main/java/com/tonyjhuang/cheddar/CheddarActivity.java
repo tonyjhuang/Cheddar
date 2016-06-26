@@ -13,7 +13,7 @@ import org.androidannotations.annotations.EActivity;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-@EActivity(R.layout.activity_main)
+@EActivity(R.layout.activity_welcome)
 public abstract class CheddarActivity extends AppCompatActivity {
 
     private static final String TAG = CheddarActivity.class.getSimpleName();

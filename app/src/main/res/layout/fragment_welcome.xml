@@ -55,7 +55,7 @@
         <Button
             android:id="@+id/welcome_register"
             style="@style/WelcomeButton"
-            android:layout_width="180dp"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
             android:text="@string/welcome_action_register"
             android:theme="@style/ColoredButton" />
@@ -63,7 +63,7 @@
         <Button
             android:id="@+id/welcome_login"
             style="@style/WelcomeButton"
-            android:layout_width="180dp"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
             android:text="@string/welcome_action_login" />
 
@@ -114,13 +114,13 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
-            android:text="@string/welcome_action_login"
-            android:theme="@style/ColoredButton" />
+            android:text="@string/welcome_action_login" />
 
         <TextView
             android:id="@+id/login_register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="8dp"
             android:text="@string/welcome_action_switch_to_register"
             android:textColor="@color/text_secondary" />
 
@@ -195,21 +195,23 @@
             android:id="@+id/register_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="8dp"
             android:text="@string/welcome_action_switch_to_login"
+            android:textColor="@color/text_secondary" />
+
+
+        <TextView
+            android:id="@+id/register_different_school"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/welcome_action_different_school"
             android:textColor="@color/text_secondary" />
 
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
-
-        <TextView
-            android:id="@+id/register_different_school"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@string/welcome_action_different_school"
-            android:textColor="@color/text_secondary" />
     </LinearLayout>
 
 
