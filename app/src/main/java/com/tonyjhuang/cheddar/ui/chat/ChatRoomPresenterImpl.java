@@ -145,7 +145,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .subscribe(alias -> {
                     if (!alias.active()) {
                         // Respect server switches to active status.
-                        leaveChatRoom();
+                        if(view != null) view.navigateToListView();
                     }
                 }, error -> onFailedToRetrieveAlias());
 

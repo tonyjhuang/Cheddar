@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.login;
+package com.tonyjhuang.cheddar.ui.welcome.verify_email;
 
 import android.content.Context;
 

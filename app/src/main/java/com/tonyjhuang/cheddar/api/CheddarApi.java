@@ -123,7 +123,6 @@ public class CheddarApi {
     }
 
     public Observable<User> login(String email, String password) {
-        Timber.d("%s, %s", email, password);
         return parseApi.login(email, password)
                 .flatMap(cacheApi::persist)
                 .doOnNext(user -> {

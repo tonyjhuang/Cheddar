@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.login;
+package com.tonyjhuang.cheddar.ui.welcome.verify_email;
 
 import android.content.Intent;
 import android.support.v4.app.TaskStackBuilder;
@@ -8,7 +8,7 @@ import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.list.ChatRoomListActivity_;
-import com.tonyjhuang.cheddar.ui.onboard.OnboardActivity_;
+import com.tonyjhuang.cheddar.ui.welcome.WelcomeActivity_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
@@ -79,7 +79,7 @@ public class VerifyEmailActivity extends CheddarActivity implements VerifyEmailV
 
     @Override
     public void navigateToSignupView() {
-        OnboardActivity_.intent(this).start();
+        WelcomeActivity_.intent(this).start();
     }
 
     @Override

@@ -18,5 +18,13 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="ColoredButton" parent="Widget.AppCompat.Button">
+        <item name="colorButtonNormal">@color/colorAccent</item>
+        <item name="android:textColor">@color/text_primary_light</item>
+    </style>
 
+    <style name="WelcomeButton">
+        <item name="android:textSize">18sp</item>
+        <item name="android:padding">16dp</item>
+    </style>
 </resources>

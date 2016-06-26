@@ -39,7 +39,7 @@
         </activity>
 
         <activity
-            android:name=".ui.onboard.OnboardActivity_"
+            android:name=".ui.welcome.WelcomeActivity_"
             android:noHistory="true"
             android:screenOrientation="portrait" />
 
@@ -54,7 +54,7 @@
         </activity>
 
         <activity
-            android:name=".ui.login.VerifyEmailActivity_"
+            android:name=".ui.welcome.verify_email.VerifyEmailActivity_"
             android:noHistory="true"
             android:screenOrientation="portrait" />
 

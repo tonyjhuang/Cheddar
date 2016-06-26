@@ -1,13 +1,11 @@
-package com.tonyjhuang.cheddar.ui.onboard;
+package com.tonyjhuang.cheddar.ui.welcome;
 
 import android.content.Context;
 
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
-import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
-import com.tonyjhuang.cheddar.ui.login.RegisterFragment;
 import com.tonyjhuang.cheddar.utils.Scheduler;
 
 import org.androidannotations.annotations.Bean;
@@ -22,10 +20,10 @@ import rx.subjects.AsyncSubject;
 import timber.log.Timber;
 
 /**
- * Presents to our OnboardView.
+ * Presents to our WelcomeView.
  */
 @EBean
-public class OnboardPresenterImpl implements OnboardPresenter {
+public class WelcomePresenterImpl implements WelcomePresenter {
 
     @RootContext
     Context context;
@@ -54,28 +52,15 @@ public class OnboardPresenterImpl implements OnboardPresenter {
     /**
      * The view we're presenting to.
      */
-    private OnboardView view;
+    private WelcomeView view;
 
     @Override
-    public void setView(OnboardView view) {
+    public void setView(WelcomeView view) {
         this.view = view;
     }
 
     @Subscribe
-    public void onJoinChatEvent(OnboardActivity.AlphaWarningFragment.JoinChatEvent event) {
-        if (view != null) view.showJoinChatLoadingDialog();
-        api.joinGroupChatRoom().compose(Scheduler.defaultSchedulers())
-                .subscribe(alias -> {
-                    CheddarMetrics.trackJoinChatRoom(alias.chatRoomId());
-                    prefs.onboardShown().put(true);
-                    if (view != null) view.navigateToChatView(alias.objectId());
-                }, error -> {
-                    if (view != null) view.showJoinChatFailed();
-                });
-    }
-
-    @Subscribe
-    public void onRegisterUserRequestEvent(RegisterFragment.RegisterUserRequestEvent event) {
+    public void onRequestRegisterEvent(WelcomeFragment.RequestRegisterEvent event) {
         if (isSubscribed(loginUserSubscription) || isSubscribed(registerUserSubscription)) return;
 
         if(!ConnectivityBroadcastReceiver.isConnected(context)) {
@@ -86,7 +71,7 @@ public class OnboardPresenterImpl implements OnboardPresenter {
         if (view != null) view.showRegisterUserLoadingDialog();
 
         registerUserSubject = AsyncSubject.create();
-        registerUserSubjectSubscription = api.registerNewUser(event.email, event.password)
+        registerUserSubjectSubscription = api.registerNewUser(event.username, event.password)
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(registerUserSubject);
 
@@ -113,7 +98,7 @@ public class OnboardPresenterImpl implements OnboardPresenter {
     }
 
     @Subscribe
-    public void onLoginUserRequestEvent(RegisterFragment.LoginUserRequestEvent event) {
+    public void onRequestLoginEvent(WelcomeFragment.RequestLoginEvent event) {
         if (isSubscribed(loginUserSubscription) || isSubscribed(registerUserSubscription)) return;
 
         if(!ConnectivityBroadcastReceiver.isConnected(context)) {
@@ -124,7 +109,7 @@ public class OnboardPresenterImpl implements OnboardPresenter {
         if (view != null) view.showLoginUserLoadingDialog();
 
         loginUserSubject = AsyncSubject.create();
-        loginUserSubjectSubscription = api.login(event.email, event.password)
+        loginUserSubjectSubscription = api.login(event.username, event.password)
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(loginUserSubject);
 
@@ -139,11 +124,11 @@ public class OnboardPresenterImpl implements OnboardPresenter {
         loginUserSubscription = loginUserSubject
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(user -> {
-                    Timber.d("user: " + user);
                     unsubscribe(loginUserSubjectSubscription);
                     prefs.currentUserId().put(user.objectId());
                     prefs.onboardShown().put(true);
                     if (view != null) {
+                        Timber.d("logged in user: " + user);
                         if(user.emailVerified()) {
                             view.navigateToListView();
                         } else {

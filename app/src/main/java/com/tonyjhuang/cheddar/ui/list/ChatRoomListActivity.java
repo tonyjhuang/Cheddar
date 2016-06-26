@@ -11,7 +11,7 @@ import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
-import com.tonyjhuang.cheddar.ui.onboard.OnboardActivity_;
+import com.tonyjhuang.cheddar.ui.welcome.WelcomeActivity_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -104,7 +104,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
 
     @Override
     public void navigateToSignUpView() {
-        OnboardActivity_.intent(this).start();
+        WelcomeActivity_.intent(this).start();
         finish();
     }
 

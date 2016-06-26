@@ -188,7 +188,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @AfterTextChange(R.id.message_input)
     void onMessageInputTextChange(Editable text) {
-        sendMessageView.setDisabled(text.length() == 0);
+        sendMessageView.setDisabled(text.toString().trim().length() == 0);
     }
 
     @EditorAction(R.id.message_input)

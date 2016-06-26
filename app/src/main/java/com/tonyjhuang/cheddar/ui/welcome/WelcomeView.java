@@ -1,9 +1,9 @@
-package com.tonyjhuang.cheddar.ui.onboard;
+package com.tonyjhuang.cheddar.ui.welcome;
 
 /**
  * View for onboard process.
  */
-public interface OnboardView {
+public interface WelcomeView {
 
     void showRegisterUserLoadingDialog();
     void showRegisterUserFailed();

@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.login;
+package com.tonyjhuang.cheddar.ui.welcome.verify_email;
 
 import com.tonyjhuang.cheddar.ui.presenter.Presenter;
 

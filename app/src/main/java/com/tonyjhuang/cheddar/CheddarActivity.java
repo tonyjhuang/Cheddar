@@ -7,10 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.tonyjhuang.cheddar.api.CheddarApi;
-import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
-import com.tonyjhuang.cheddar.ui.onboard.OnboardActivity_;
-import com.tonyjhuang.cheddar.utils.Scheduler;
 import com.tonyjhuang.cheddar.ui.dialog.ChangelogDialog;
 
 import org.androidannotations.annotations.EActivity;

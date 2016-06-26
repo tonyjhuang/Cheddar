@@ -178,7 +178,6 @@ public class ParseApi {
     }
 
     public Observable<User> login(String email, String password) {
-        Timber.d("login %s", email);
         return Observable.create(subscriber -> {
             ParseUser.logInInBackground(email, password, (user, error) -> {
                 if (subscriber.isUnsubscribed()) return;
@@ -206,7 +205,7 @@ public class ParseApi {
     private User toUser(ParseUser parseUser) {
         MetaData metaData = MetaData.create(
                 parseUser.getObjectId(), parseUser.getCreatedAt(), parseUser.getUpdatedAt());
-        return User.create(metaData, parseUser.getUsername(), false);
+        return User.create(metaData, parseUser.getUsername(), parseUser.getBoolean("emailVerified"));
     }
 
     /**

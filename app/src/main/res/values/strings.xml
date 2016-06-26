@@ -10,7 +10,7 @@
 
     <!-- onboard -->
     <string name="onboard_cheddar_value_prop_1">Anonymous group</string>
-    <string name="onboard_cheddar_value_prop_2">messaging for Northeastern</string>
+    <string name="onboard_cheddar_value_prop_2">messaging for</string>
     <string name="onboard_match_value_prop_1">Get randomly matched</string>
     <string name="onboard_match_value_prop_2">with 4 other Huskies</string>
     <string name="onboard_group_value_prop_1">Get placed in up to</string>
@@ -28,27 +28,24 @@
     <string name="verify_email_resent">Verification email has been resent to %1$s</string>
     <string name="verify_email_error_resend_failed">Verification email could not be sent. Please try again.</string>
 
-    <!-- signup -->
-    <string name="signup_error_email_invalid">Invalid email</string>
-    <string name="signup_error_password_invalid">Invalid password</string>
-    <string name="signup_register_loading">Registering&#8230;</string>
-    <string name="signup_register_failed">Couldn\'t register user. Please try again.</string>
-    <string name="signup_login_loading">Logging in&#8230;</string>
-    <string name="signup_login_failed">Wrong email or password.</string>
-    <string name="signup_header">Signup</string>
-    <string name="signup_progress_1">1 of 2</string>
-    <string name="signup_progress_2">2 of 2</string>
-    <string name="signup_email_prompt">Email</string>
-    <string name="signup_email_hint">your.email@husky.neu.edu</string>
-    <string name="signup_year_spinner_prompt">Year</string>
-    <string name="signup_gender_prompt">Gender</string>
-    <string name="signup_gender_male">Male</string>
-    <string name="signup_gender_female">Female</string>
-    <string name="signup_school_spinner_prompt">College</string>
-    <string name="signup_notice">This information will not be shared with other users.</string>
-    <string name="signup_submit">Next</string>
-    <string name="signup_verify_email">Thanks! Please check your inbox at %1$s for your verification link to finish.</string>
-    <string name="signup_error_network">Please check your network connection.</string>
+    <!-- welcome -->
+    <string name="welcome_email_hint">Husky email address</string>
+    <string name="welcome_password_hint">Password</string>
+    <string name="welcome_confirm_password_hint">Confirm password</string>
+    <string name="welcome_action_login">Login</string>
+    <string name="welcome_action_register">Register</string>
+    <string name="welcome_action_switch_to_login">Already have an account?</string>
+    <string name="welcome_action_switch_to_register">Need to register an account?</string>
+    <string name="welcome_action_different_school">Change school</string>
+    <string name="welcome_register_loading">Registering&#8230;</string>
+    <string name="welcome_register_failed">Couldn\'t register user. Please try again.</string>
+    <string name="welcome_login_loading">Logging in&#8230;</string>
+    <string name="welcome_login_failed">Wrong email or password.</string>
+    <string name="welcome_error_email_invalid">Invalid email</string>
+    <string name="welcome_error_email_nonhusky">Email must be a husky email address</string>
+    <string name="welcome_error_password_length">Password must be at least 6 characters</string>
+    <string name="welcome_error_mismatch_password">Passwords don\'t match.</string>
+    <string name="welcome_error_network">Please check your network connection.</string>
 
     <!-- chat -->
     <string name="chat_join_chat">Joining chat&#8230;</string>
@@ -66,8 +63,8 @@
     <string name="chat_leave_confirm">Leave</string>
     <string name="chat_leave_cancel">Cancel</string>
     <string name="chat_leave_chat">Leaving chat&#8230;</string>
-    <string name="chat_alias_list_header">Active Members</string>
-    <string name="chat_alias_timestamp">Joined %1$s.</string>
+    <string name="chat_alias_list_header">Members</string>
+    <string name="chat_alias_timestamp">Joined %1$s</string>
     <string name="chat_presence_joined">%1$s has joined.</string>
     <string name="chat_presence_left">%1$s has left.</string>
     <string name="chat_copied_to_clipboard">Copied message.</string>

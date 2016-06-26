@@ -1,4 +1,4 @@
-package com.tonyjhuang.cheddar.ui.login;
+package com.tonyjhuang.cheddar.ui.welcome.verify_email;
 
 /**
  * What to show the user while waiting for them to

@@ -1,8 +1,8 @@
 package com.tonyjhuang.cheddar;
 
 import com.tonyjhuang.cheddar.ui.list.ChatRoomListActivity_;
-import com.tonyjhuang.cheddar.ui.login.VerifyEmailActivity_;
-import com.tonyjhuang.cheddar.ui.onboard.OnboardActivity_;
+import com.tonyjhuang.cheddar.ui.welcome.WelcomeActivity_;
+import com.tonyjhuang.cheddar.ui.welcome.verify_email.VerifyEmailActivity_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EActivity;
@@ -24,10 +24,10 @@ public class AppRouter extends CheddarActivity {
         String currentUserId = prefs.currentUserId().getOr("");
         Timber.d("currentUserId: %s", currentUserId);
         if (!onboardShown || currentUserId.isEmpty()) {
-            OnboardActivity_.intent(this).start();
+            WelcomeActivity_.intent(this).start();
         } else {
             boolean emailVerified = prefs.userEmailVerified().getOr(false);
-            if(!emailVerified) {
+            if (!emailVerified) {
                 VerifyEmailActivity_.intent(this).start();
             } else {
                 ChatRoomListActivity_.intent(this).start();
