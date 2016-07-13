@@ -15,10 +15,10 @@
     <!-- onboard -->
     <string name="onboard_cheddar_value_prop_1">Anonymous group</string>
     <string name="onboard_cheddar_value_prop_2">messaging for</string>
-    <string name="onboard_match_value_prop_1">Get randomly matched</string>
-    <string name="onboard_match_value_prop_2">with 4 other Huskies</string>
-    <string name="onboard_group_value_prop_1">Get placed in up to</string>
-    <string name="onboard_group_value_prop_2">5 group chats at once</string>
+    <string name="onboard_match_value_prop_1">Get matched with up</string>
+    <string name="onboard_match_value_prop_2">to 4 huskies per chat</string>
+    <string name="onboard_group_value_prop_1">Join up to five</string>
+    <string name="onboard_group_value_prop_2">group chats at once</string>
     <string name="onboard_error_join_chat">Couldn\'t join chat.. Try again?</string>
 
     <!-- different school -->

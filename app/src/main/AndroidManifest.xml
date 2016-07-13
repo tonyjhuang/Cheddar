@@ -41,6 +41,7 @@
         <activity
             android:name=".ui.welcome.WelcomeActivity_"
             android:noHistory="true"
+            android:windowSoftInputMode="stateHidden|adjustResize"
             android:screenOrientation="portrait" />
 
         <activity

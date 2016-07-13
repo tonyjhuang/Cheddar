@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.flyco.pageindicator.anim.select.ZoomInEnter;
@@ -30,7 +32,10 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 @EActivity(R.layout.activity_welcome)
-public class WelcomeActivity extends CheddarActivity implements WelcomeView {
+public class WelcomeActivity extends CheddarActivity implements WelcomeView, KeyboardObserver.KeyboardListener {
+
+    @ViewById(R.id.container)
+    RelativeLayout container;
 
     @ViewById(R.id.pager_layout)
     ButtonPagerLayout pagerLayout;
@@ -71,23 +76,47 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView {
         }
 
         ViewPager.OnPageChangeListener pageListener = new ViewPager.SimpleOnPageChangeListener() {
+            int savedHuskyTop = -1;
+
             @Override
             public void onPageSelected(int position) {
                 int end = onboardAdapter.getCount() - 1;
-                pagerIndicatorView.animate().alpha(position == end ? 0 : 1);
+
+                if (position == end) {
+                    if (savedHuskyTop == -1) {
+                        savedHuskyTop = huskyView.getTop();
+                    }
+                    pagerIndicatorView.animate().alpha(0);
+                    huskyView.animate().y(savedHuskyTop + huskyView.getHeight()).setDuration(75);
+                } else {
+                    pagerIndicatorView.animate().alpha(1);
+                    if (savedHuskyTop != -1) {
+                        huskyView.animate().y(savedHuskyTop).setDuration(75);
+                    }
+                }
             }
         };
 
-        boolean shouldShowOnboard = !prefs.onboardShown().getOr(false);
+        boolean shouldShowOnboard = false;//!prefs.onboardShown().getOr(false);
         onboardAdapter = new WelcomePagerAdapter(getSupportFragmentManager(), shouldShowOnboard);
         viewPager.setAdapter(onboardAdapter);
-        viewPager.addOnPageChangeListener(pageListener);
-        if (onboardAdapter.getCount() > 1) {
+        if (shouldShowOnboard) {
             pagerIndicatorView.setSelectAnimClass(ZoomInEnter.class).setViewPager(viewPager);
             viewPager.setOffscreenPageLimit(1);
             viewPager.addParalloid(backgroundView);
+            viewPager.addOnPageChangeListener(pageListener);
+        } else {
+            pagerIndicatorView.setVisibility(View.GONE);
+            huskyView.setVisibility(View.GONE);
         }
         pagerLayout.refresh();
+
+        // Pretty ugly hack but we need to listen for layout resize events
+        // to hide the husky when the keyboard is shown.
+        KeyboardObserver keyboardObserver = new KeyboardObserver();
+        keyboardObserver.addListener(this);
+        keyboardObserver.setObservableLayout(container);
+        container.getViewTreeObserver().addOnGlobalLayoutListener(keyboardObserver);
     }
 
     @Override
@@ -160,6 +189,27 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView {
                 super.onBackPressed();
             }
         }
+    }
+
+    private void notifyCurrentFragmentKeyboardShown(boolean shown) {
+        Fragment currentFragment = onboardAdapter.getItem(viewPager.getCurrentItem());
+        if (currentFragment instanceof KeyboardObserver.KeyboardListener) {
+            if (shown) {
+                ((KeyboardObserver.KeyboardListener) currentFragment).onKeyboardShown();
+            } else {
+                ((KeyboardObserver.KeyboardListener) currentFragment).onKeyboardHidden();
+            }
+        }
+    }
+
+    @Override
+    public void onKeyboardShown() {
+        notifyCurrentFragmentKeyboardShown(true);
+    }
+
+    @Override
+    public void onKeyboardHidden() {
+        notifyCurrentFragmentKeyboardShown(false);
     }
 
     @Override

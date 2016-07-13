@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.tonyjhuang.cheddar.R;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
@@ -16,11 +17,20 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.regex.Pattern;
 
+import timber.log.Timber;
+
 @EFragment(R.layout.fragment_welcome)
-public class WelcomeFragment extends Fragment implements BackButtonHandler {
+public class WelcomeFragment extends Fragment implements BackButtonHandler, KeyboardObserver.KeyboardListener {
 
     @ViewById(R.id.welcome_layout)
     ViewGroup welcomeLayoutGroup;
+
+    @ViewById(R.id.app_name)
+    View appNameView;
+    @ViewById(R.id.app_name_placeholder)
+    View appNamePlaceholderView;
+    @ViewById(R.id.tagline)
+    View taglineView;
 
     @ViewById(R.id.login_layout)
     ViewGroup loginLayoutGroup;
@@ -38,11 +48,53 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler {
     @ViewById(R.id.register_confirm_password)
     EditText registerConfirmPasswordView;
 
+    /**
+     * Is the keyboard currently shown?
+     */
+    boolean keyboardIsShown = false;
+
+    /**
+     * Has the appNameView been moved to its initial position?
+     * If not, don't attempt to manipulate its x, y until it has.
+     */
+    boolean appNameViewInitialPosition = false;
 
     /**
      * Applies validation logic on user credentials.
      */
     private UserCredentialValidator validator = new UserCredentialValidator();
+
+    @AfterViews
+    public void afterViews() {
+        appNameView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if (v.getHeight() == 0 || v.getWidth() == 0) return;
+                appNamePlaceholderView.getLayoutParams().height = v.getHeight();
+                appNamePlaceholderView.getLayoutParams().width = v.getWidth();
+                appNameView.removeOnLayoutChangeListener(this);
+                Timber.d("w %d h %d", v.getWidth(), v.getHeight());
+                appNamePlaceholderView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                    @Override
+                    public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                        Timber.d("w %d h %d", appNamePlaceholderView.getWidth(), appNamePlaceholderView.getHeight());
+                        appNamePlaceholderView.removeOnLayoutChangeListener(this);
+                        setAppNameViewLeftTop(appNamePlaceholderView.getLeft(), appNamePlaceholderView.getTop(), false);
+                        appNameViewInitialPosition = true;
+                    }
+                });
+            }
+        });
+    }
+
+    private void setAppNameViewLeftTop(int left, int top, boolean animate) {
+        if (animate) {
+            appNameView.animate().y(top).x(left);
+        } else {
+            appNameView.setX(left);
+            appNameView.setY(top);
+        }
+    }
 
     @Click({R.id.welcome_login, R.id.register_login})
     public void onShowLoginLayoutClicked() {
@@ -99,12 +151,16 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler {
                     .setListener(new SimpleAnimatorListener() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            viewGroup.setVisibility(shouldShow ? View.VISIBLE : View.GONE);
+                            // If the keyboard is shown, let's set non-visible layouts to GONE
+                            // so they don't unnecessarily expand the containing FrameLayout.
+                            int hiddenVisibility = keyboardIsShown ? View.GONE : View.INVISIBLE;
+                            viewGroup.setVisibility(shouldShow ? View.VISIBLE : hiddenVisibility);
                             viewGroup.animate().setListener(null);
                         }
                     });
         } else {
-            viewGroup.setVisibility(View.GONE);
+            // See above comment.
+            viewGroup.setVisibility(keyboardIsShown ? View.GONE : View.INVISIBLE);
         }
     }
 
@@ -135,6 +191,37 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler {
                 showLayoutGroupView(LayoutGroupViewType.WELCOME);
                 return true;
         }
+    }
+
+    private void realignAppNameView() {
+        if (!appNameViewInitialPosition) return;
+        appNameView.post(() ->
+                setAppNameViewLeftTop(appNamePlaceholderView.getLeft(), appNamePlaceholderView.getTop(), true));
+    }
+
+    @Override
+    public void onKeyboardShown() {
+        keyboardIsShown = true;
+        taglineView.setVisibility(View.GONE);
+        if (!getCurrentVisibleLayoutGroupViewType().equals(LayoutGroupViewType.REGISTER)) {
+            // If the login form is shown while the keyboard is up,
+            // let's set the register form to GONE so it doesn't take
+            // up any space and the rest of the layout can size appropriately.
+            registerLayoutGroup.setVisibility(View.GONE);
+        }
+        realignAppNameView();
+    }
+
+    @Override
+    public void onKeyboardHidden() {
+        keyboardIsShown = false;
+        taglineView.setVisibility(View.VISIBLE);
+        if (getCurrentVisibleLayoutGroupViewType().equals(LayoutGroupViewType.REGISTER)) {
+            registerLayoutGroup.setVisibility(View.VISIBLE);
+        } else {
+            registerLayoutGroup.setVisibility(View.INVISIBLE);
+        }
+        realignAppNameView();
     }
 
     private enum LayoutGroupViewType {
