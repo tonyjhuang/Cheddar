@@ -16,8 +16,6 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 @EActivity(R.layout.activity_welcome)
 public abstract class CheddarActivity extends AppCompatActivity {
 
-    private static final String TAG = CheddarActivity.class.getSimpleName();
-
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
@@ -25,24 +23,9 @@ public abstract class CheddarActivity extends AppCompatActivity {
 
     protected void showChangeLog(CheddarPrefs_ prefs) {
         String lastVersionName = prefs.lastVersionName().get();
-        String versionName = getVersionName();
-        if ((!versionName.isEmpty() && !versionName.equals(lastVersionName))) {
+        if (!BuildConfig.VERSION_NAME.equals(lastVersionName)){
             ChangelogDialog.show(this);
-            prefs.lastVersionName().put(versionName);
-        }
-    }
-
-    /**
-     * Returns the version name or the empty string if it can't be retrieved.
-     */
-    protected String getVersionName() {
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            Log.d(TAG, pInfo.versionName);
-            return pInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Couldn't retrieve package name: " + e.toString());
-            return "";
+            prefs.lastVersionName().put(BuildConfig.VERSION_NAME);
         }
     }
 

@@ -1,7 +1,6 @@
 package com.tonyjhuang.cheddar.ui.welcome;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
@@ -146,16 +145,11 @@ public class WelcomePresenterImpl implements WelcomePresenter {
 
     @Subscribe
     public void OnRegisterDifferentSchoolEvent(WelcomeFragment.RegisterDifferentSchoolEvent event) {
-        try {
-            String versionName = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0).versionName;
-            api.registerDifferentSchool(versionName, event.school, event.email)
-                    .compose(Scheduler.backgroundSchedulers())
-                    .publish().connect();
-        } catch (PackageManager.NameNotFoundException e) {
-            Timber.e("couldn't get versionName: " + e);
-        }
+        api.registerDifferentSchool(event.school, event.email)
+                .compose(Scheduler.backgroundSchedulers())
+                .publish().connect();
 
+        if (view != null) view.hideKeyboard();
     }
 
     @Override

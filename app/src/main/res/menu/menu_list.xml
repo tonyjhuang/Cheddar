@@ -16,7 +16,7 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_clear"
+        android:id="@+id/action_debug_clear"
         android:orderInCategory="500"
         android:title="@string/debug_action_clear"
         app:showAsAction="never" />

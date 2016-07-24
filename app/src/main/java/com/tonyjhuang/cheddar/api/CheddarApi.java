@@ -2,6 +2,7 @@ package com.tonyjhuang.cheddar.api;
 
 import android.content.Context;
 
+import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.cache.CacheApi;
 import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
@@ -305,10 +306,11 @@ public class CheddarApi {
 
     /**
      * Send Feedback from a non-chat context.
+     * TODO: remove this maybe?
      */
-    public Observable<String> sendFeedback(String versionName, String userId, String name, String feedback) {
+    public Observable<String> sendFeedback(String userId, String name, String feedback) {
         FeedbackApi.FeedbackInfo.Builder builder = new FeedbackApi.FeedbackInfo.Builder()
-                .setVersionName(versionName)
+                .setVersionName(BuildConfig.VERSION_NAME)
                 .setUserId(userId)
                 .setName(name)
                 .setFeedback(feedback);
@@ -318,23 +320,12 @@ public class CheddarApi {
     /**
      * Send feedback from the chat context.
      */
-    public Observable<String> sendFeedback(String versionName, Alias alias, String name, String feedback) {
-        FeedbackApi.FeedbackInfo.Builder builder = new FeedbackApi.FeedbackInfo.Builder()
-                .setVersionName(versionName)
-                .setUserId(alias.userId())
-                .setChatRoomId(alias.chatRoomId())
-                .setAliasName(alias.name())
-                .setName(name)
-                .setFeedback(feedback);
-        return feedbackApi.sendFeedback(builder.build());
+    public Observable<String> sendFeedback(Alias alias, String feedback) {
+        return parseApi.sendFeedback(alias, feedback);
     }
 
-    public Observable<String> registerDifferentSchool(String versionName, String school, String email) {
-        FeedbackApi.FeedbackInfo.Builder builder = new FeedbackApi.FeedbackInfo.Builder()
-                .setVersionName(versionName)
-                .setName("University request")
-                .setFeedback(String.format("School: %s, Email: %s", school, email));
-        return feedbackApi.sendFeedback(builder.build());
+    public Observable<String> registerDifferentSchool(String schoolName, String email) {
+        return parseApi.sendChangeSchoolRequest(schoolName, email);
     }
 
     /**

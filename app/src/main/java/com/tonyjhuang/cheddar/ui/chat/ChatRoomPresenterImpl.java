@@ -2,7 +2,6 @@ package com.tonyjhuang.cheddar.ui.chat;
 
 import android.content.Context;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
@@ -145,7 +144,7 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 .subscribe(alias -> {
                     if (!alias.active()) {
                         // Respect server switches to active status.
-                        if(view != null) view.navigateToListView();
+                        if (view != null) view.navigateToListView();
                     }
                 }, error -> onFailedToRetrieveAlias());
 
@@ -484,17 +483,11 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
 
 
     @Override
-    public void sendFeedback(String name, String feedback) {
-        try {
-            String versionName = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0).versionName;
-            aliasSubject.flatMap(alias -> api.sendFeedback(versionName, alias, name, feedback))
-                    .doOnNext(result -> CheddarMetrics.trackFeedback(CheddarMetrics.FeedbackLifecycle.SENT))
-                    .compose(Scheduler.backgroundSchedulers())
-                    .publish().connect();
-        } catch (PackageManager.NameNotFoundException e) {
-            Timber.e("couldn't get versionName: " + e);
-        }
+    public void sendFeedback(String feedback) {
+        aliasSubject.flatMap(alias -> api.sendFeedback(alias, feedback))
+                .doOnNext(result -> CheddarMetrics.trackFeedback(CheddarMetrics.FeedbackLifecycle.SENT))
+                .compose(Scheduler.backgroundSchedulers())
+                .publish().connect();
     }
 
     @Override

@@ -16,18 +16,17 @@ public class FeedbackDialog {
 
     public static void getFeedback(Context context, Callback callback) {
         View view = View.inflate(context, R.layout.dialog_feedback, null);
-        EditText nameInput = (EditText) view.findViewById(R.id.name);
         EditText feedbackInput = (EditText) view.findViewById(R.id.feedback_input);
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setTitle(R.string.feedback_title)
-                .setMessage(R.string.feedback_message)
+                .setMessage(R.string.feedback_desc)
                 .setView(view)
                 .setPositiveButton(R.string.feedback_confirm, (dialog, which) -> {
                     String feedback = feedbackInput.getText().toString();
                     if (feedback.isEmpty()) {
                         Toast.makeText(context, R.string.feedback_empty, Toast.LENGTH_SHORT).show();
                     } else {
-                        callback.onFeedback(nameInput.getText().toString(), feedback);
+                        callback.onFeedback(feedback);
                     }
                 })
                 .setNegativeButton(R.string.common_cancel, null);
@@ -36,6 +35,6 @@ public class FeedbackDialog {
     }
 
     public interface Callback {
-        void onFeedback(String name, String feedback);
+        void onFeedback(String feedback);
     }
 }

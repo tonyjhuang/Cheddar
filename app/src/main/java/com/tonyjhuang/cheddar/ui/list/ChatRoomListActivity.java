@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
@@ -135,6 +136,8 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_list, menu);
+        boolean isDebug = BuildConfig.BUILD_TYPE.equals("debug");
+        menu.findItem(R.id.action_debug_clear).setVisible(isDebug);
         return true;
     }
 
@@ -153,7 +156,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
                 loadingDialog = LoadingDialog.show(this, R.string.list_logout);
                 presenter.logout();
                 return true;
-            case R.id.action_clear:
+            case R.id.action_debug_clear:
                 presenter.debugReset();
                 return true;
         }

@@ -28,7 +28,7 @@ public interface ChatRoomPresenter extends Presenter<ChatRoomView> {
 
     void onDestroy();
 
-    void sendFeedback(String name, String feedback);
+    void sendFeedback(String feedback);
 
     void updateChatRoomName(String name);
 }

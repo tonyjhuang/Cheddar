@@ -20,4 +20,6 @@ public interface WelcomeView {
     void navigateToVerifyEmailView(String userId);
 
     void showNetworkConnectionError();
+
+    void hideKeyboard();
 }

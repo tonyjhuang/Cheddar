@@ -28,6 +28,8 @@ import com.tonyjhuang.cheddar.api.network.request.JoinChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.LeaveChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.ReplayChatEventsRequest;
 import com.tonyjhuang.cheddar.api.network.request.ResendVerificationEmailRequest;
+import com.tonyjhuang.cheddar.api.network.request.SendChangeSchoolRequest;
+import com.tonyjhuang.cheddar.api.network.request.SendFeedbackRequest;
 import com.tonyjhuang.cheddar.api.network.request.SendMessageRequest;
 import com.tonyjhuang.cheddar.api.network.request.UpdateChatRoomNameRequest;
 import com.tonyjhuang.cheddar.api.network.response.replaychatevent.ChatEventPage;
@@ -75,6 +77,11 @@ public class ParseApi {
      * Number of users for a typical group chat.
      */
     private static final int GROUP_OCCUPANCY = 5;
+
+    /**
+     * For sending user feedback.
+     */
+    private static final String PLATFORM = "Android";
 
     static {
         utcDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -303,6 +310,22 @@ public class ParseApi {
                 new SendMessageRequest(aliasId, messageId, body, SUBKEY, PUBKEY);
 
         return service.sendMessage(request);
+    }
+
+    public Observable<String> sendFeedback(Alias alias, String feedback) {
+        SendFeedbackRequest request = new SendFeedbackRequest(
+                PLATFORM, // Platform
+                BuildConfig.VERSION_NAME, // Version
+                Integer.toString(BuildConfig.VERSION_CODE), // Build
+                alias.userId(),
+                alias.chatRoomId(),
+                alias.name(),
+                feedback);
+        return service.sendFeedback(request);
+    }
+
+    public Observable<String> sendChangeSchoolRequest(String schoolName, String email) {
+        return service.sendChangeSchoolRequest(new SendChangeSchoolRequest(PLATFORM, schoolName, email));
     }
 
     /**

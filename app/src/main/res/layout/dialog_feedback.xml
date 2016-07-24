@@ -7,18 +7,11 @@
     android:paddingRight="16dp"
     android:paddingTop="8dp">
 
-    <EditText
-        android:id="@+id/name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/feedback_name_hint" />
-
     <EditText xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/feedback_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:gravity="top"
         android:hint="@string/feedback_hint"
-        android:lines="3" />
+        android:maxLines="3" />
 </LinearLayout>

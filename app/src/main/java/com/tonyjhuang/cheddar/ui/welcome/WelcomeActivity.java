@@ -1,16 +1,19 @@
 package com.tonyjhuang.cheddar.ui.welcome;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.flyco.pageindicator.anim.select.ZoomInEnter;
 import com.flyco.pageindicator.indicator.FlycoPageIndicaor;
+import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
@@ -70,7 +73,7 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView, Key
 
     @AfterViews
     void afterViews() {
-        debugVersionView.setText(getString(R.string.debug_label, getVersionName()));
+        debugVersionView.setText(getString(R.string.debug_label, BuildConfig.VERSION_NAME));
 
         ViewPager.OnPageChangeListener pageListener = new ViewPager.SimpleOnPageChangeListener() {
             int savedHuskyTop = -1;
@@ -94,7 +97,7 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView, Key
             }
         };
 
-        boolean shouldShowOnboard = false;//!prefs.onboardShown().getOr(false);
+        boolean shouldShowOnboard = !prefs.onboardShown().getOr(false);
         onboardAdapter = new WelcomePagerAdapter(getSupportFragmentManager(), shouldShowOnboard);
         viewPager.setAdapter(onboardAdapter);
         if (shouldShowOnboard) {
@@ -214,6 +217,12 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView, Key
     public void onKeyboardHidden() {
         notifyCurrentFragmentKeyboardShown(false);
         debugVersionView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(container.getWindowToken(), 0);
     }
 
     @Override

@@ -103,8 +103,7 @@
 
     <!-- feedback -->
     <string name="feedback_title">Send feedback</string>
-    <string name="feedback_message">Hi there, tester! Is something weird or broken?</string>
-    <string name="feedback_name_hint">Name or email</string>
+    <string name="feedback_desc">Is something weird or broken? Any and all feedback is sent directly to the Cheddar team!</string>
     <string name="feedback_hint">What\'s up?</string>
     <string name="feedback_thanks">Thanks for your feedback!</string>
     <string name="feedback_empty">Please write some feedback first!</string>

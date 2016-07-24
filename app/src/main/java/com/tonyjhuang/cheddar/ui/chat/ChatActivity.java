@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
@@ -75,8 +76,8 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @ViewById(R.id.network_connection_error)
     View networkConnectErrorView;
 
-    @ViewById
-    TextView version;
+    @ViewById(R.id.debug_version)
+    TextView debugVersionView;
 
     @ViewById(R.id.character_count)
     TextView inputCharacterCount;
@@ -140,7 +141,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
         getSupportActionBar().setTitle(R.string.chat_title_group);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         presenter.loadMoreMessages();
-        version.setText(getVersionName());
+        debugVersionView.setText(getString(R.string.debug_label, BuildConfig.VERSION_NAME));
         messageLoadingView.postDelayed(() -> messageLoadingView.animate().alpha(1).setDuration(250), 500);
     }
 
@@ -355,7 +356,8 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @Override
     public void displayLoadHistoryChatEventsError() {
         showToast(R.string.chat_error_load_messages_failed);
-        chatEventListView.setAlpha(1f);
+        showListView(true);
+        showListLoadingView(false);
     }
 
     @Override
@@ -432,10 +434,10 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 navigateToListView();
                 return true;
             case R.id.action_feedback:
-                FeedbackDialog.getFeedback(this, (name, feedback) -> {
+                FeedbackDialog.getFeedback(this, feedback -> {
                     if (feedback != null && !feedback.isEmpty()) {
                         showToast(R.string.feedback_thanks);
-                        presenter.sendFeedback(name, feedback);
+                        presenter.sendFeedback(feedback);
                     }
                 });
                 return true;
