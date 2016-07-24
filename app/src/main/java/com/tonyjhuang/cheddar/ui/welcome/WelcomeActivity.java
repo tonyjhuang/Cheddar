@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.flyco.pageindicator.anim.select.ZoomInEnter;
 import com.flyco.pageindicator.indicator.FlycoPageIndicaor;
-import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
@@ -53,7 +52,7 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView, Key
     ImageView huskyView;
 
     @ViewById(R.id.version)
-    TextView versionView;
+    TextView debugVersionView;
 
     @Bean(WelcomePresenterImpl.class)
     WelcomePresenter presenter;
@@ -71,9 +70,7 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView, Key
 
     @AfterViews
     void afterViews() {
-        if (BuildConfig.DEBUG) {
-            versionView.setText(String.format("DEBUG %s", getVersionName()));
-        }
+        debugVersionView.setText(getString(R.string.debug_label, getVersionName()));
 
         ViewPager.OnPageChangeListener pageListener = new ViewPager.SimpleOnPageChangeListener() {
             int savedHuskyTop = -1;
@@ -210,11 +207,13 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView, Key
     @Override
     public void onKeyboardShown() {
         notifyCurrentFragmentKeyboardShown(true);
+        debugVersionView.setVisibility(View.GONE);
     }
 
     @Override
     public void onKeyboardHidden() {
         notifyCurrentFragmentKeyboardShown(false);
+        debugVersionView.setVisibility(View.VISIBLE);
     }
 
     @Override

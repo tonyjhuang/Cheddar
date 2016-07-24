@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Cheddar Dev</string>
-    <string name="alpha_header">dev</string>
     <string name="notif_title">Cheddar - Dev</string>
+    <string name="debug_label">Cheddar Dev %1$s</string>
 </resources>

@@ -23,7 +23,7 @@
 
     <!-- different school -->
     <string name="different_school_header">Coming soon!</string>
-    <string name="different_school_subheader">Enter your school name and email to get notified when Cheddar launches at your university!</string>
+    <string name="different_school_subheader">Enter your university and email to get notified when Cheddar comes to your school!</string>
     <string name="different_school_school_hint">University</string>
     <string name="different_school_email_hint">Email</string>
     <string name="different_school_thanks">Thanks! Check your email for future updates on Cheddar</string>
@@ -48,12 +48,15 @@
     <string name="welcome_register_loading">Registering&#8230;</string>
     <string name="welcome_register_failed">Couldn\'t register user. Please try again</string>
     <string name="welcome_login_loading">Logging in&#8230;</string>
+    <string name="welcome_dialog_registration_code_desc">Non-husky emails require a code to register.</string>
+    <string name="welcome_dialog_registration_code_hint">Registration code</string>
     <string name="welcome_error_email_invalid">Invalid email</string>
     <string name="welcome_error_email_nonhusky">Email must be a husky email address</string>
     <string name="welcome_error_credentials">Wrong email or password</string>
     <string name="welcome_error_password_length">Password must be at least 6 characters</string>
     <string name="welcome_error_mismatch_password">Passwords don\'t match</string>
     <string name="welcome_error_network">Please check your network connection</string>
+
 
     <!-- chat -->
     <string name="chat_join_chat">Joining chat&#8230;</string>
@@ -115,4 +118,5 @@
 
     <!-- debug -->
     <string name="debug_action_clear">Reset</string>
+    <string name="debug_label"></string>
 </resources>

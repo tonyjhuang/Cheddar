@@ -156,7 +156,7 @@ public class ParseApi {
     /**
      * Registers a new user with the server.
      */
-    public Observable<User> registerUser(String email, String password) {
+    public Observable<User> registerUser(String email, String password, String registrationCode) {
         Timber.d("register %s", email);
         return Observable.create(subscriber -> {
             ParseUser.logOut();
@@ -164,6 +164,7 @@ public class ParseApi {
             user.setUsername(email);
             user.setPassword(password);
             user.setEmail(email);
+            user.put("registrationCode", registrationCode);
 
             user.signUpInBackground(error -> {
                 if (subscriber.isUnsubscribed()) return;

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Cheddar Internal Beta</string>
+    <string name="notif_title">Cheddar - Internal Beta</string>
+    <string name="debug_label">Internal Beta - %1$s</string>
+</resources>

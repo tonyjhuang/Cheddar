@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">Cheddar Alpha</string>
     <string name="notif_title">Cheddar - Alpha</string>
+    <string name="debug_label">Cheddar Alpha %1$s</string>
 </resources>

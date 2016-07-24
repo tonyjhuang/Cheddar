@@ -13,14 +13,18 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.ViewsById;
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.List;
 import java.util.regex.Pattern;
-
-import timber.log.Timber;
 
 @EFragment(R.layout.fragment_welcome)
 public class WelcomeFragment extends Fragment implements BackButtonHandler, KeyboardObserver.KeyboardListener {
+
+    private static final String HUSKY_EMAIL_PATTERN =
+            "^(([_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@husky.neu.edu)"
+                    + "|(tony.huang.jun@gmail.com))$"; // DEBUG, REMOVE
 
     @ViewById(R.id.welcome_layout)
     ViewGroup welcomeLayoutGroup;
@@ -48,6 +52,9 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
     @ViewById(R.id.register_confirm_password)
     EditText registerConfirmPasswordView;
 
+    @ViewsById({R.id.login_register, R.id.register_login, R.id.register_different_school})
+    List<View> secondaryFormViews;
+
     /**
      * Is the keyboard currently shown?
      */
@@ -73,11 +80,9 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
                 appNamePlaceholderView.getLayoutParams().height = v.getHeight();
                 appNamePlaceholderView.getLayoutParams().width = v.getWidth();
                 appNameView.removeOnLayoutChangeListener(this);
-                Timber.d("w %d h %d", v.getWidth(), v.getHeight());
                 appNamePlaceholderView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                     @Override
                     public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                        Timber.d("w %d h %d", appNamePlaceholderView.getWidth(), appNamePlaceholderView.getHeight());
                         appNamePlaceholderView.removeOnLayoutChangeListener(this);
                         setAppNameViewLeftTop(appNamePlaceholderView.getLeft(), appNamePlaceholderView.getTop(), false);
                         appNameViewInitialPosition = true;
@@ -121,7 +126,13 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
         String password = registerPasswordView.getText().toString();
         String password2 = registerConfirmPasswordView.getText().toString();
         if (validator.validate(email, password, password2)) {
-            EventBus.getDefault().post(new RequestRegisterEvent(email, password));
+            if (!HUSKY_EMAIL_PATTERN.matches(email)) {
+                RegistrationCodeDialog.getRegistrationCode(getContext(), registrationCode -> {
+                    EventBus.getDefault().post(new RequestRegisterEvent(email, password, registrationCode));
+                });
+            } else {
+                EventBus.getDefault().post(new RequestRegisterEvent(email, password));
+            }
         }
     }
 
@@ -202,7 +213,10 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
     @Override
     public void onKeyboardShown() {
         keyboardIsShown = true;
-        taglineView.setVisibility(View.GONE);
+        taglineView.animate().alpha(0).setDuration(50);
+        for (View view : secondaryFormViews) {
+            view.setVisibility(View.GONE);
+        }
         if (!getCurrentVisibleLayoutGroupViewType().equals(LayoutGroupViewType.REGISTER)) {
             // If the login form is shown while the keyboard is up,
             // let's set the register form to GONE so it doesn't take
@@ -215,7 +229,10 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
     @Override
     public void onKeyboardHidden() {
         keyboardIsShown = false;
-        taglineView.setVisibility(View.VISIBLE);
+        taglineView.animate().alpha(1).setDuration(50);
+        for (View view : secondaryFormViews) {
+            view.setVisibility(View.VISIBLE);
+        }
         if (getCurrentVisibleLayoutGroupViewType().equals(LayoutGroupViewType.REGISTER)) {
             registerLayoutGroup.setVisibility(View.VISIBLE);
         } else {
@@ -241,10 +258,17 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
     public static class RequestRegisterEvent {
         public String username;
         public String password;
+        public String registrationCode = null;
 
         public RequestRegisterEvent(String username, String password) {
             this.username = username;
             this.password = password;
+        }
+
+        public RequestRegisterEvent(String username, String password, String registrationCode) {
+            this.username = username;
+            this.password = password;
+            this.registrationCode = registrationCode;
         }
     }
 

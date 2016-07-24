@@ -80,8 +80,8 @@ public class CheddarApi {
                 .flatMap(cacheApi::persist);
     }
 
-    public Observable<User> registerNewUser(String email, String password) {
-        return parseApi.registerUser(email, password)
+    public Observable<User> registerNewUser(String email, String password, String registrationCode) {
+        return parseApi.registerUser(email, password, registrationCode)
                 .doOnNext(user -> prefs.currentUserId().put(user.objectId()))
                 .flatMap(cacheApi::persist);
     }

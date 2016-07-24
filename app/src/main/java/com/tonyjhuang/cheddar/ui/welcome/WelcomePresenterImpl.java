@@ -72,7 +72,8 @@ public class WelcomePresenterImpl implements WelcomePresenter {
         if (view != null) view.showRegisterUserLoadingDialog();
 
         registerUserSubject = AsyncSubject.create();
-        registerUserSubjectSubscription = api.registerNewUser(event.username, event.password)
+        registerUserSubjectSubscription = api.registerNewUser(
+                event.username, event.password, event.registrationCode)
                 .compose(Scheduler.backgroundSchedulers())
                 .subscribe(registerUserSubject);
 
