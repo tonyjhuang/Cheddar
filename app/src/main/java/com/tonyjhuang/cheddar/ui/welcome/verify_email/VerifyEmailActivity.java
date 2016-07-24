@@ -49,11 +49,6 @@ public class VerifyEmailActivity extends CheddarActivity implements VerifyEmailV
         showToast(R.string.verify_email_error_resend_failed);
     }
 
-    @Click(R.id.go_to_list)
-    public void onGoToListClicked() {
-        navigateToListView();
-    }
-
     @Override
     public void showJoiningChatRoomLoading() {
         loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);

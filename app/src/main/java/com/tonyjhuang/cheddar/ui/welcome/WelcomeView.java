@@ -7,6 +7,7 @@ public interface WelcomeView {
 
     void showRegisterUserLoadingDialog();
     void showRegisterUserFailed();
+    void showRegisterUserFailed(String message);
 
     void showLoginUserLoadingDialog();
     void showLoginUserFailed();

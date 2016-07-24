@@ -1,37 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
 
-    <ProgressBar
-        android:layout_width="48dp"
-        android:layout_height="48dp" />
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/onboard_background" />
 
-    <Button
-        android:id="@+id/check_verification"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="check verification" />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="56dp"
+            android:text="Please check your email to verify your account."
+            android:textSize="22sp" />
 
-    <Button
-        android:id="@+id/resend_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="resend email" />
 
-    <Button
-        android:id="@+id/logout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="logout" />
+        <Button
+            android:id="@+id/check_verification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="check verification" />
 
-    <Button
-        android:id="@+id/go_to_list"
-        android:text="(DEBUG) Go to list"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/resend_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="resend email" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="logout" />
+
+    </LinearLayout>
+</FrameLayout>

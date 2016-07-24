@@ -146,8 +146,13 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView, Key
 
     @Override
     public void showRegisterUserFailed() {
+        showRegisterUserFailed(getString(R.string.welcome_register_failed));
+    }
+
+    @Override
+    public void showRegisterUserFailed(String message) {
         if (loadingDialog != null) loadingDialog.dismiss();
-        showToast(R.string.welcome_register_failed);
+        showToast(message);
     }
 
     @Override

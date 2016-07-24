@@ -93,7 +93,7 @@ public class WelcomePresenterImpl implements WelcomePresenter {
                     if (view != null) view.navigateToVerifyEmailView(user.objectId());
                 }, error -> {
                     Timber.e(error, "failed to register user");
-                    if (view != null) view.showRegisterUserFailed();
+                    if (view != null) view.showRegisterUserFailed(error.getMessage());
                     unsubscribe(registerUserSubjectSubscription);
                 });
     }
