@@ -113,6 +113,7 @@ android {
             buildConfigField 'String', 'PUBNUB_PUBKEY', PUBNUB_PUBKEY
             buildConfigField 'String', 'PUBNUB_SUBKEY', PUBNUB_SUBKEY
             applicationIdSuffix ".dev"
+            ext.enableCrashlytics = false
         }
         alpha {
             resValue 'string', 'PARSE_APPKEY', PARSE_APPKEY_ALPHA

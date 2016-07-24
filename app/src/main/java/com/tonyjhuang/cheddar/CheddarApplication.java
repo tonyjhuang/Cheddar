@@ -3,6 +3,7 @@ package com.tonyjhuang.cheddar;
 import android.support.multidex.MultiDexApplication;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 
@@ -25,7 +26,14 @@ public class CheddarApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        Fabric.with(this, new Crashlytics());
+
+        // Set up Crashlytics, disabled for debug builds
+        Crashlytics crashlyticsKit = new Crashlytics.Builder()
+                .core(new CrashlyticsCore.Builder()
+                        .disabled(BuildConfig.BUILD_TYPE.equals("debug"))
+                        .build())
+                .build();
+        Fabric.with(this, crashlyticsKit);
 
         Timber.plant(new Timber.DebugTree() {
 
