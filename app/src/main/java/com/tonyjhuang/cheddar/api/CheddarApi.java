@@ -2,10 +2,8 @@ package com.tonyjhuang.cheddar.api;
 
 import android.content.Context;
 
-import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.cache.CacheApi;
-import com.tonyjhuang.cheddar.api.feedback.FeedbackApi;
 import com.tonyjhuang.cheddar.api.message.MessageApi;
 import com.tonyjhuang.cheddar.api.message.MessageApiChatEventHolder;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
@@ -38,8 +36,6 @@ public class CheddarApi {
     Context context;
     @Bean
     MessageApi messageApi;
-    @Bean
-    FeedbackApi feedbackApi;
     @Bean
     ParseApi parseApi;
     @Bean
@@ -303,19 +299,6 @@ public class CheddarApi {
     //******************************************************
     //                Miscellaneous
     //******************************************************
-
-    /**
-     * Send Feedback from a non-chat context.
-     * TODO: remove this maybe?
-     */
-    public Observable<String> sendFeedback(String userId, String name, String feedback) {
-        FeedbackApi.FeedbackInfo.Builder builder = new FeedbackApi.FeedbackInfo.Builder()
-                .setVersionName(BuildConfig.VERSION_NAME)
-                .setUserId(userId)
-                .setName(name)
-                .setFeedback(feedback);
-        return feedbackApi.sendFeedback(builder.build());
-    }
 
     /**
      * Send feedback from the chat context.
