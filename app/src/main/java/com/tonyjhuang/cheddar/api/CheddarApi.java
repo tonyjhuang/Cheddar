@@ -2,6 +2,7 @@ package com.tonyjhuang.cheddar.api;
 
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.cache.CacheApi;
 import com.tonyjhuang.cheddar.api.message.MessageApi;
@@ -46,8 +47,6 @@ public class CheddarApi {
     // Keeps track of where we are while paging through the message history.
     private Date replayPagerToken = null;
 
-    public CheddarApi() {
-    }
 
     //******************************************************
     //              ! DEBUG !
@@ -62,7 +61,8 @@ public class CheddarApi {
         prefs.pushChannels().put("");
         prefs.gcmRegistrationToken().put("");
         return parseApi.deleteCurrentUser()
-                .flatMap(aVoid -> cacheApi.debugReset());
+                .flatMap(aVoid -> cacheApi.debugReset())
+                .doOnError(Crashlytics::logException);
     }
 
     //******************************************************
@@ -74,13 +74,15 @@ public class CheddarApi {
      */
     public Observable<User> fetchUser(String userId) {
         return parseApi.findUser(userId)
-                .flatMap(cacheApi::persist);
+                .flatMap(cacheApi::persist)
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<User> registerNewUser(String email, String password, String registrationCode) {
         return parseApi.registerUser(email, password, registrationCode)
                 .doOnNext(user -> prefs.currentUserId().put(user.objectId()))
-                .flatMap(cacheApi::persist);
+                .flatMap(cacheApi::persist)
+                .doOnError(Crashlytics::logException);
     }
 
 
@@ -99,24 +101,27 @@ public class CheddarApi {
             } else {
                 return Observable.error(new NoCurrentUserException());
             }
-        });
+        }).doOnError(Crashlytics::logException);
     }
 
     public Observable<User> getCurrentUser() {
         return getCurrentUserId()
                 .flatMap(currentUserId -> cacheApi.getUser(currentUserId)
-                        .onExceptionResumeNext(fetchUser(currentUserId)));
+                        .onExceptionResumeNext(fetchUser(currentUserId)))
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<User> resendCurrentUserVerificationEmail() {
-        return getCurrentUserId().flatMap(parseApi::resendVerificationEmail);
+        return getCurrentUserId().flatMap(parseApi::resendVerificationEmail)
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<Boolean> isCurrentUserEmailVerified() {
         return getCurrentUserId()
                 .flatMap(parseApi::isUserEmailVerified)
                 .onExceptionResumeNext(Observable.just(false))
-                .doOnNext(emailVerified -> prefs.userEmailVerified().put(emailVerified));
+                .doOnNext(emailVerified -> prefs.userEmailVerified().put(emailVerified))
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<User> login(String email, String password) {
@@ -127,7 +132,8 @@ public class CheddarApi {
                     prefs.userEmailVerified().put(user.emailVerified());
                     prefs.unreadMessages().put("");
                     prefs.pushChannels().put("");
-                });
+                })
+                .doOnError(Crashlytics::logException);
     }
 
     /**
@@ -141,7 +147,7 @@ public class CheddarApi {
             prefs.unreadMessages().put("");
             prefs.pushChannels().put("");
             return parseApi.logout();
-        });
+        }).doOnError(Crashlytics::logException);
     }
 
 
@@ -151,18 +157,21 @@ public class CheddarApi {
 
     public Observable<Alias> fetchAlias(String aliasId) {
         return parseApi.findAlias(aliasId)
-                .flatMap(cacheApi::persist);
+                .flatMap(cacheApi::persist)
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<Alias> getAlias(String aliasId) {
         return cacheApi.getAlias(aliasId)
                 // Fetch Alias from network if it doesn't exist in the cache.
-                .onExceptionResumeNext(fetchAlias(aliasId));
+                .onExceptionResumeNext(fetchAlias(aliasId))
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<Alias> getAliasForChatRoom(String chatRoomId) {
         return getCurrentUser().map(User::objectId)
-                .flatMap(userId -> cacheApi.getAliasForChatRoom(userId, chatRoomId));
+                .flatMap(userId -> cacheApi.getAliasForChatRoom(userId, chatRoomId))
+                .doOnError(Crashlytics::logException);
     }
 
     //******************************************************
@@ -170,16 +179,18 @@ public class CheddarApi {
     //******************************************************
 
     public Observable<ChatRoom> fetchChatRoom(String chatRoomId) {
-        return parseApi.findChatRoom(chatRoomId).flatMap(cacheApi::persist);
+        return parseApi.findChatRoom(chatRoomId).flatMap(cacheApi::persist)
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<ChatRoom> getChatRoom(String chatRoomId) {
         return cacheApi.getChatRoom(chatRoomId)
-                .onExceptionResumeNext(fetchChatRoom(chatRoomId));
+                .onExceptionResumeNext(fetchChatRoom(chatRoomId))
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<Alias> joinGroupChatRoom() {
-        return getCurrentUser().map(User::objectId)
+        Observable<Alias> observable = getCurrentUser().map(User::objectId)
                 .flatMap(parseApi::joinGroupChatRoom)
                 .flatMap(cacheApi::persist)
                 .flatMap(alias -> Observable.defer(() ->
@@ -187,16 +198,20 @@ public class CheddarApi {
                         getChatRoom(alias.chatRoomId())
                                 .flatMap(cacheApi::persist)
                                 .map(chatRoom -> alias)));
+
+        return observable.doOnError(Crashlytics::logException);
     }
 
     public Observable<Alias> leaveChatRoom(String aliasId) {
         return parseApi.leaveChatRoom(aliasId)
-                .flatMap(cacheApi::persist);
+                .flatMap(cacheApi::persist)
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<List<Alias>> getActiveAliases(String chatRoomId) {
         return parseApi.getActiveAliases(chatRoomId)
-                .flatMap(cacheApi::persistAliases);
+                .flatMap(cacheApi::persistAliases)
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<List<ChatRoomInfo>> getChatRoomInfos() {
@@ -207,14 +222,16 @@ public class CheddarApi {
                                 .doOnNext(infos -> Timber.v("cached: " + infos.size()))
                                 .onExceptionResumeNext(Observable.empty()),
                         // Network call.
-                        fetchChatRoomInfos(userId)));
+                        fetchChatRoomInfos(userId)))
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<List<ChatRoomInfo>> fetchChatRoomInfos(String userId) {
         return parseApi.getChatRooms(userId)
                 .doOnNext(infos -> Timber.v("network: " + infos.size()))
                 .flatMap(infos -> cacheApi.persistChatRoomInfosForUserExclusive(userId, infos))
-                .compose(sortChatRoomInfoList());
+                .compose(sortChatRoomInfoList())
+                .doOnError(Crashlytics::logException);
     }
 
     private Observable.Transformer<List<ChatRoomInfo>, List<ChatRoomInfo>> sortChatRoomInfoList() {
@@ -224,7 +241,8 @@ public class CheddarApi {
 
     public Observable<ChatRoom> updateChatRoomName(String aliasId, String name) {
         return parseApi.updateChatRoomName(aliasId, name.trim().replace("\n", ""))
-                .flatMap(cacheApi::persist);
+                .flatMap(cacheApi::persist)
+                .doOnError(Crashlytics::logException);
     }
 
     /**
@@ -233,7 +251,8 @@ public class CheddarApi {
      */
     public Observable<ChatEvent> sendMessage(ChatEvent chatEvent) {
         return parseApi.sendMessage(chatEvent.alias().objectId(), chatEvent.body(), chatEvent.objectId())
-                .flatMap(cacheApi::persist);
+                .flatMap(cacheApi::persist)
+                .doOnError(Crashlytics::logException);
     }
 
     //******************************************************
@@ -246,13 +265,15 @@ public class CheddarApi {
                 .filter(o -> o instanceof MessageApiChatEventHolder)
                 .cast(MessageApiChatEventHolder.class)
                 .map(o -> o.chatEvent)
-                .flatMap(cacheApi::persist);
+                .flatMap(cacheApi::persist)
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<Void> endChatEventStream(String aliasId) {
         return getAlias(aliasId)
                 .map(Alias::chatRoomId)
-                .flatMap(messageApi::unsubscribe);
+                .flatMap(messageApi::unsubscribe)
+                .doOnError(Crashlytics::logException);
     }
 
     // Resets our replayPagerToken. Should be called if you'd like to start replaying messages
@@ -283,17 +304,20 @@ public class CheddarApi {
                         .doOnNext(Collections::reverse)
                         .compose(sortChatEventList())
                         .doOnNext(chatEvents -> Timber.v("network chatEvents: " + chatEvents))
-                        .flatMap(cacheApi::persistChatEvents));
+                        .flatMap(cacheApi::persistChatEvents))
+                .doOnError(Crashlytics::logException);
     }
 
     private Observable.Transformer<List<ChatEvent>, List<ChatEvent>> sortChatEventList() {
         return o -> o.flatMap(Observable::from)
-                .toSortedList((ce1, ce2) -> ce2.updatedAt().compareTo(ce1.updatedAt()));
+                .toSortedList((ce1, ce2) -> ce2.updatedAt().compareTo(ce1.updatedAt()))
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, Date start, Date end) {
         return parseApi.getChatEventsInRange(aliasId, start, end)
-                .flatMap(cacheApi::persistChatEvents);
+                .flatMap(cacheApi::persistChatEvents)
+                .doOnError(Crashlytics::logException);
     }
 
     //******************************************************
@@ -304,11 +328,13 @@ public class CheddarApi {
      * Send feedback from the chat context.
      */
     public Observable<String> sendFeedback(Alias alias, String feedback) {
-        return parseApi.sendFeedback(alias, feedback);
+        return parseApi.sendFeedback(alias, feedback)
+                .doOnError(Crashlytics::logException);
     }
 
     public Observable<String> registerDifferentSchool(String schoolName, String email) {
-        return parseApi.sendChangeSchoolRequest(schoolName, email);
+        return parseApi.sendChangeSchoolRequest(schoolName, email)
+                .doOnError(Crashlytics::logException);
     }
 
     /**

@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
+import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.background.ConnectivityBroadcastReceiver;
 import com.tonyjhuang.cheddar.utils.Scheduler;
@@ -70,6 +71,10 @@ public class WelcomePresenterImpl implements WelcomePresenter {
 
         if (view != null) view.showRegisterUserLoadingDialog();
 
+        if (event.registrationCode != null) {
+            CheddarMetrics.trackRegisterWithCode(event.registrationCode);
+        }
+
         registerUserSubject = AsyncSubject.create();
         registerUserSubjectSubscription = api.registerNewUser(
                 event.username, event.password, event.registrationCode)
@@ -84,6 +89,7 @@ public class WelcomePresenterImpl implements WelcomePresenter {
      */
     private void subscribeToRegisterUserSubject() {
         if (registerUserSubject == null) return;
+
         registerUserSubscription = registerUserSubject
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(user -> {

@@ -5,6 +5,7 @@ import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
+import com.tonyjhuang.cheddar.api.network.request.CheckRegistrationCodeRequest;
 import com.tonyjhuang.cheddar.api.network.request.FindAliasRequest;
 import com.tonyjhuang.cheddar.api.network.request.FindChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.FindUserRequest;
@@ -31,8 +32,8 @@ import rx.Observable;
  */
 public interface ParseService {
 
-    @POST("hello")
-    Observable<String> test();
+    @POST("checkRegistrationCode")
+    Observable<Boolean> checkRegistrationCode(@Body CheckRegistrationCodeRequest body);
 
     @POST("findUser")
     Observable<User> findUser(@Body FindUserRequest body);

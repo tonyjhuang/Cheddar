@@ -2,6 +2,7 @@ package com.tonyjhuang.cheddar.api.network;
 
 import android.support.annotation.Nullable;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -13,12 +14,14 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.BuildConfig;
+import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.MetaData;
 import com.tonyjhuang.cheddar.api.models.value.User;
+import com.tonyjhuang.cheddar.api.network.request.CheckRegistrationCodeRequest;
 import com.tonyjhuang.cheddar.api.network.request.FindAliasRequest;
 import com.tonyjhuang.cheddar.api.network.request.FindChatRoomRequest;
 import com.tonyjhuang.cheddar.api.network.request.FindUserRequest;
@@ -55,7 +58,6 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
-import timber.log.Timber;
 
 import static com.tonyjhuang.cheddar.api.message.MessageApi.PUBKEY;
 import static com.tonyjhuang.cheddar.api.message.MessageApi.SUBKEY;
@@ -86,6 +88,7 @@ public class ParseApi {
     static {
         utcDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
+
 
     /**
      * Retrofit service.
@@ -133,6 +136,10 @@ public class ParseApi {
         return httpClient.build();
     }
 
+    public Observable<Boolean> checkRegistrationCode(String registrationCode) {
+        return service.checkRegistrationCode(new CheckRegistrationCodeRequest(registrationCode));
+    }
+
     public Observable<User> findUser(String userId) {
         return service.findUser(new FindUserRequest(userId));
     }
@@ -164,14 +171,13 @@ public class ParseApi {
      * Registers a new user with the server.
      */
     public Observable<User> registerUser(String email, String password, String registrationCode) {
-        Timber.d("register %s", email);
-        return Observable.create(subscriber -> {
+        Observable<User> registerNewUserObservable = Observable.create(subscriber -> {
             ParseUser.logOut();
             ParseUser user = new ParseUser();
             user.setUsername(email);
             user.setPassword(password);
             user.setEmail(email);
-            user.put("registrationCode", registrationCode);
+            user.put("registrationCode", registrationCode == null ? "" : registrationCode);
 
             user.signUpInBackground(error -> {
                 if (subscriber.isUnsubscribed()) return;
@@ -183,6 +189,24 @@ public class ParseApi {
                 }
             });
         });
+
+        return Observable.defer(() -> {
+            if (registrationCode == null) {
+                // If no registration code was passed in, try to register user.
+                return registerNewUserObservable;
+            } else {
+                // Otherwise, check the registration code against the server and only register
+                // if it's valid.
+                return checkRegistrationCode(registrationCode)
+                        .flatMap(isValidCode -> {
+                            if (isValidCode) {
+                                return registerNewUserObservable;
+                            } else {
+                                return Observable.error(new InvalidRegistrationCodeException(registrationCode));
+                            }
+                        });
+            }
+        }).doOnError(Crashlytics::logException);
     }
 
     public Observable<User> login(String email, String password) {
@@ -200,7 +224,6 @@ public class ParseApi {
     }
 
     public Observable<Void> logout() {
-        Timber.d("logout");
         return Observable.defer(() -> {
             ParseUser.logOut();
             return Observable.just(null);
@@ -344,6 +367,19 @@ public class ParseApi {
         @Override
         public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(utcDateFormat.format(src));
+        }
+    }
+
+    public static class InvalidRegistrationCodeException extends Exception {
+        private String registrationCode;
+
+        public InvalidRegistrationCodeException(String registrationCode) {
+            this.registrationCode = registrationCode;
+        }
+
+        @Override
+        public String getMessage() {
+            return "Invalid registration code: \"" + registrationCode + "\"";
         }
     }
 }

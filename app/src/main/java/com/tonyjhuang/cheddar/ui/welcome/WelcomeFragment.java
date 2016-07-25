@@ -19,12 +19,15 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import timber.log.Timber;
+
 @EFragment(R.layout.fragment_welcome)
 public class WelcomeFragment extends Fragment implements BackButtonHandler, KeyboardObserver.KeyboardListener {
 
     private static final String HUSKY_EMAIL_PATTERN =
             "^(([_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@husky.neu.edu)"
                     + "|(tony.huang.jun@gmail.com))$"; // DEBUG, REMOVE
+    private final Pattern huskyEmailPattern = Pattern.compile(HUSKY_EMAIL_PATTERN);
 
     @ViewById(R.id.welcome_layout)
     ViewGroup welcomeLayoutGroup;
@@ -126,7 +129,8 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
         String password = registerPasswordView.getText().toString();
         String password2 = registerConfirmPasswordView.getText().toString();
         if (validator.validate(email, password, password2)) {
-            if (!HUSKY_EMAIL_PATTERN.matches(email)) {
+            Timber.d("" + huskyEmailPattern.matcher(email).matches());
+            if (!huskyEmailPattern.matcher(email).matches()) {
                 RegistrationCodeDialog.getRegistrationCode(getContext(), registrationCode -> {
                     EventBus.getDefault().post(new RequestRegisterEvent(email, password, registrationCode));
                 });
@@ -314,20 +318,12 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
         private static final String EMAIL_PATTERN =
                 "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
                         + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-        private static final String HUSKY_EMAIL_PATTERN =
-                "^(([_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@husky.neu.edu)"
-                        + "|(tony.huang.jun@gmail.com))$"; // DEBUG, REMOVE
 
         private final Pattern emailPattern = Pattern.compile(EMAIL_PATTERN);
-        private final Pattern huskyEmailPattern = Pattern.compile(HUSKY_EMAIL_PATTERN);
 
         public boolean validate(String email, String password) {
             if (!emailPattern.matcher(email).matches()) {
                 showToast(R.string.welcome_error_email_invalid);
-                return false;
-            }
-            if (!huskyEmailPattern.matcher(email).matches()) {
-                showToast(R.string.welcome_error_email_nonhusky);
                 return false;
             }
             if (password.length() < 6) {

@@ -9,8 +9,6 @@ import com.parse.ParseInstallation;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
-import java.util.regex.Pattern;
-
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -21,7 +19,6 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
  * Created by tonyjhuang on 1/23/16.
  */
 public class CheddarApplication extends MultiDexApplication {
-    private static final Pattern ANONYMOUS_CLASS = Pattern.compile("(\\$\\d+)+$");
 
     @Override
     public void onCreate() {

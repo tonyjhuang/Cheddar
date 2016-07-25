@@ -38,6 +38,11 @@ public class CheddarMetrics {
                 .putCustomAttribute("Lifecycle", lifecycle.toString()));
     }
 
+    public static void trackRegisterWithCode(String registrationCode) {
+        Answers.getInstance().logCustom(new CustomEvent("Register With Code")
+                .putCustomAttribute("Code", registrationCode));
+    }
+
     public enum MessageLifecycle {
         SENT, DELIVERED, FAILED
     }
