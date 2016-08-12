@@ -33,6 +33,9 @@ import timber.log.Timber;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class CheddarApi {
+
+    public static final int MAX_CHAT_ROOMS = 5;
+
     @RootContext
     Context context;
     @Bean

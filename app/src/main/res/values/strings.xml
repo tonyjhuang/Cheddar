@@ -96,7 +96,8 @@
     <string name="list_action_join">Join new chat</string>
     <string name="list_action_logout">Logout</string>
     <string name="list_error_logout">Couldn\'t log out. Try again?</string>
-    <string name="list_error_join_chat">Couldn\'t join new chat.</string>
+    <string name="list_error_join_chat_failed">Couldn\'t join new chat.</string>
+    <string name="list_error_join_chat_too_many">You can only be in 5 chat rooms at once</string>
     <string name="list_error_get_list">Couldn\'t load messages.</string>
 
     <!-- gcm -->

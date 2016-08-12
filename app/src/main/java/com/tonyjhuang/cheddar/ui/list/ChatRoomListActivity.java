@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.R;
+import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
@@ -68,6 +69,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
             listView.setAdapter(adapter);
         }
         adapter.setInfoList(infoList);
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -89,7 +91,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     @Override
     public void showJoinChatError() {
         dismissLoadingDialog();
-        showToast(R.string.list_error_join_chat);
+        showToast(R.string.list_error_join_chat_failed);
     }
 
     @Override
@@ -132,6 +134,17 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
         presenter.onDestroy();
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem joinChatRoomView = menu.findItem(R.id.action_join);
+        // set your desired icon here based on a flag if you like
+        if (adapter != null && adapter.getCount() >= CheddarApi.MAX_CHAT_ROOMS) {
+            joinChatRoomView.setIcon(getResources().getDrawable(R.drawable.action_join_disabled));
+        } else {
+            joinChatRoomView.setIcon(getResources().getDrawable(R.drawable.action_join));
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -139,6 +152,11 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
         boolean isDebug = BuildConfig.BUILD_TYPE.equals("debug");
         menu.findItem(R.id.action_debug_clear).setVisible(isDebug);
         return true;
+    }
+
+    private void joinNewChatRoom() {
+        loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
+        presenter.onJoinChatRoomClicked();
     }
 
     @Override
@@ -149,8 +167,13 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
         int id = item.getItemId();
         switch (id) {
             case R.id.action_join:
-                loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
-                presenter.onJoinChatRoomClicked();
+                if(adapter != null) {
+                    if (adapter.getCount() < CheddarApi.MAX_CHAT_ROOMS) {
+                        joinNewChatRoom();
+                    } else {
+                        showToast(R.string.list_error_join_chat_too_many);
+                    }
+                }
                 return true;
             case R.id.action_logout:
                 loadingDialog = LoadingDialog.show(this, R.string.list_logout);
