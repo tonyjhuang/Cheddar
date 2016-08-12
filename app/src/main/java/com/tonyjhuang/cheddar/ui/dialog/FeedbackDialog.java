@@ -1,6 +1,7 @@
 package com.tonyjhuang.cheddar.ui.dialog;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.EditText;
@@ -21,16 +22,19 @@ public class FeedbackDialog {
                 .setTitle(R.string.feedback_title)
                 .setMessage(R.string.feedback_desc)
                 .setView(view)
-                .setPositiveButton(R.string.feedback_confirm, (dialog, which) -> {
-                    String feedback = feedbackInput.getText().toString();
-                    if (feedback.isEmpty()) {
-                        Toast.makeText(context, R.string.feedback_empty, Toast.LENGTH_SHORT).show();
-                    } else {
-                        callback.onFeedback(feedback);
-                    }
-                })
+                .setPositiveButton(R.string.feedback_confirm, null)
                 .setNegativeButton(R.string.common_cancel, null);
-        builder.show();
+
+        AlertDialog dialog = builder.show();
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String feedback = feedbackInput.getText().toString();
+            if (feedback.isEmpty()) {
+                Toast.makeText(context, R.string.feedback_empty, Toast.LENGTH_SHORT).show();
+            } else {
+                callback.onFeedback(feedback);
+                dialog.dismiss();
+            }
+        });
         CheddarMetrics.trackFeedback(CheddarMetrics.FeedbackLifecycle.OPENED);
     }
 

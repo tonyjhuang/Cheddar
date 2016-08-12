@@ -14,15 +14,23 @@
         android:title="@string/chat_action_name_room"
         app:showAsAction="never" />
 
+
+    <item
+        android:id="@+id/action_view_members"
+        android:orderInCategory="200"
+        android:title="@string/chat_action_view_members"
+        app:showAsAction="never" />
+
+
     <item
         android:id="@+id/action_report"
-        android:orderInCategory="200"
+        android:orderInCategory="300"
         android:title="@string/chat_action_report"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_leave"
-        android:orderInCategory="300"
+        android:orderInCategory="400"
         android:title="@string/chat_action_leave"
         app:showAsAction="never" />
 </menu>

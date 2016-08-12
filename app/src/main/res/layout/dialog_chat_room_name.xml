@@ -2,14 +2,29 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:paddingTop="8dp">
 
     <EditText
         android:id="@+id/name"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="@string/chat_name_name_hint" />
+        android:layout_marginRight="4dp"
+        android:layout_weight="1"
+        android:hint="@string/chat_name_name_hint"
+        android:lines="1"
+        android:maxLines="1"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/limit"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:alpha="0"
+        android:gravity="center"
+        android:text="30"
+        android:textColor="@color/colorAccent"
+        android:textSize="14sp" />
 </LinearLayout>

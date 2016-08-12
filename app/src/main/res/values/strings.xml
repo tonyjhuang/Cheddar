@@ -69,6 +69,7 @@
     <string name="chat_title_group">Group</string>
     <string name="chat_action_feedback">Feedback</string>
     <string name="chat_action_name_room">Rename Room</string>
+    <string name="chat_action_view_members">View Members</string>
     <string name="chat_action_report">Report User</string>
     <string name="chat_action_leave">Leave Chat</string>
     <string name="chat_leave_confirm">Leave</string>
@@ -83,10 +84,11 @@
     <string name="chat_error_message_failed">Could not deliver message. Check your connection settings?</string>
     <string name="chat_error_network_connection_error">NO NETWORK CONNECTION</string>
     <string name="chat_error_play_services_missing">"Couldn\'t find Google Play Services. Push notifications will not work."</string>
-    <string name="chat_name_name_hint">Name</string>
+    <string name="chat_name_name_hint">Room Name</string>
     <string name="chat_name_dialog_title">Rename Room</string>
     <string name="chat_name_dialog_ok">Set</string>
     <string name="chat_name_dialog_error_empty">Room name can\'t be empty!</string>
+    <string name="chat_name_dialog_error_max_length">Room name is too long</string>
 
     <!-- list -->
     <string name="list_title">Messages</string>
