@@ -57,13 +57,15 @@ public class ChatRoomItemView extends RelativeLayout {
     /**
      * Turn a date into its string representation. Rules:
      * - If a date is part of today, display hour:minute.
+     * - If a date is was within six hours of now, display hour:minute.
      * - If a date is within 3 days of today, display the day of week.
      * - Otherwise, display month day
      */
     private String formatDate(Date date) {
         DateTime dateTime = new DateTime(date);
         DateTime midnight = new DateTime().withTimeAtStartOfDay();
-        if (dateTime.isAfter(midnight)) {
+        DateTime sixHoursAgo = new DateTime().minusHours(1);
+        if (dateTime.isAfter(midnight) || dateTime.isAfter(sixHoursAgo)) {
             // 4:30 PM
             return removeLeadingZero(dateTime.toString("hh:mm a"));
         } else {
