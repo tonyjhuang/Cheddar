@@ -2,20 +2,24 @@ package com.tonyjhuang.cheddar.ui.chat.chatevent;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
+import com.tonyjhuang.cheddar.utils.TimestampUtils;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
+import org.joda.time.DateTime;
 
 /**
  * View representation of a Presence ChatEvent.
  */
 @EViewGroup(R.layout.row_chat_presence)
-public class PresenceView extends FrameLayout {
+public class PresenceView extends LinearLayout implements ChatEventView{
 
+    @ViewById
+    TextView timestamp;
     @ViewById
     TextView text;
 
@@ -31,7 +35,17 @@ public class PresenceView extends FrameLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public void setPresenceInfo(ChatEventViewInfo info) {
+    @Override
+    public void setChatEventViewInfos(ChatEventViewInfo info, ChatEventViewInfo prev, ChatEventViewInfo next) {
         text.setText(info.chatEvent.body().toUpperCase());
+
+        DateTime timestampThreshold = new DateTime().minusMinutes(20);
+        boolean shouldShowTimestamp = prev == null || new DateTime(prev.getDate()).isBefore(timestampThreshold);
+        if(shouldShowTimestamp) {
+            timestamp.setText(TimestampUtils.formatDate(info.getDate(), true));
+            timestamp.setVisibility(VISIBLE);
+        } else {
+            timestamp.setVisibility(GONE);
+        }
     }
 }

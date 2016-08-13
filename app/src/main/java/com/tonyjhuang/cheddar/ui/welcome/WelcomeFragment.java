@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.R;
 
 import org.androidannotations.annotations.AfterViews;
@@ -93,6 +94,11 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
                 });
             }
         });
+
+        if(BuildConfig.BUILD_TYPE.equals("debug")) {
+            loginEmailView.setText("huang.to@husky.neu.edu");
+            loginPasswordView.setText("password");
+        }
     }
 
     private void setAppNameViewLeftTop(int left, int top, boolean animate) {

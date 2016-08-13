@@ -5,15 +5,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
-import com.tonyjhuang.cheddar.ui.chat.chatevent.ChangeRoomNameView;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChangeRoomNameView_;
+import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventView;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo.Direction;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.ChatEventViewInfo.Status;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.IncomingMessageView_;
-import com.tonyjhuang.cheddar.ui.chat.chatevent.MessageView;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.OutgoingMessageView_;
-import com.tonyjhuang.cheddar.ui.chat.chatevent.PresenceView;
 import com.tonyjhuang.cheddar.ui.chat.chatevent.PresenceView_;
 
 import java.util.ArrayList;
@@ -257,25 +255,12 @@ public class ChatEventListAdapter extends BaseAdapter {
             }
         }
 
-        switch (viewType) {
-            case MESSAGE_LEFT:
-            case MESSAGE_RIGHT:
-                MessageView messageView = (MessageView) convertView;
-                messageView.setMessageInfo(info, prevInfo, nextInfo);
-                convertView.setVisibility(View.VISIBLE);
-                break;
-            case PRESENCE:
-                PresenceView presenceView = (PresenceView) convertView;
-                presenceView.setPresenceInfo(info);
-                convertView.setVisibility(View.VISIBLE);
-                break;
-            case CHANGE_ROOM_NAME:
-                ChangeRoomNameView changeRoomNameView = (ChangeRoomNameView) convertView;
-                changeRoomNameView.setChangeRoomNameInfo(info);
-                convertView.setVisibility(View.VISIBLE);
-                break;
-            default:
-                convertView.setVisibility(View.GONE);
+        if (convertView instanceof ChatEventView) {
+            ChatEventView chatEventView= (ChatEventView) convertView;
+            chatEventView.setChatEventViewInfos(info, prevInfo, nextInfo);
+            convertView.setVisibility(View.VISIBLE);
+        } else {
+            convertView.setVisibility(View.GONE);
         }
 
         return convertView;

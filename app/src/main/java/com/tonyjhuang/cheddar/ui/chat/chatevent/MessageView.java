@@ -1,37 +1,40 @@
 package com.tonyjhuang.cheddar.ui.chat.chatevent;
 
 import android.content.Context;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
-import com.tonyjhuang.cheddar.utils.TimeUtils;
+import com.tonyjhuang.cheddar.utils.TimestampUtils;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
+import org.joda.time.DateTime;
 
 /**
- * View representation of a Presence ChatEvent.
+ * View representation of a Message ChatEvent.
  */
 @EViewGroup
-public abstract class MessageView extends RelativeLayout {
+public abstract class MessageView extends LinearLayout implements ChatEventView {
 
     /**
      * The ChatEventViewInfos that this MessageView is bound to.
      */
-    protected ChatEventViewInfo info, prevInfo;
-    @ViewById(R.id.message_container)
-    RelativeLayout container;
+    protected ChatEventViewInfo info, prevInfo, nextInfo;
+    @ViewById(R.id.container)
+    LinearLayout container;
+    @ViewById(R.id.timestamp)
+    TextView timestampView;
     @ViewById(R.id.author_display)
     AliasDisplayView authorDisplayView;
     @ViewById(R.id.author_full_name)
     TextView authorFullNameView;
     @ViewById(R.id.body)
     TextView bodyView;
-    @DimensionPixelSizeRes(R.dimen.chat_bubble_padding)
-    int containerPadding;
+
+    int noContainerPadding = 0;
     @DimensionPixelSizeRes(R.dimen.chat_bubble_padding_minimized)
     int containerPaddingMinimized;
     @DimensionPixelSizeRes(R.dimen.chat_bubble_padding)
@@ -43,9 +46,10 @@ public abstract class MessageView extends RelativeLayout {
         super(context);
     }
 
-    public void setMessageInfo(ChatEventViewInfo info, ChatEventViewInfo prev, ChatEventViewInfo next) {
+    public void setChatEventViewInfos(ChatEventViewInfo info, ChatEventViewInfo prev, ChatEventViewInfo next) {
         this.info = info;
         this.prevInfo = prev;
+        this.nextInfo = next;
         position = getPosition(info, prev, next);
         updateViews();
     }
@@ -54,6 +58,15 @@ public abstract class MessageView extends RelativeLayout {
         authorFullNameView.setText(info.chatEvent.alias().displayName());
         bodyView.setText(info.chatEvent.body());
         setPosition(position);
+
+        DateTime timestampThreshold = new DateTime(info.getDate()).minusMinutes(20);
+        boolean shouldShowTimestamp = this.prevInfo == null || new DateTime(this.prevInfo.getDate()).isBefore(timestampThreshold);
+        if (shouldShowTimestamp) {
+            timestampView.setText(TimestampUtils.formatDate(info.getDate(), true));
+            timestampView.setVisibility(VISIBLE);
+        } else {
+            timestampView.setVisibility(GONE);
+        }
     }
 
     private Position getPosition(ChatEventViewInfo info, ChatEventViewInfo prev, ChatEventViewInfo next) {
@@ -108,7 +121,7 @@ public abstract class MessageView extends RelativeLayout {
             case TOP:
                 authorFullNameView.setVisibility(VISIBLE);
                 authorDisplayView.setVisibility(INVISIBLE);
-                setContainerTopAndBottomPadding(containerPadding, containerPaddingMinimized);
+                setContainerTopAndBottomPadding(noContainerPadding, containerPaddingMinimized);
                 break;
             case MIDDLE:
                 authorFullNameView.setVisibility(GONE);
@@ -118,17 +131,22 @@ public abstract class MessageView extends RelativeLayout {
             case BOTTOM:
                 authorFullNameView.setVisibility(GONE);
                 authorDisplayView.setVisibility(VISIBLE);
-                setContainerTopAndBottomPadding(getTimeSensitiveTopPadding(), containerPadding);
+                setContainerTopAndBottomPadding(getTimeSensitiveTopPadding(), noContainerPadding);
                 break;
             case ONLY:
                 authorFullNameView.setVisibility(VISIBLE);
                 authorDisplayView.setVisibility(VISIBLE);
-                setContainerTopAndBottomPadding(containerPadding, containerPadding);
+                setContainerTopAndBottomPadding(containerPaddingExpanded, containerPaddingExpanded);
         }
     }
 
+    /**
+     * If the previous message sent was greater than 2 minutes ago,
+     * return a larger amount of top padding.
+     */
     private int getTimeSensitiveTopPadding() {
-        if (TimeUtils.isOlderThanBy(info.getDate(), prevInfo.getDate(), 2 * TimeUtils.MINUTE)) {
+        DateTime twoMinutesAgo = new DateTime(info.getDate()).minusMinutes(2);
+        if (new DateTime(prevInfo.getDate()).isBefore(twoMinutesAgo)) {
             return containerPaddingExpanded;
         } else {
             return containerPaddingMinimized;

@@ -15,7 +15,8 @@ import com.tonyjhuang.cheddar.background.notif.payload.GcmPayloadDeserializer;
 import timber.log.Timber;
 
 /**
- * Created by tonyjhuang on 3/1/16.
+ * Receives GCM messages, extracts ChatEvents from them and rebroadcasts them
+ * to the app.
  */
 public class CheddarGcmListenerService extends GcmListenerService {
 

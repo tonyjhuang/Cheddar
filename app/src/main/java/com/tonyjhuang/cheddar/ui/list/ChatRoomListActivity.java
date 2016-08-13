@@ -1,5 +1,6 @@
 package com.tonyjhuang.cheddar.ui.list;
 
+import android.content.Intent;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,7 +11,11 @@ import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
+import com.tonyjhuang.cheddar.api.models.value.Alias;
+import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
+import com.tonyjhuang.cheddar.api.models.value.MetaData;
+import com.tonyjhuang.cheddar.background.notif.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.welcome.WelcomeActivity_;
@@ -22,6 +27,7 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -60,6 +66,15 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
         getSupportActionBar().setTitle(R.string.list_title);
+        debugEmailView.setOnClickListener(v -> {
+            Intent intent = new Intent(CheddarGcmListenerService.CHAT_EVENT_ACTION);
+            MetaData fakeMetaData = MetaData.create("123", new Date(), new Date());
+            Alias fakeAlias = Alias.create(fakeMetaData, "Sanitary Owl", true, "trYkxeXsTD", "123", 3);
+            ChatEvent fakeChatEvent = ChatEvent.create(fakeMetaData, "123", "Animal House",
+                    ChatEvent.ChatEventType.MESSAGE, fakeAlias, "so i know this is really weird but... here's a really long message so that it wraps");
+            intent.putExtra("chatEvent", fakeChatEvent);
+            sendOrderedBroadcast(intent, null);
+        });
     }
 
     @Override
@@ -167,7 +182,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
         int id = item.getItemId();
         switch (id) {
             case R.id.action_join:
-                if(adapter != null) {
+                if (adapter != null) {
                     if (adapter.getCount() < CheddarApi.MAX_CHAT_ROOMS) {
                         joinNewChatRoom();
                     } else {

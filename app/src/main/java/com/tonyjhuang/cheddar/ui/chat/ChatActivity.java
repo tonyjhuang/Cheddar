@@ -129,7 +129,6 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
 
     @AfterInject
     public void afterInject() {
-        Timber.v("afterInject");
         presenter.setView(this);
         presenter.setAliasId(aliasId);
     }
@@ -435,10 +434,8 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
                 return true;
             case R.id.action_feedback:
                 FeedbackDialog.getFeedback(this, feedback -> {
-                    if (feedback != null && !feedback.isEmpty()) {
-                        showToast(R.string.feedback_thanks);
-                        presenter.sendFeedback(feedback);
-                    }
+                    showToast(R.string.feedback_thanks);
+                    presenter.sendFeedback(feedback);
                 });
                 return true;
             case R.id.action_name_room:

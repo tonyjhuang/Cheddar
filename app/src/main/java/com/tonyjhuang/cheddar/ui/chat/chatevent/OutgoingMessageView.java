@@ -8,9 +8,6 @@ import com.tonyjhuang.cheddar.R;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.res.ColorRes;
 
-/**
- * Created by tonyjhuang on 4/1/16.
- */
 @EViewGroup(R.layout.row_chat_message_right)
 public class OutgoingMessageView extends MessageView {
 

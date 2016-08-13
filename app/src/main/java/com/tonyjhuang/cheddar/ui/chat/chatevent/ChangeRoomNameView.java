@@ -17,7 +17,7 @@ import org.androidannotations.annotations.ViewById;
  * View representation of a CHANGE_ROOM_NAME ChatEvent.
  */
 @EViewGroup(R.layout.row_chat_change_room_name)
-public class ChangeRoomNameView extends FrameLayout {
+public class ChangeRoomNameView extends FrameLayout implements ChatEventView{
 
     @ViewById
     TextView text;
@@ -34,7 +34,8 @@ public class ChangeRoomNameView extends FrameLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public void setChangeRoomNameInfo(ChatEventViewInfo info) {
+    @Override
+    public void setChatEventViewInfos(ChatEventViewInfo info, ChatEventViewInfo prev, ChatEventViewInfo next) {
         String display = info.chatEvent.body().toUpperCase();
         String roomName = info.chatEvent.roomName();
 

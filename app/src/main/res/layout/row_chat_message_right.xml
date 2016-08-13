@@ -1,51 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/message_container"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="64dp"
-    android:layout_marginRight="12dp"
+    android:id="@+id/container"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/chat_bubble_padding"
     android:paddingTop="@dimen/chat_bubble_padding"
     tools:ignore="RtlHardcoded">
 
     <TextView
-        android:id="@+id/author_full_name"
-        android:layout_width="wrap_content"
+        android:id="@+id/timestamp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/body"
-        android:layout_marginBottom="2dp"
-        android:layout_marginRight="12dp"
+        android:gravity="center"
+        android:paddingBottom="8dp"
+        android:paddingTop="2dp"
         android:textColor="@color/chat_text_light"
-        tools:text="Dynamic Seagull" />
+        android:textSize="12sp"
+        tools:text="JUL 26TH, 8:41PM" />
 
-    <com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_
-        android:id="@+id/author_display"
-        android:layout_width="@dimen/chat_bubble_min_height"
-        android:layout_height="@dimen/chat_bubble_min_height"
-        android:layout_alignBottom="@+id/body"
-        android:layout_alignParentRight="true" />
-
-    <TextView
-        android:id="@+id/body"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/author_full_name"
-        android:layout_marginLeft="6dp"
-        android:autoLink="web"
-        android:textColorLink="@color/chat_text_outgoing"
-        android:layout_marginRight="6dp"
-        android:layout_toLeftOf="@+id/author_display"
-        android:background="@drawable/chat_bubble_background"
-        android:gravity="center_vertical"
-        android:minHeight="@dimen/chat_bubble_min_height"
-        android:paddingBottom="6dp"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:paddingTop="6dp"
-        android:textColor="@color/chat_text_outgoing"
-        android:textSize="@dimen/chat_bubble_text_size"
-        tools:text="blahb lbhal balhb albh a" />
+        android:layout_marginLeft="64dp"
+        android:layout_marginRight="12dp"
+        tools:ignore="RtlHardcoded">
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/author_full_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/body"
+            android:layout_marginBottom="2dp"
+            android:layout_marginRight="12dp"
+            android:textColor="@color/chat_text_light"
+            tools:text="Dynamic Seagull" />
+
+        <com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView_
+            android:id="@+id/author_display"
+            android:layout_width="@dimen/chat_bubble_min_height"
+            android:layout_height="@dimen/chat_bubble_min_height"
+            android:layout_alignBottom="@+id/body"
+            android:layout_alignParentRight="true" />
+
+        <TextView
+            android:id="@+id/body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/author_full_name"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:layout_toLeftOf="@+id/author_display"
+            android:autoLink="web"
+            android:background="@drawable/chat_bubble_background"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/chat_bubble_min_height"
+            android:paddingBottom="6dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingTop="6dp"
+            android:textColor="@color/chat_text_outgoing"
+            android:textColorLink="@color/chat_text_outgoing"
+            android:textSize="@dimen/chat_bubble_text_size"
+            tools:text="blahb lbhal balhb albh a" />
+
+    </RelativeLayout>
+</LinearLayout>
