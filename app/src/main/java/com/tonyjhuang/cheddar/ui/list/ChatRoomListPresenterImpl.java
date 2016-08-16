@@ -7,6 +7,7 @@ import android.support.v4.util.Pair;
 import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.CheddarApi;
+import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.User;
 import com.tonyjhuang.cheddar.api.network.ParseApi;
@@ -149,6 +150,14 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                     if (view != null) view.showLogoutError();
                     Timber.e(error, "failed to logout");
                 });
+    }
+
+    @Override
+    public void sendFeedback(String feedback) {
+        api.sendFeedback(feedback)
+                .doOnNext(result -> CheddarMetrics.trackFeedback(CheddarMetrics.FeedbackLifecycle.SENT))
+                .compose(Scheduler.backgroundSchedulers())
+                .publish().connect();
     }
 
     @Override

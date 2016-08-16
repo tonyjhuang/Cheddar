@@ -328,12 +328,21 @@ public class CheddarApi {
     //******************************************************
 
     /**
-     * Send feedback from the chat context.
+     * Send feedback associated with an Alias.
      */
     public Observable<String> sendFeedback(Alias alias, String feedback) {
         return parseApi.sendFeedback(alias, feedback)
                 .doOnError(Crashlytics::logException);
     }
+
+    /**
+     * Send feedback associated with the current User.
+     */
+    public Observable<String> sendFeedback(String feedback) {
+        return getCurrentUserId().flatMap(userId -> parseApi.sendFeedback(userId, feedback))
+                .doOnError(Crashlytics::logException);
+    }
+
 
     public Observable<String> registerDifferentSchool(String schoolName, String email) {
         return parseApi.sendChangeSchoolRequest(schoolName, email)

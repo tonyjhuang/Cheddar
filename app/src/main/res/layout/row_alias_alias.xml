@@ -36,7 +36,6 @@
             android:id="@+id/joined_at"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Joined 5 days ago"
             android:textColor="@color/chat_text_light"
             tools:text="Joined 5 days ago" />
     </LinearLayout>

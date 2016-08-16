@@ -17,6 +17,7 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.api.models.value.MetaData;
 import com.tonyjhuang.cheddar.background.notif.CheddarGcmListenerService;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
+import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.welcome.WelcomeActivity_;
 
@@ -181,6 +182,12 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
+            case R.id.action_feedback:
+                FeedbackDialog.getFeedback(this, feedback -> {
+                    showToast(R.string.feedback_thanks);
+                    presenter.sendFeedback(feedback);
+                });
+                return true;
             case R.id.action_join:
                 if (adapter != null) {
                     if (adapter.getCount() < CheddarApi.MAX_CHAT_ROOMS) {

@@ -49,6 +49,9 @@ def PUBNUB_SUBKEY_ALPHA = '"' + cheddar_pubnub_subkey_alpha + '"' ?: '"Define al
 def PUBNUB_PUBKEY_INTERNAL_BETA = '"' + cheddar_pubnub_pubkey_internal_beta + '"' ?: '"Define internal beta Pubnub publish key"';
 def PUBNUB_SUBKEY_INTERNAL_BETA = '"' + cheddar_pubnub_subkey_internal_beta + '"' ?: '"Define internal beta Pubnub subscribe key"';
 
+def PUBNUB_PUBKEY_BETA = '"' + cheddar_pubnub_pubkey_beta + '"' ?: '"Define beta Pubnub publish key"';
+def PUBNUB_SUBKEY_BETA = '"' + cheddar_pubnub_subkey_beta + '"' ?: '"Define beta Pubnub subscribe key"';
+
 def PARSE_APPKEY = '"' + cheddar_parse_appkey + '"' ?: '"Define Parse app key"';
 def PARSE_CLIKEY = '"' + cheddar_parse_clikey + '"' ?: '"Define Parse client key"';
 def PARSE_RSTKEY = '"' + cheddar_parse_rstkey + '"' ?: '"Define Parse REST key"';
@@ -63,6 +66,10 @@ def PARSE_CLIKEY_ALPHA = '"' + cheddar_parse_clikey_alpha + '"' ?: '"Define alph
 def PARSE_APPKEY_INTERNAL_BETA = '"' + cheddar_parse_appkey_internal_beta + '"' ?: '"Define internal beta Parse app key"';
 def PARSE_CLIKEY_INTERNAL_BETA = '"' + cheddar_parse_clikey_internal_beta + '"' ?: '"Define internal beta Parse client key"';
 def PARSE_RSTKEY_INTERNAL_BETA = '"' + cheddar_parse_rstkey_internal_beta + '"' ?: '"Define internal beta Parse REST key"';
+
+def PARSE_APPKEY_BETA = '"' + cheddar_parse_appkey_beta + '"' ?: '"Define beta Parse app key"';
+def PARSE_CLIKEY_BETA = '"' + cheddar_parse_clikey_beta + '"' ?: '"Define beta Parse client key"';
+def PARSE_RSTKEY_BETA = '"' + cheddar_parse_rstkey_beta + '"' ?: '"Define beta Parse REST key"';
 
 def GCM_SENDER_ID = '"' + cheddar_gcm_sender_id + '"' ?: '"Define gcm sender id"';
 
@@ -132,6 +139,16 @@ android {
             buildConfigField 'String', 'PUBNUB_PUBKEY', PUBNUB_PUBKEY_INTERNAL_BETA
             buildConfigField 'String', 'PUBNUB_SUBKEY', PUBNUB_SUBKEY_INTERNAL_BETA
             applicationIdSuffix ".internal_beta"
+            signingConfig signingConfigs.release
+        }
+        beta {
+            resValue 'string', 'PARSE_APPKEY', PARSE_APPKEY_BETA
+            resValue 'string', 'PARSE_CLIKEY', PARSE_CLIKEY_BETA
+            buildConfigField 'String', 'PARSE_APPKEY', PARSE_APPKEY_BETA
+            buildConfigField 'String', 'PARSE_RSTKEY', PARSE_RSTKEY_BETA
+            buildConfigField 'String', 'PUBNUB_PUBKEY', PUBNUB_PUBKEY_ALPHA
+            buildConfigField 'String', 'PUBNUB_SUBKEY', PUBNUB_SUBKEY_ALPHA
+            applicationIdSuffix ".beta"
             signingConfig signingConfigs.release
         }
     }

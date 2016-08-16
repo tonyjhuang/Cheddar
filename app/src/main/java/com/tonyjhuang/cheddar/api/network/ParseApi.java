@@ -14,7 +14,6 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.parse.ParseUser;
 import com.tonyjhuang.cheddar.BuildConfig;
-import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
@@ -339,10 +338,22 @@ public class ParseApi {
         SendFeedbackRequest request = new SendFeedbackRequest(
                 PLATFORM, // Platform
                 BuildConfig.VERSION_NAME, // Version
-                Integer.toString(BuildConfig.VERSION_CODE), // Build
+                Integer.toString(BuildConfig.VERSION_CODE), // Build,
+                BuildConfig.BUILD_TYPE, // Environment
                 alias.userId(),
                 alias.chatRoomId(),
                 alias.name(),
+                feedback);
+        return service.sendFeedback(request);
+    }
+
+    public Observable<String> sendFeedback(String userId, String feedback) {
+        SendFeedbackRequest request = new SendFeedbackRequest(
+                PLATFORM, // Platform
+                BuildConfig.VERSION_NAME, // Version
+                Integer.toString(BuildConfig.VERSION_CODE), // Build
+                BuildConfig.BUILD_TYPE, // Environment
+                userId,
                 feedback);
         return service.sendFeedback(request);
     }

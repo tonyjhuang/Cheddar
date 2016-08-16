@@ -51,8 +51,7 @@
     <string name="welcome_dialog_registration_code_desc">Non-husky emails require a code to register.</string>
     <string name="welcome_dialog_registration_code_hint">Registration code</string>
     <string name="welcome_error_email_invalid">Invalid email</string>
-    <string name="welcome_error_email_nonhusky">Email must be a husky email address</string>
-    <string name="welcome_error_credentials">Wrong email or password</string>
+    <string name="welcome_error_credentials">Incorrect email or password</string>
     <string name="welcome_error_password_length">Password must be at least 6 characters</string>
     <string name="welcome_error_mismatch_password">Passwords don\'t match</string>
     <string name="welcome_error_network">Please check your network connection</string>
@@ -74,7 +73,7 @@
     <string name="chat_action_leave">Leave Chat</string>
     <string name="chat_leave_confirm">Leave</string>
     <string name="chat_leave_chat">Leaving chat&#8230;</string>
-    <string name="chat_alias_list_header">Members</string>
+    <string name="chat_alias_list_header">Active Members</string>
     <string name="chat_alias_timestamp">Joined %1$s</string>
     <string name="chat_presence_joined">%1$s has joined.</string>
     <string name="chat_presence_left">%1$s has left.</string>
@@ -94,6 +93,7 @@
     <string name="list_title">Messages</string>
     <string name="list_logout">Logging out&#8230;</string>
     <string name="list_action_join">Join new chat</string>
+    <string name="list_action_feedback">Send Feedback</string>
     <string name="list_action_logout">Logout</string>
     <string name="list_error_logout">Couldn\'t log out. Try again?</string>
     <string name="list_error_join_chat_failed">Couldn\'t join new chat.</string>
@@ -109,7 +109,7 @@
     <string name="feedback_desc">Is something weird or broken? Any and all feedback is sent directly to the Cheddar team!</string>
     <string name="feedback_hint">What\'s up?</string>
     <string name="feedback_thanks">Thanks for your feedback!</string>
-    <string name="feedback_empty">Please write some feedback first!</string>
+    <string name="feedback_empty">Please add some feedback first.</string>
     <string name="feedback_confirm">Send</string>
 
     <!-- report -->
