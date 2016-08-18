@@ -275,8 +275,8 @@ public class ParseApi {
      * Get the list of ChatRooms, Aliases, and their most recent ChatEvents
      * for this user.
      */
-    public Observable<List<ChatRoomInfo>> getChatRooms(String userId) {
-        return service.getChatRooms(new GetChatRoomsRequest(userId));
+    public Observable<List<ChatRoomInfo>> getChatRoomInfos(String userId) {
+        return service.getChatRoomInfos(new GetChatRoomsRequest(userId));
     }
 
     /**
@@ -360,6 +360,18 @@ public class ParseApi {
 
     public Observable<String> sendChangeSchoolRequest(String schoolName, String email) {
         return service.sendChangeSchoolRequest(new SendChangeSchoolRequest(PLATFORM, schoolName, email));
+    }
+
+    public Observable<String> resetPassword(String email) {
+        return Observable.defer(() -> {
+            try {
+                ParseUser.requestPasswordReset(email);
+                return Observable.just("ok");
+            } catch (com.parse.ParseException e) {
+                return Observable.error(e);
+            }
+        });
+
     }
 
     /**

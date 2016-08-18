@@ -45,9 +45,13 @@
     <string name="welcome_action_switch_to_login">Already have an account?</string>
     <string name="welcome_action_switch_to_register">Need to register an account?</string>
     <string name="welcome_action_different_school">Change school</string>
+    <string name="welcome_action_reset_password">Forgot password</string>
     <string name="welcome_register_loading">Registering&#8230;</string>
     <string name="welcome_register_failed">Couldn\'t register user. Please try again</string>
     <string name="welcome_login_loading">Logging in&#8230;</string>
+    <string name="welcome_dialog_reset_password_desc">Enter your email to reset your password.</string>
+    <string name="welcome_dialog_reset_password_hint">Email</string>
+    <string name="welcome_dialog_reset_password_check_email">Check your email for a link to reset your password.</string>
     <string name="welcome_dialog_registration_code_desc">Non-husky emails require a code to register.</string>
     <string name="welcome_dialog_registration_code_hint">Registration code</string>
     <string name="welcome_error_email_invalid">Invalid email</string>

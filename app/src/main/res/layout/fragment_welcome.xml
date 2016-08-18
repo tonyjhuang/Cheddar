@@ -119,6 +119,15 @@
                     android:text="@string/welcome_action_switch_to_register"
                     android:textColor="@color/text_secondary" />
 
+
+                <TextView
+                    android:id="@+id/login_reset_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="@string/welcome_action_reset_password"
+                    android:textColor="@color/text_secondary" />
+
             </LinearLayout>
 
             <LinearLayout

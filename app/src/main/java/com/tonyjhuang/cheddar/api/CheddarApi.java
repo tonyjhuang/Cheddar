@@ -211,12 +211,19 @@ public class CheddarApi {
                 .doOnError(Crashlytics::logException);
     }
 
+    /**
+     * Get the list of active Aliases for the current user.
+     */
     public Observable<List<Alias>> getActiveAliases(String chatRoomId) {
         return parseApi.getActiveAliases(chatRoomId)
                 .flatMap(cacheApi::persistAliases)
                 .doOnError(Crashlytics::logException);
     }
 
+    /**
+     * Get the list of ChatRooms a User is in along with the associated
+     * Alias and last ChatEvent sent to that ChatRoom
+     */
     public Observable<List<ChatRoomInfo>> getChatRoomInfos() {
         return getCurrentUser().map(User::objectId)
                 .flatMap(userId -> Observable.concat(
@@ -229,8 +236,12 @@ public class CheddarApi {
                 .doOnError(Crashlytics::logException);
     }
 
+    /**
+     * Get the list of ChatRooms a User is in along with the associated
+     * Alias and last ChatEvent sent to that ChatRoom from the network
+     */
     public Observable<List<ChatRoomInfo>> fetchChatRoomInfos(String userId) {
-        return parseApi.getChatRooms(userId)
+        return parseApi.getChatRoomInfos(userId)
                 .doOnNext(infos -> Timber.v("network: " + infos.size()))
                 .flatMap(infos -> cacheApi.persistChatRoomInfosForUserExclusive(userId, infos))
                 .compose(sortChatRoomInfoList())
@@ -242,6 +253,9 @@ public class CheddarApi {
                 .toSortedList((i1, i2) -> i2.chatEvent().updatedAt().compareTo(i1.chatEvent().updatedAt()));
     }
 
+    /**
+     * Change the name of a ChatRoom.
+     */
     public Observable<ChatRoom> updateChatRoomName(String aliasId, String name) {
         return parseApi.updateChatRoomName(aliasId, name.trim().replace("\n", ""))
                 .flatMap(cacheApi::persist)
@@ -317,6 +331,9 @@ public class CheddarApi {
                 .doOnError(Crashlytics::logException);
     }
 
+    /**
+     * Retrieve past ChatEvents that exist within a specific time window.
+     */
     public Observable<List<ChatEvent>> replayChatEvents(String aliasId, Date start, Date end) {
         return parseApi.getChatEventsInRange(aliasId, start, end)
                 .flatMap(cacheApi::persistChatEvents)
@@ -343,10 +360,16 @@ public class CheddarApi {
                 .doOnError(Crashlytics::logException);
     }
 
-
+    /**
+     * Send feedback that a user has requested their school to be supported.
+     */
     public Observable<String> registerDifferentSchool(String schoolName, String email) {
         return parseApi.sendChangeSchoolRequest(schoolName, email)
                 .doOnError(Crashlytics::logException);
+    }
+
+    public Observable<String> resetPassword(String email) {
+        return parseApi.resetPassword(email);
     }
 
     /**

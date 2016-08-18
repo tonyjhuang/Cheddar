@@ -60,7 +60,7 @@ public interface ParseService {
     Observable<ChatRoom> findChatRoom(@Body FindChatRoomRequest body);
 
     @POST("getChatRooms")
-    Observable<List<ChatRoomInfo>> getChatRooms(@Body GetChatRoomsRequest body);
+    Observable<List<ChatRoomInfo>> getChatRoomInfos(@Body GetChatRoomsRequest body);
 
     @POST("joinNextAvailableChatRoom")
     Observable<Alias> joinChatRoom(@Body JoinChatRoomRequest body);

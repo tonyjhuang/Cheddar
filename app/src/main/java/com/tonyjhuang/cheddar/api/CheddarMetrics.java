@@ -38,9 +38,24 @@ public class CheddarMetrics {
                 .putCustomAttribute("Lifecycle", lifecycle.toString()));
     }
 
+    public static void trackRegisterDifferentSchool(String email, String school) {
+        Answers.getInstance().logCustom(new CustomEvent("Register Different School")
+                .putCustomAttribute("Email", email)
+                .putCustomAttribute("School", school));
+    }
+
     public static void trackRegisterWithCode(String registrationCode) {
         Answers.getInstance().logCustom(new CustomEvent("Register With Code")
                 .putCustomAttribute("Code", registrationCode));
+    }
+
+    public static void trackResetPassword(String email) {
+        Answers.getInstance().logCustom(new CustomEvent("Reset Password")
+                .putCustomAttribute("Email", email));
+    }
+
+    public static void trackLogout() {
+        Answers.getInstance().logCustom(new CustomEvent("Logout"));
     }
 
     public enum MessageLifecycle {

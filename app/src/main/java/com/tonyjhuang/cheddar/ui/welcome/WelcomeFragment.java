@@ -56,7 +56,7 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
     @ViewById(R.id.register_confirm_password)
     EditText registerConfirmPasswordView;
 
-    @ViewsById({R.id.login_register, R.id.register_login, R.id.register_different_school})
+    @ViewsById({R.id.login_register, R.id.login_reset_password, R.id.register_login, R.id.register_different_school})
     List<View> secondaryFormViews;
 
     /**
@@ -115,6 +115,14 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
     @Click({R.id.welcome_login, R.id.register_login})
     public void onShowLoginLayoutClicked() {
         showLayoutGroupView(LayoutGroupViewType.LOGIN);
+    }
+
+    @Click(R.id.login_reset_password)
+    public void onResetPasswordClicked() {
+        ResetPasswordDialog.getEmail(getContext(), email -> {
+            Toast.makeText(getContext(), R.string.welcome_dialog_reset_password_check_email, Toast.LENGTH_LONG).show();
+            EventBus.getDefault().post(new ResetPasswordEvent(email));
+        });
     }
 
     @Click({R.id.welcome_register, R.id.login_register})
@@ -290,6 +298,14 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
 
         public RegisterDifferentSchoolEvent(String school, String email) {
             this.school = school;
+            this.email = email;
+        }
+    }
+
+    public static class ResetPasswordEvent {
+        public String email;
+
+        public ResetPasswordEvent(String email) {
             this.email = email;
         }
     }

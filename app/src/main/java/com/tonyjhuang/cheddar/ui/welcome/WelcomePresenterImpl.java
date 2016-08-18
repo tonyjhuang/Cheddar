@@ -151,9 +151,18 @@ public class WelcomePresenterImpl implements WelcomePresenter {
 
     @Subscribe
     public void OnRegisterDifferentSchoolEvent(WelcomeFragment.RegisterDifferentSchoolEvent event) {
+        CheddarMetrics.trackRegisterDifferentSchool(event.email, event.school);
         api.registerDifferentSchool(event.school, event.email)
                 .compose(Scheduler.backgroundSchedulers())
                 .publish().connect();
+
+        if (view != null) view.hideKeyboard();
+    }
+
+    @Subscribe
+    public void onResetPasswordEvent(WelcomeFragment.ResetPasswordEvent event) {
+        CheddarMetrics.trackResetPassword(event.email);
+        api.resetPassword(event.email).publish().connect();
 
         if (view != null) view.hideKeyboard();
     }

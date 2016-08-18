@@ -117,6 +117,7 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     public void onJoinChatRoomClicked() {
         api.joinGroupChatRoom().compose(Scheduler.defaultSchedulers())
                 .subscribe(alias -> {
+                    CheddarMetrics.trackJoinChatRoom(alias.chatRoomId());
                     unsubscribe(chatRoomSubscription);
                     chatRoomSubscription = refreshChatList().subscribe(result -> {
                         if (view != null) {
@@ -145,6 +146,7 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                 .flatMap(result -> api.logoutCurrentUser())
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(result -> {
+                    CheddarMetrics.trackLogout();
                     if (view != null) view.navigateToSignUpView();
                 }, error -> {
                     if (view != null) view.showLogoutError();
