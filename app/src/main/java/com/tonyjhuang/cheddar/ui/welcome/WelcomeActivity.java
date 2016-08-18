@@ -76,24 +76,10 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView, Key
         debugVersionView.setText(getString(R.string.debug_label, BuildConfig.VERSION_NAME));
 
         ViewPager.OnPageChangeListener pageListener = new ViewPager.SimpleOnPageChangeListener() {
-            int savedHuskyTop = -1;
-
             @Override
             public void onPageSelected(int position) {
                 int end = onboardAdapter.getCount() - 1;
-
-                if (position == end) {
-                    if (savedHuskyTop == -1) {
-                        savedHuskyTop = huskyView.getTop();
-                    }
-                    pagerIndicatorView.animate().alpha(0);
-                    huskyView.animate().y(savedHuskyTop + huskyView.getHeight()).setDuration(75);
-                } else {
-                    pagerIndicatorView.animate().alpha(1);
-                    if (savedHuskyTop != -1) {
-                        huskyView.animate().y(savedHuskyTop).setDuration(75);
-                    }
-                }
+                pagerIndicatorView.animate().alpha(position == end ? 0 : 1);
             }
         };
 
@@ -107,15 +93,14 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView, Key
             viewPager.addOnPageChangeListener(pageListener);
         } else {
             pagerIndicatorView.setVisibility(View.GONE);
-            huskyView.setVisibility(View.GONE);
         }
         pagerLayout.refresh();
 
         // Pretty ugly hack but we need to listen for layout resize events
         // to hide the husky when the keyboard is shown.
         KeyboardObserver keyboardObserver = new KeyboardObserver();
-        keyboardObserver.addListener(this);
         keyboardObserver.setObservableLayout(container);
+        keyboardObserver.addListener(this);
         container.getViewTreeObserver().addOnGlobalLayoutListener(keyboardObserver);
     }
 
@@ -211,12 +196,14 @@ public class WelcomeActivity extends CheddarActivity implements WelcomeView, Key
     public void onKeyboardShown() {
         notifyCurrentFragmentKeyboardShown(true);
         debugVersionView.setVisibility(View.GONE);
+        huskyView.setVisibility(View.GONE);
     }
 
     @Override
     public void onKeyboardHidden() {
         notifyCurrentFragmentKeyboardShown(false);
         debugVersionView.setVisibility(View.VISIBLE);
+        huskyView.setVisibility(View.VISIBLE);
     }
 
     @Override

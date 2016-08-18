@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.tonyjhuang.cheddar.BuildConfig;
@@ -26,8 +27,7 @@ import timber.log.Timber;
 public class WelcomeFragment extends Fragment implements BackButtonHandler, KeyboardObserver.KeyboardListener {
 
     private static final String HUSKY_EMAIL_PATTERN =
-            "^(([_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@husky.neu.edu)"
-                    + "|(tony.huang.jun@gmail.com))$"; // DEBUG, REMOVE
+            "^([_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@husky.neu.edu)";
     private final Pattern huskyEmailPattern = Pattern.compile(HUSKY_EMAIL_PATTERN);
 
     @ViewById(R.id.welcome_layout)
@@ -81,8 +81,8 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 if (v.getHeight() == 0 || v.getWidth() == 0) return;
-                appNamePlaceholderView.getLayoutParams().height = v.getHeight();
-                appNamePlaceholderView.getLayoutParams().width = v.getWidth();
+                appNamePlaceholderView.setLayoutParams(new LinearLayout.LayoutParams(appNameView.getWidth(), appNameView.getHeight()));
+                appNamePlaceholderView.invalidate();
                 appNameView.removeOnLayoutChangeListener(this);
                 appNamePlaceholderView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                     @Override
@@ -95,7 +95,7 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
             }
         });
 
-        if(BuildConfig.BUILD_TYPE.equals("debug")) {
+        if (BuildConfig.BUILD_TYPE.equals("debug")) {
             loginEmailView.setText("huang.to@husky.neu.edu");
             loginPasswordView.setText("password");
         }
@@ -105,8 +105,10 @@ public class WelcomeFragment extends Fragment implements BackButtonHandler, Keyb
         if (animate) {
             appNameView.animate().y(top).x(left);
         } else {
-            appNameView.setX(left);
-            appNameView.setY(top);
+            appNameView.post(() -> {
+                appNameView.setX(left);
+                appNameView.setY(top);
+            });
         }
     }
 

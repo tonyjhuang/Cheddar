@@ -11,12 +11,14 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.util.Pair;
 import android.view.View;
 
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
@@ -31,6 +33,7 @@ import org.androidannotations.annotations.res.ColorRes;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 import org.androidannotations.annotations.res.DimensionRes;
 
+import rx.Observable;
 import timber.log.Timber;
 
 /**
@@ -39,10 +42,9 @@ import timber.log.Timber;
 @EBean
 public class CheddarNotificationService {
 
-    private static Typeface typeface;
     private static final Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
     private static final long[] vibratePattern = new long[]{0, 250, 250, 500};
-
+    private static Typeface typeface;
     @SystemService
     NotificationManager notificationManager;
     @ColorRes(R.color.colorAccent)
@@ -65,12 +67,15 @@ public class CheddarNotificationService {
         String chatRoomId = chatEvent.alias().chatRoomId();
         String contentText = chatEvent.displayBody();
 
-        api.getAliasForChatRoom(chatRoomId)
+        Observable.zip(api.getAliasForChatRoom(chatRoomId), api.getChatRoom(chatRoomId), Pair::new)
                 .compose(Scheduler.defaultSchedulers())
-                .subscribe(currentUserAlias -> {
-                    if(currentUserAlias.equals(chatEvent.alias())) return;
+                .subscribe(aliasAndChatRoom -> {
+                    Alias alias = aliasAndChatRoom.first;
+                    ChatRoom chatRoom = aliasAndChatRoom.second;
+                    if (alias.equals(chatEvent.alias())) return;
 
-                    NotificationCompat.Builder builder = getBuilder(context, currentUserAlias.objectId())
+                    NotificationCompat.Builder builder = getBuilder(context, alias.objectId())
+                            .setContentTitle(chatRoom.name())
                             .setLargeIcon(getAuthorBitmap(context, chatEvent.alias()))
                             .setContentText(StringUtils.boldSubstring(contentText, chatEvent.alias().displayName()))
                             .setTicker(contentText)
@@ -130,7 +135,6 @@ public class CheddarNotificationService {
                 .setVibrate(vibratePattern)
                 .setSound(sound)
                 .setAutoCancel(true)
-                .setContentTitle(context.getString(R.string.notif_title))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE);
     }
