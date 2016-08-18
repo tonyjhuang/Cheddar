@@ -34,17 +34,16 @@ public class ButtonPagerLayout extends RelativeLayout {
         @Override
         public void onPageSelected(int position) {
             if (pager.getAdapter() == null) return;
-            int count = pager.getAdapter().getCount();
-            boolean isMultiPaged = count < 2;
-            pagerLeftView.setVisibility(isMultiPaged ? GONE : VISIBLE);
-            pagerRightView.setVisibility(isMultiPaged ? GONE : VISIBLE);
-            if (!isMultiPaged) return;
-
-            int end = count - 1;
-            boolean isLeftMost = position == 0;
-            boolean isRightMost = position == end;
-            pagerLeftView.animate().alpha(isLeftMost || isRightMost ? 0 : 1);
-            pagerRightView.animate().alpha(isRightMost ? 0 : 1);
+            if(pager.getAdapter().getCount() == 1) {
+                pagerLeftView.setVisibility(GONE);
+                pagerRightView.setVisibility(GONE);
+            } else {
+                int end = pager.getAdapter().getCount() - 1;
+                boolean isLeftMost = position == 0;
+                boolean isRightMost = position == end;
+                pagerLeftView.animate().alpha(isLeftMost || isRightMost ? 0 : 1);
+                pagerRightView.animate().alpha(isRightMost ? 0 : 1);
+            }
         }
     };
 
