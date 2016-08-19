@@ -1,6 +1,7 @@
 package com.tonyjhuang.cheddar.ui.list;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -22,6 +23,9 @@ import org.androidannotations.annotations.ViewById;
 @EViewGroup(R.layout.row_list_room)
 public class ChatRoomItemView extends RelativeLayout {
 
+    private static Typeface readTypeface;
+    private static Typeface unreadTypeface;
+
     @ViewById(R.id.alias_display)
     AliasDisplayView aliasDisplayView;
 
@@ -39,6 +43,10 @@ public class ChatRoomItemView extends RelativeLayout {
 
     public ChatRoomItemView(Context context) {
         super(context);
+        if (readTypeface == null || unreadTypeface == null) {
+            readTypeface = Typeface.createFromAsset(context.getAssets(), "Effra-Regular.ttf");
+            unreadTypeface = Typeface.createFromAsset(context.getAssets(), "Effra-Medium.ttf");
+        }
     }
 
     public void setChatRoomInfo(ChatRoomInfo info, String currentUserId) {
@@ -48,8 +56,14 @@ public class ChatRoomItemView extends RelativeLayout {
 
         aliasDisplayView.setAlias(info.chatEvent().alias(),
                 currentUserId.equals(info.chatEvent().alias().userId()));
-        aliasDisplayView.showUnreadMessageIndicator(
-                unreadMessagesCounter.get(info.chatRoom().objectId()) != 0);
+
+        if (unreadMessagesCounter.get(info.chatRoom().objectId()) != 0) {
+            aliasDisplayView.showUnreadMessageIndicator(true);
+            groupNameView.setTypeface(unreadTypeface);
+        } else {
+            aliasDisplayView.showUnreadMessageIndicator(false);
+            groupNameView.setTypeface(readTypeface);
+        }
     }
 
 }
