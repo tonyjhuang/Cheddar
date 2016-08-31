@@ -363,6 +363,12 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
                 Timber.e("Receiver not registered?? " + e.toString());
             }
         }
+
+        // Clear unread messages counter.
+        aliasSubject.compose(Scheduler.backgroundSchedulers())
+                .map(Alias::chatRoomId)
+                .doOnNext(unreadMessagesCounter::clear)
+                .publish().connect();
     }
 
     @Override

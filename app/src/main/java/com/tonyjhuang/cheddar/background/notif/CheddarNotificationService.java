@@ -19,6 +19,7 @@ import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
 import com.tonyjhuang.cheddar.api.models.value.ChatRoom;
+import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.background.UnreadMessagesCounter;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.customviews.AliasDisplayView;
@@ -38,6 +39,8 @@ import timber.log.Timber;
 
 /**
  * Handles creating and launching system notifications for api objects.
+ * Does some preliminary logic of checking if the user is still in the ChatRoom
+ * before sending the actual notification, as pubnub can be pretty buggy.
  */
 @EBean
 public class CheddarNotificationService {
@@ -63,27 +66,42 @@ public class CheddarNotificationService {
     @Bean
     UnreadMessagesCounter unreadMessagesCounter;
 
+    private Observable<Boolean> checkIfUserInChatRoom(String chatRoomId) {
+        return api.getChatRoomInfos().first().flatMapIterable(e -> e)
+                .map(ChatRoomInfo::chatRoom)
+                .map(ChatRoom::objectId)
+                .contains(chatRoomId);
+    }
+
     public void createOrUpdateChatEventNotification(Context context, ChatEvent chatEvent) {
         String chatRoomId = chatEvent.alias().chatRoomId();
         String contentText = chatEvent.displayBody();
 
-        Observable.zip(api.getAliasForChatRoom(chatRoomId), api.getChatRoom(chatRoomId), Pair::new)
-                .compose(Scheduler.defaultSchedulers())
-                .subscribe(aliasAndChatRoom -> {
-                    Alias alias = aliasAndChatRoom.first;
-                    ChatRoom chatRoom = aliasAndChatRoom.second;
-                    if (alias.equals(chatEvent.alias())) return;
+        checkIfUserInChatRoom(chatRoomId)
+                .compose(Scheduler.backgroundSchedulers())
+                .subscribe(userIsInChatRoom -> {
+                    if (userIsInChatRoom) {
+                        Observable.zip(api.getAliasForChatRoom(chatRoomId), api.getChatRoom(chatRoomId), Pair::new)
+                                .compose(Scheduler.defaultSchedulers())
+                                .subscribe(aliasAndChatRoom -> {
+                                    Alias alias = aliasAndChatRoom.first;
+                                    ChatRoom chatRoom = aliasAndChatRoom.second;
+                                    if (alias.equals(chatEvent.alias())) return;
 
-                    NotificationCompat.Builder builder = getBuilder(context, alias.objectId())
-                            .setContentTitle(chatRoom.name())
-                            .setLargeIcon(getAuthorBitmap(context, chatEvent.alias()))
-                            .setContentText(StringUtils.boldSubstring(contentText, chatEvent.alias().displayName()))
-                            .setTicker(contentText)
-                            .setNumber(unreadMessagesCounter.get(chatRoomId));
+                                    NotificationCompat.Builder builder = getBuilder(context, alias.objectId())
+                                            .setContentTitle(chatRoom.name())
+                                            .setLargeIcon(getAuthorBitmap(context, chatEvent.alias()))
+                                            .setContentText(StringUtils.boldSubstring(contentText, chatEvent.alias().displayName()))
+                                            .setTicker(contentText)
+                                            .setNumber(unreadMessagesCounter.get(chatRoomId));
 
-                    notificationManager.notify(chatRoomId.hashCode(), builder.build());
-                }, error -> Timber.e(error, "couldn't fetch Alias for chatRoom " + chatRoomId));
+                                    notificationManager.notify(chatRoomId.hashCode(), builder.build());
+                                }, error -> Timber.e(error, "couldn't fetch Alias for chatRoom " + chatRoomId));
 
+                    } else {
+                        Timber.w("Received push notification for ChatRoom %s even though the user is not in it", chatRoomId);
+                    }
+                });
 
     }
 

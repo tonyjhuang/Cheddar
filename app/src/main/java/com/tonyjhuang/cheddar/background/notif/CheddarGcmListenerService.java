@@ -3,6 +3,7 @@ package com.tonyjhuang.cheddar.background.notif;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.gcm.GcmListenerService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,12 +35,10 @@ public class CheddarGcmListenerService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        Timber.i(">>>>>>>>>>>>>>>>>PUSHHHHHH<<<<<<<<<<<<<<<<<<<");
         String payloadString = data.getString("payload");
         if (payloadString != null) {
             GcmPayload payload = gson.fromJson(payloadString, GcmPayload.class);
             if (payload instanceof GcmChatEventPayload) {
-                Timber.v("sending broadcast with chatevent: " + ((GcmChatEventPayload) payload).chatEvent);
                 Intent intent = new Intent(CHAT_EVENT_ACTION);
                 intent.putExtra("chatEvent", ((GcmChatEventPayload) payload).chatEvent);
                 sendOrderedBroadcast(intent, null);
