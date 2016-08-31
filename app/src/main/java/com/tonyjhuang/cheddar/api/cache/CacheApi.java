@@ -215,6 +215,7 @@ public class CacheApi {
                             getMostRecentChatEventForChatRoom(a.chatRoomId()),
                             ChatRoomInfo::create))
                     .toList()
+                    .last()
                     .doOnNext(infos -> Timber.v("cached infos: " + gson.toJson(infos)))
                     .doAfterTerminate(realm::close);
         });
