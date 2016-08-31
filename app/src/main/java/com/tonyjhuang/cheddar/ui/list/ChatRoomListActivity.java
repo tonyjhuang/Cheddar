@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarActivity;
+import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
 import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
@@ -27,6 +28,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.Date;
 import java.util.List;
@@ -51,6 +53,9 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
 
     @Bean
     ChatRoomListAdapter adapter;
+
+    @Pref
+    CheddarPrefs_ prefs;
 
     /**
      * Loading indicator to display while performing a long running process.
@@ -136,6 +141,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     protected void onResume() {
         super.onResume();
         presenter.onResume();
+        showChangeLog(prefs);
     }
 
     @Override
