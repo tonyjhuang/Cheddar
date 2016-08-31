@@ -22,7 +22,6 @@ public class CacheChatEventBroadcastReceiver extends BroadcastReceiver{
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Timber.d("onReceive!");
         if(intent.hasExtra("chatEvent")) {
             ChatEvent chatEvent = intent.getParcelableExtra("chatEvent");
             cacheApi.persist(chatEvent).publish().connect();
