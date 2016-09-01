@@ -368,7 +368,6 @@ public class ChatRoomPresenterImpl implements ChatRoomPresenter {
         aliasSubject.compose(Scheduler.backgroundSchedulers())
                 .map(Alias::chatRoomId)
                 .doOnNext(unreadMessagesCounter::clear)
-                .doOnNext(blah -> Timber.i("CLEAR %s", blah))
                 .publish().connect();
     }
 

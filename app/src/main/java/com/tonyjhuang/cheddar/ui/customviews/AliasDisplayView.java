@@ -63,14 +63,6 @@ public class AliasDisplayView extends FrameLayout {
             authorTextSize = a.getDimension(R.styleable.AliasDisplayView_textSize, -1);
             a.recycle();
         }
-
-        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                resize();
-            }
-        });
     }
 
     /**
@@ -110,6 +102,17 @@ public class AliasDisplayView extends FrameLayout {
             int colorId = alias.colorId();
             if (colorId < 0 || colorId >= incomingBackgroundColors.length) colorId = 0;
             setBgColor(incomingBackgroundColors[colorId]);
+        }
+        if (getMeasuredHeight() == 0) {
+            getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    resize();
+                }
+            });
+        } else {
+            resize();
         }
     }
 

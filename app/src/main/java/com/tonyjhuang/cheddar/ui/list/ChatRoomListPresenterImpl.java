@@ -60,7 +60,7 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
      */
     private ChatRoomListView view;
 
-    private boolean firstLoad;
+    private boolean firstLoad = true;
 
     @Override
     public void setView(ChatRoomListView view) {
@@ -99,6 +99,7 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
      */
     private void refreshChatList(boolean useCache) {
         if (chatRoomSubscription != null) chatRoomSubscription.unsubscribe();
+        firstLoad = false;
         Observable<List<ChatRoomInfo>> chatRoomInfoObservable =
                 useCache ? api.getChatRoomInfos() : api.fetchChatRoomInfos();
         chatRoomSubscription = Observable.combineLatest(
@@ -108,7 +109,7 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                     for (ChatRoomInfo info : infoList) {
                         chatRoomIds.add(info.chatRoom().objectId());
                     }
-                    PushRegistrationIntentService_.intent(context).registerAll(chatRoomIds).start();
+                    PushRegistrationIntentService_.intent(context).registerOnly(chatRoomIds).start();
                 }), Pair::new)
                 .compose(Scheduler.defaultSchedulers())
                 .subscribe(result -> {
