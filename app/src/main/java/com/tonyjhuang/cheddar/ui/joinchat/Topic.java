@@ -2,6 +2,7 @@ package com.tonyjhuang.cheddar.ui.joinchat;
 
 
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import com.google.auto.value.AutoValue;
 import com.google.gson.Gson;
@@ -22,5 +23,6 @@ public abstract class Topic implements Parcelable {
 
     public abstract String drawable();
 
+    @Nullable
     public abstract List<Topic> subtopics();
 }

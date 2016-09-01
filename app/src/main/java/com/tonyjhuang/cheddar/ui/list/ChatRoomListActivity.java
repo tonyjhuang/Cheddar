@@ -20,6 +20,7 @@ import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
 import com.tonyjhuang.cheddar.ui.joinchat.JoinChatActivity_;
 import com.tonyjhuang.cheddar.ui.welcome.WelcomeActivity_;
 import com.tonyjhuang.cheddar.utils.Scheduler;
+import com.tonyjhuang.cheddar.utils.VersionChecker;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -52,6 +53,9 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
 
     @Bean
     ChatRoomListAdapter adapter;
+
+    @Bean
+    VersionChecker versionChecker;
 
     @Pref
     CheddarPrefs_ prefs;
@@ -139,7 +143,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     @Override
     protected void onResume() {
         super.onResume();
-        checkUpdate();
+        checkForUpdate(versionChecker);
         presenter.onResume();
         showChangeLog(prefs);
     }

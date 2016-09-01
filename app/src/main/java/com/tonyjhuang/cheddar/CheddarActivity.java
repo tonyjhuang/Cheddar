@@ -4,22 +4,18 @@ import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
-import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.ui.dialog.ChangelogDialog;
 import com.tonyjhuang.cheddar.ui.dialog.ForceVersionUpdateDialog;
 import com.tonyjhuang.cheddar.utils.Scheduler;
+import com.tonyjhuang.cheddar.utils.VersionChecker;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 
 import timber.log.Timber;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-@EActivity(R.layout.activity_welcome)
+@EActivity
 public abstract class CheddarActivity extends AppCompatActivity {
-
-    @Bean
-    public CheddarApi api;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -34,8 +30,8 @@ public abstract class CheddarActivity extends AppCompatActivity {
         }
     }
 
-    protected void checkUpdate() {
-        api.checkVersionUpgrade().compose(Scheduler.defaultSchedulers())
+    protected void checkForUpdate(VersionChecker versionChecker) {
+        versionChecker.check().compose(Scheduler.defaultSchedulers())
                 .subscribe(shouldUpgrade -> {
                     if (shouldUpgrade) {
                         ForceVersionUpdateDialog.show(this);
