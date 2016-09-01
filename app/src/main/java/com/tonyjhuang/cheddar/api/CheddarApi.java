@@ -3,6 +3,7 @@ package com.tonyjhuang.cheddar.api;
 import android.content.Context;
 
 import com.crashlytics.android.Crashlytics;
+import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.cache.CacheApi;
 import com.tonyjhuang.cheddar.api.message.MessageApi;
@@ -370,7 +371,7 @@ public class CheddarApi {
      */
     public Observable<Boolean> checkVersionUpgrade() {
         return parseApi.getMinimumBuildNumber()
-                .map(minBuildNumber -> true)//BuildConfig.VERSION_CODE < minBuildNumber)
+                .map(minBuildNumber -> BuildConfig.VERSION_CODE < minBuildNumber)
                 .doOnError(Crashlytics::logException);
     }
 
