@@ -135,18 +135,37 @@ public class ParseApi {
         return httpClient.build();
     }
 
+    /**
+     * Get the minimum supported build number. Used for forcing upgrades.
+     */
+    public Observable<Integer> getMinimumBuildNumber() {
+        return service.minimumAndroidBuildNumber();
+    }
+
+    /**
+     * Check if a registration is valid for registering a new user.
+     */
     public Observable<Boolean> checkRegistrationCode(String registrationCode) {
         return service.checkRegistrationCode(new CheckRegistrationCodeRequest(registrationCode));
     }
 
+    /**
+     * Get the User with the specified user id.
+     */
     public Observable<User> findUser(String userId) {
         return service.findUser(new FindUserRequest(userId));
     }
 
+    /**
+     * Is the user email verified?
+     */
     public Observable<Boolean> isUserEmailVerified(String userId) {
         return findUser(userId).map(User::emailVerified);
     }
 
+    /**
+     * Resend the account verification email to a user.
+     */
     public Observable<User> resendVerificationEmail(String userId) {
         return service.resendVerificationEmail(new ResendVerificationEmailRequest(userId));
     }
@@ -208,6 +227,9 @@ public class ParseApi {
         }).doOnError(Crashlytics::logException);
     }
 
+    /**
+     * Log a user in
+     */
     public Observable<User> login(String email, String password) {
         return Observable.create(subscriber -> {
             ParseUser.logInInBackground(email, password, (user, error) -> {
@@ -222,6 +244,9 @@ public class ParseApi {
         });
     }
 
+    /**
+     * Log a user out.
+     */
     public Observable<Void> logout() {
         return Observable.defer(() -> {
             ParseUser.logOut();
@@ -327,6 +352,9 @@ public class ParseApi {
                 .map(ReplayChatEventsResponse::getChatEvents);
     }
 
+    /**
+     * Send a message to a chatroom.
+     */
     public Observable<ChatEvent> sendMessage(String aliasId, String body, @Nullable String messageId) {
         SendMessageRequest request =
                 new SendMessageRequest(aliasId, messageId, body, SUBKEY, PUBKEY);
@@ -334,6 +362,9 @@ public class ParseApi {
         return service.sendMessage(request);
     }
 
+    /**
+     * Send user feedback from an Alias context.
+     */
     public Observable<String> sendFeedback(Alias alias, String feedback) {
         SendFeedbackRequest request = new SendFeedbackRequest(
                 PLATFORM, // Platform
@@ -347,6 +378,9 @@ public class ParseApi {
         return service.sendFeedback(request);
     }
 
+    /**
+     * Send user feedback without an Alias.
+     */
     public Observable<String> sendFeedback(String userId, String feedback) {
         SendFeedbackRequest request = new SendFeedbackRequest(
                 PLATFORM, // Platform
@@ -358,10 +392,16 @@ public class ParseApi {
         return service.sendFeedback(request);
     }
 
+    /**
+     * Send feedback that a user has requested a different school registration.
+     */
     public Observable<String> sendChangeSchoolRequest(String schoolName, String email) {
         return service.sendChangeSchoolRequest(new SendChangeSchoolRequest(PLATFORM, schoolName, email));
     }
 
+    /**
+     * Send a reset password email.
+     */
     public Observable<String> resetPassword(String email) {
         return Observable.defer(() -> {
             try {
