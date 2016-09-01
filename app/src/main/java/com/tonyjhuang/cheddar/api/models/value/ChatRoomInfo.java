@@ -24,4 +24,18 @@ public abstract class ChatRoomInfo {
     public abstract Alias alias();
 
     public abstract ChatEvent chatEvent();
+
+    @Override
+    public String toString() {
+        return alias().objectId();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ChatRoomInfo) {
+            ChatRoomInfo that = (ChatRoomInfo) obj;
+            return alias().equals(that.alias()) && chatEvent().equals(that.chatEvent());
+        }
+        return super.equals(obj);
+    }
 }

@@ -20,6 +20,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.androidannotations.api.support.app.AbstractIntentService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,17 +49,23 @@ public class PushRegistrationIntentService extends AbstractIntentService {
     @ServiceAction
     void unregisterAll(List<String> channels) {
         for (String channel : channels) {
-            Timber.d("unregistering for %s", channel);
             unregisterForPush(channel);
         }
     }
 
     @ServiceAction
     void registerAll(List<String> channels) {
-        Timber.d("registering for: " + channels);
+        Timber.v("register all: " + channels);
         for (String channel : channels) {
             registerForPush(channel);
         }
+    }
+
+    @ServiceAction
+    void registerOnly(List<String> channels) {
+        Timber.v("register only: " + channels);
+        unregisterAll(new ArrayList<>(getRegisteredChannels()));
+        registerAll(channels);
     }
 
     @ServiceAction
@@ -69,7 +76,6 @@ public class PushRegistrationIntentService extends AbstractIntentService {
         } else {
             addRegisteredChannel(channel);
             messageApi.registerForPushNotifications(channel, token)
-                    .doOnNext(result -> Timber.d("registered for push " + result))
                     .doOnError(e -> Timber.e(e, "failed to register for push"))
                     .publish().connect();
         }
@@ -89,7 +95,6 @@ public class PushRegistrationIntentService extends AbstractIntentService {
         } else {
             removeRegisteredChannel(channel);
             messageApi.unregisterForPushNotifications(channel, token)
-                    .doOnNext(result -> Timber.d("result for %s: " + result, channel))
                     .publish().connect();
         }
     }
@@ -121,7 +126,6 @@ public class PushRegistrationIntentService extends AbstractIntentService {
 
     private Set<String> getRegisteredChannels() {
         GcmChannels channels = persistApi.fetchGcmChannels();
-        Timber.d("getRegisteredChannels " + channels);
         return channels == null ? new HashSet<>() : channels.channels();
     }
 
@@ -139,7 +143,6 @@ public class PushRegistrationIntentService extends AbstractIntentService {
             token = fetchGcmRegistrationToken();
             prefs.gcmRegistrationToken().put(token);
         }
-        Timber.v("Token: " + token);
         return token;
     }
 

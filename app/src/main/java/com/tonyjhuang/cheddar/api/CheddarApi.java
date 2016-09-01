@@ -232,7 +232,7 @@ public class CheddarApi {
                                 .doOnNext(infos -> Timber.v("cached: " + infos.size()))
                                 .onExceptionResumeNext(Observable.empty()),
                         // Network call.
-                        fetchChatRoomInfos(userId)))
+                        fetchChatRoomInfos()))
                 .doOnError(Crashlytics::logException);
     }
 
@@ -240,10 +240,11 @@ public class CheddarApi {
      * Get the list of ChatRooms a User is in along with the associated
      * Alias and last ChatEvent sent to that ChatRoom from the network
      */
-    public Observable<List<ChatRoomInfo>> fetchChatRoomInfos(String userId) {
-        return parseApi.getChatRoomInfos(userId)
+    public Observable<List<ChatRoomInfo>> fetchChatRoomInfos() {
+        return getCurrentUser().map(User::objectId)
+                .flatMap(userId -> parseApi.getChatRoomInfos(userId)
+                        .doOnNext(infos -> cacheApi.persistChatRoomInfosForUserExclusive(userId, infos)))
                 .doOnNext(infos -> Timber.v("network: " + infos.size()))
-                .flatMap(infos -> cacheApi.persistChatRoomInfosForUserExclusive(userId, infos))
                 .compose(sortChatRoomInfoList())
                 .doOnError(Crashlytics::logException);
     }

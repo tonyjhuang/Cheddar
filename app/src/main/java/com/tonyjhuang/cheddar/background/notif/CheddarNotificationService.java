@@ -100,6 +100,7 @@ public class CheddarNotificationService {
 
                     } else {
                         Timber.w("Received push notification for ChatRoom %s even though the user is not in it", chatRoomId);
+                        PushRegistrationIntentService_.intent(context).unregisterForPush(chatRoomId).start();
                     }
                 });
 

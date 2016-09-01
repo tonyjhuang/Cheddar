@@ -60,6 +60,8 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
      */
     private ChatRoomListView view;
 
+    private boolean firstLoad = true;
+
     @Override
     public void setView(ChatRoomListView view) {
         this.view = view;
@@ -82,11 +84,12 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     @Override
     public void onResume() {
         unsubscribe(chatRoomSubscription);
-        chatRoomSubscription = refreshChatList().publish().connect();
+        boolean useCache = firstLoad;
+        refreshChatList(useCache);
         context.registerReceiver(pushReceiver, pushReceiverIntentFilter);
         pushSubscription = pushReceiver.getChatEvents()
                 .compose(Scheduler.backgroundSchedulers())
-                .subscribe(chatEvent -> chatRoomSubscription = refreshChatList().publish().connect(),
+                .subscribe(chatEvent -> refreshChatList(false),
                         error -> Timber.e(error, "huh?"));
 
     }
@@ -94,20 +97,24 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
     /**
      * Fetch the list of ChatRoomInfos.
      */
-    private Observable<Pair<User, List<ChatRoomInfo>>> refreshChatList() {
-        return Observable.combineLatest(
+    private void refreshChatList(boolean useCache) {
+        if (chatRoomSubscription != null) chatRoomSubscription.unsubscribe();
+        firstLoad = false;
+        Observable<List<ChatRoomInfo>> chatRoomInfoObservable =
+                useCache ? api.getChatRoomInfos() : api.fetchChatRoomInfos();
+        chatRoomSubscription = Observable.combineLatest(
                 api.getCurrentUser(),
-                api.getChatRoomInfos().doOnNext(infoList -> {
+                chatRoomInfoObservable.doOnNext(infoList -> {
                     List<String> chatRoomIds = new ArrayList<>();
                     for (ChatRoomInfo info : infoList) {
                         chatRoomIds.add(info.chatRoom().objectId());
                     }
-                    PushRegistrationIntentService_.intent(context).registerAll(chatRoomIds).start();
+                    PushRegistrationIntentService_.intent(context).registerOnly(chatRoomIds).start();
                 }), Pair::new)
                 .compose(Scheduler.defaultSchedulers())
-                .doOnNext(result -> {
+                .subscribe(result -> {
                     if (view != null) view.displayList(result.second, result.first.objectId());
-                }).doOnError(error -> {
+                }, error -> {
                     Timber.e(error, "couldn't get list");
                     if (view != null) view.showGetListError();
                 });
@@ -119,22 +126,17 @@ public class ChatRoomListPresenterImpl implements ChatRoomListPresenter {
                 .subscribe(alias -> {
                     CheddarMetrics.trackJoinChatRoom(alias.chatRoomId());
                     unsubscribe(chatRoomSubscription);
-                    chatRoomSubscription = refreshChatList().subscribe(result -> {
-                        if (view != null) {
-                            view.displayList(result.second, result.first.objectId());
-                            view.navigateToChatView(alias.objectId());
-                        }
-                    }, error -> {
-                        Timber.e(error, "Couldn't join chat room");
-                        if (view != null) view.showJoinChatError();
-                    });
+                    if (view != null) view.navigateToChatView(alias.objectId());
+                }, error -> {
+                    Timber.e(error, "Couldn't join chat room");
+                    if (view != null) view.showJoinChatError();
                 });
+
     }
 
     @Override
     public void logout() {
-        Observable<List<String>> unregisterFromPush = api.getCurrentUser().map(User::objectId)
-                .flatMap(api::fetchChatRoomInfos)
+        Observable<List<String>> unregisterFromPush = api.fetchChatRoomInfos()
                 .flatMap(Observable::from)
                 .map(i -> i.chatRoom().objectId())
                 .toList()
