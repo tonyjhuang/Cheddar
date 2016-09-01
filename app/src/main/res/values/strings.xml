@@ -116,6 +116,11 @@
     <string name="feedback_empty">Please add some feedback first.</string>
     <string name="feedback_confirm">Send</string>
 
+    <!-- force update -->
+    <string name="force_update_title">Update required</string>
+    <string name="force_update_desc">In order to continue using Cheddar, you need to update the app.</string>
+    <string name="force_update_confirm">Update</string>
+
     <!-- report -->
     <string name="report_coming_soon">Coming soon!</string>
 

@@ -32,6 +32,9 @@ import rx.Observable;
  */
 public interface ParseService {
 
+    @POST("minimumAndroidBuildNumber")
+    Observable<Integer> minimumAndroidBuildNumber();
+
     @POST("checkRegistrationCode")
     Observable<Boolean> checkRegistrationCode(@Body CheckRegistrationCodeRequest body);
 

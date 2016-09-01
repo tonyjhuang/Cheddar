@@ -274,7 +274,7 @@ public class CheddarApi {
     }
 
     //******************************************************
-    //                MessageApi
+    //                ChatEvents
     //******************************************************
 
     public Observable<ChatEvent> getChatEventStream(String aliasId) {
@@ -342,7 +342,7 @@ public class CheddarApi {
     }
 
     //******************************************************
-    //                Miscellaneous
+    //                Feedback
     //******************************************************
 
     /**
@@ -358,6 +358,19 @@ public class CheddarApi {
      */
     public Observable<String> sendFeedback(String feedback) {
         return getCurrentUserId().flatMap(userId -> parseApi.sendFeedback(userId, feedback))
+                .doOnError(Crashlytics::logException);
+    }
+
+    //******************************************************
+    //                Miscellaneous
+    //******************************************************
+
+    /**
+     * Do we need to force an upgrade?
+     */
+    public Observable<Boolean> checkVersionUpgrade() {
+        return parseApi.getMinimumBuildNumber()
+                .map(minBuildNumber -> true)//BuildConfig.VERSION_CODE < minBuildNumber)
                 .doOnError(Crashlytics::logException);
     }
 

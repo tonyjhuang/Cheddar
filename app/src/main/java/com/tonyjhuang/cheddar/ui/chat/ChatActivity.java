@@ -46,8 +46,6 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.List;
 
-import timber.log.Timber;
-
 /**
  * Created by tonyjhuang on 2/18/16.
  */
@@ -379,6 +377,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @Override
     protected void onResume() {
         super.onResume();
+        checkUpdate();
         presenter.onResume();
         showChangeLog(prefs);
         if (chatEventListView != null &&

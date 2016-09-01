@@ -138,6 +138,7 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     @Override
     protected void onResume() {
         super.onResume();
+        checkUpdate();
         presenter.onResume();
         showChangeLog(prefs);
     }
