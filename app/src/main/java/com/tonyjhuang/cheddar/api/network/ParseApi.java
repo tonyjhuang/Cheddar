@@ -284,9 +284,9 @@ public class ParseApi {
     /**
      * Places the User into a new group ChatRoom.
      */
-    public Observable<Alias> joinGroupChatRoom(String userId) {
+    public Observable<Alias> joinGroupChatRoom(String userId, @Nullable String topic) {
         JoinChatRoomRequest request =
-                new JoinChatRoomRequest(userId, GROUP_OCCUPANCY, SUBKEY, PUBKEY);
+                new JoinChatRoomRequest(userId, GROUP_OCCUPANCY, topic, SUBKEY, PUBKEY);
         return service.joinChatRoom(request);
     }
 

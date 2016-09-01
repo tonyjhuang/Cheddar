@@ -17,6 +17,7 @@ import com.tonyjhuang.cheddar.api.models.value.ChatRoomInfo;
 import com.tonyjhuang.cheddar.ui.chat.ChatActivity_;
 import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
+import com.tonyjhuang.cheddar.ui.joinchat.JoinChatActivity_;
 import com.tonyjhuang.cheddar.ui.welcome.WelcomeActivity_;
 import com.tonyjhuang.cheddar.utils.Scheduler;
 
@@ -178,8 +179,9 @@ public class ChatRoomListActivity extends CheddarActivity implements ChatRoomLis
     }
 
     private void joinNewChatRoom() {
-        loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
-        presenter.onJoinChatRoomClicked();
+        JoinChatActivity_.intent(this).start();
+        //loadingDialog = LoadingDialog.show(this, R.string.chat_join_chat);
+        //presenter.onJoinChatRoomClicked();
     }
 
     @Override

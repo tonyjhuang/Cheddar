@@ -194,7 +194,7 @@ public class CheddarApi {
 
     public Observable<Alias> joinGroupChatRoom() {
         Observable<Alias> observable = getCurrentUser().map(User::objectId)
-                .flatMap(parseApi::joinGroupChatRoom)
+                .flatMap(currentUserId -> parseApi.joinGroupChatRoom(currentUserId, null))
                 .flatMap(cacheApi::persist)
                 .flatMap(alias -> Observable.defer(() ->
                         // Cache ChatRoom after joining.
@@ -370,7 +370,7 @@ public class CheddarApi {
      */
     public Observable<Boolean> checkVersionUpgrade() {
         return parseApi.getMinimumBuildNumber()
-                .map(minBuildNumber -> true)//BuildConfig.VERSION_CODE < minBuildNumber)
+                .map(minBuildNumber -> BuildConfig.VERSION_CODE < minBuildNumber)
                 .doOnError(Crashlytics::logException);
     }
 

@@ -64,6 +64,11 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".ui.joinchat.JoinChatActivity_"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
         <receiver
             android:name=".background.ConnectivityBroadcastReceiver_"
             android:exported="false">
