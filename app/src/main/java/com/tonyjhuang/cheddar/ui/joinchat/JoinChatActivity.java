@@ -1,8 +1,12 @@
 package com.tonyjhuang.cheddar.ui.joinchat;
 
 import android.content.res.AssetManager;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tonyjhuang.cheddar.CheddarActivity;
@@ -34,6 +38,8 @@ public class JoinChatActivity extends CheddarActivity {
 
     @ViewById
     Toolbar toolbar;
+    @ViewById(R.id.topic_view)
+    RecyclerView topicView;
 
     @Bean
     VersionChecker versionChecker;
@@ -64,6 +70,9 @@ public class JoinChatActivity extends CheddarActivity {
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
         getSupportActionBar().setTitle(R.string.join_chat_title);
+
+        topicView.setLayoutManager(new LinearLayoutManager(this));
+        topicView.setItemAnimator(new DefaultItemAnimator());
     }
 
     /**
@@ -83,7 +92,7 @@ public class JoinChatActivity extends CheddarActivity {
             } catch (IOException e) {
                 return Observable.error(e);
             }
-        });
+        }).doOnError(Crashlytics::logException);
     }
 
     @Override
@@ -92,13 +101,15 @@ public class JoinChatActivity extends CheddarActivity {
         checkForUpdate(versionChecker);
         if (firstLoad) {
             topicSubscription = topicSubject.subscribe(
+                    // TODO: better error handling
                     this::displayTopics, e -> Timber.e(e, "couldn't get topics"));
         }
     }
 
     private void displayTopics(TopicTree topicTree) {
         firstLoad = false;
-        Timber.d(topicTree.toString());
+        TopicAdapter adapter = new TopicAdapter(topicTree);
+        topicView.setAdapter(adapter);
     }
 
     @Override
