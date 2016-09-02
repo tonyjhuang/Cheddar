@@ -103,6 +103,10 @@
     <string name="list_error_join_chat_failed">Couldn\'t join new chat.</string>
     <string name="list_error_join_chat_too_many">You can only be in 5 chat rooms at once</string>
     <string name="list_error_get_list">Couldn\'t load messages.</string>
+    
+    <!-- join chat -->
+    <string name="join_chat_title">Join new chat</string>
+
 
     <!-- gcm -->
     <string name="gcm_registration_failed">Couldn\'t register for push notifications.</string>

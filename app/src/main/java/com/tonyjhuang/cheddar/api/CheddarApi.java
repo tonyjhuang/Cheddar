@@ -3,7 +3,6 @@ package com.tonyjhuang.cheddar.api;
 import android.content.Context;
 
 import com.crashlytics.android.Crashlytics;
-import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.api.cache.CacheApi;
 import com.tonyjhuang.cheddar.api.message.MessageApi;
@@ -195,7 +194,7 @@ public class CheddarApi {
 
     public Observable<Alias> joinGroupChatRoom() {
         Observable<Alias> observable = getCurrentUser().map(User::objectId)
-                .flatMap(parseApi::joinGroupChatRoom)
+                .flatMap(currentUserId -> parseApi.joinGroupChatRoom(currentUserId, null))
                 .flatMap(cacheApi::persist)
                 .flatMap(alias -> Observable.defer(() ->
                         // Cache ChatRoom after joining.
@@ -365,15 +364,6 @@ public class CheddarApi {
     //******************************************************
     //                Miscellaneous
     //******************************************************
-
-    /**
-     * Do we need to force an upgrade?
-     */
-    public Observable<Boolean> checkVersionUpgrade() {
-        return parseApi.getMinimumBuildNumber()
-                .map(minBuildNumber -> BuildConfig.VERSION_CODE < minBuildNumber)
-                .doOnError(Crashlytics::logException);
-    }
 
     /**
      * Send feedback that a user has requested their school to be supported.

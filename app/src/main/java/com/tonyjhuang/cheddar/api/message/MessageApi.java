@@ -127,7 +127,7 @@ public class MessageApi {
     private static class PubnubObservableCallback extends Callback {
 
         private Gson gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new ValueTypeAdapterFactory())
+                .registerTypeAdapterFactory(ValueTypeAdapterFactory.create())
                 .registerTypeAdapter(MessageApiObjectHolder.class, new MessageApiDeserializer())
                 .registerTypeAdapter(ChatEvent.ChatEventType.class, ChatEvent.ChatEventType.DESERIALIZER)
                 .create();

@@ -44,7 +44,7 @@ public class CacheApi {
             (src, typeOfSrc, context) -> new JsonPrimitive(src.getTime());
 
     private final Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(new ValueTypeAdapterFactory())
+            .registerTypeAdapterFactory(ValueTypeAdapterFactory.create())
             .registerTypeAdapter(Date.class, dateJsonSerializer)
             .create();
 

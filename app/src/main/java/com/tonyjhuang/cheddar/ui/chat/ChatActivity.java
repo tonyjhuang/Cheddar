@@ -21,7 +21,6 @@ import com.tonyjhuang.cheddar.BuildConfig;
 import com.tonyjhuang.cheddar.CheddarActivity;
 import com.tonyjhuang.cheddar.CheddarPrefs_;
 import com.tonyjhuang.cheddar.R;
-import com.tonyjhuang.cheddar.api.CheddarApi;
 import com.tonyjhuang.cheddar.api.CheddarMetrics;
 import com.tonyjhuang.cheddar.api.models.value.Alias;
 import com.tonyjhuang.cheddar.api.models.value.ChatEvent;
@@ -30,6 +29,7 @@ import com.tonyjhuang.cheddar.ui.customviews.ClickableTitleToolbar;
 import com.tonyjhuang.cheddar.ui.customviews.PreserveScrollStateListView;
 import com.tonyjhuang.cheddar.ui.dialog.FeedbackDialog;
 import com.tonyjhuang.cheddar.ui.dialog.LoadingDialog;
+import com.tonyjhuang.cheddar.utils.VersionChecker;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterTextChange;
@@ -87,7 +87,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @Extra
     String aliasId;
     @Bean
-    CheddarApi api;
+    VersionChecker versionChecker;
     @Pref
     CheddarPrefs_ prefs;
     @SystemService
@@ -377,7 +377,7 @@ public class ChatActivity extends CheddarActivity implements ChatRoomView {
     @Override
     protected void onResume() {
         super.onResume();
-        checkUpdate();
+        checkForUpdate(versionChecker);
         presenter.onResume();
         showChangeLog(prefs);
         if (chatEventListView != null &&
